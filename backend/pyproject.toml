@@ -1,0 +1,72 @@
+[project]
+name = "app"
+version = "0.1.0"
+description = "Excel reconciliation service: uploads in, reconciliation out, nothing persisted."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi[standard]>=0.118.0",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "pyjwt>=2.10",
+    "pwdlib[argon2,bcrypt]>=0.2.1",
+    "openpyxl>=3.1.5",
+    "xlsxwriter>=3.2.0",
+    "sentry-sdk[fastapi]>=2.20",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "coverage>=7.6",
+    "httpx2>=2.0",
+    "ruff>=0.8",
+    "mypy>=1.14",
+    "ty>=0.0.1a10",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "ARG001", "RUF"]
+ignore = [
+    "E501",    # line length is handled by the formatter
+    "B008",    # FastAPI depends on function calls in argument defaults
+    "W191",
+    "B904",
+]
+
+[tool.ruff.lint.pyupgrade]
+# Keep runtime-evaluated annotations: FastAPI and pydantic introspect them.
+keep-runtime-typing = true
+
+[tool.mypy]
+strict = true
+exclude = ["venv", ".venv"]
+
+[[tool.mypy.overrides]]
+module = ["openpyxl.*", "xlsxwriter.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = [
+    # Our own warnings are failures.
+    "error",
+    # Raised inside starlette's TestClient import, not by anything we control.
+    "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/create_credentials.py"]
+
+[tool.coverage.report]
+show_missing = true

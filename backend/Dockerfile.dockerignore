@@ -1,0 +1,14 @@
+# Applies to backend/Dockerfile, whose build context is the repository root.
+# (A plain .dockerignore in this folder is never read for a root context.)
+#
+# Allowlist: send only what the Dockerfile copies. Everything else — .env,
+# credentials.json, sample-uploads/, the frontend build, .venv — stays out of
+# the build context, so it can never reach an image by accident.
+*
+!backend/app
+!backend/scripts
+!backend/pyproject.toml
+!backend/uv.lock
+
+**/__pycache__
+**/*.pyc

@@ -1,0 +1,52 @@
+# One service. FastAPI serves the API and the React build from the same origin,
+# the way an Express app pairs its routes with express.static(buildPath):
+#
+#   http://localhost:6050/api/*, /docs, /redoc   the API
+#   http://localhost:6050/*                      the React build in ./frontend/dist
+#
+# Sharing one origin is what lets the HttpOnly session cookie work with no CORS
+# configuration at all.
+#
+#   docker compose up -d --build
+#
+# Copy a new frontend build into ./frontend/dist at any time: the folder is
+# mounted rather than baked into the image, so no rebuild or restart is needed.
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: .env
+    environment:
+      # Read by the app at startup; points at the mounted secret below.
+      CREDENTIALS_FILE: /run/secrets/credentials
+    secrets:
+      - credentials
+    command: >-
+      fastapi run app/main.py --host 0.0.0.0 --port 6050 --workers ${BACKEND_WORKERS:-4}
+    ports:
+      - "${APP_PORT:-6050}:6050"
+    volumes:
+      # Served at "/". The app looks for ../frontend/dist relative to
+      # /app/backend, which is exactly where this lands.
+      - ./frontend/dist:/app/frontend/dist:ro
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request, sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:6050/api/v1/utils/health-check/', timeout=4).read() == b'true' else 1)
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+secrets:
+  # The single login account. Created on the host with:
+  #   cd backend && uv run python app/create_credentials.py
+  # Mounted read-only; compose refuses to start if the file is missing, rather
+  # than silently creating an empty directory in its place.
+  credentials:
+    file: ${CREDENTIALS_PATH:-./backend/credentials.json}

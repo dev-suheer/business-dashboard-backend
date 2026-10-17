@@ -1,0 +1,1086 @@
+{
+  "info": {
+    "_postman_id": "f8a6ae7b-2945-464f-872c-68e7f4fee6e3",
+    "name": "Excel Reconciliation API",
+    "description": "All endpoints of the reconciliation service, in run order.\n\n**Before running**\n1. Start the API: `cd backend && uv run fastapi dev app/main.py --port 6050`\n2. Create the login account once: `uv run python app/create_credentials.py`\n3. Set the collection variables `username` and `password` to that account.\n4. Settings \u2192 General \u2192 Working directory \u2192 choose the repo's `sample-uploads` folder, so the file fields find portal.xlsx, vendor.xlsx and promo.xlsx for eShop, and travel-portal.xlsx, travel-claim.xlsx and wallet-history.xlsx for travel.\n\n**Authentication** is an HttpOnly cookie set by *Login*. Postman stores and resends it automatically for the same host, so nothing needs to be copied between requests. It lasts 60 minutes; re-run *Login* after that.\n\n**Two categories.** eShop reconciles order lines against an account ledger; travel reconciles bookings against the vendor's weekly claim and has its own endpoint and result shape.\n\n**Money** comes back as decimal strings (\"13876.31\"), never JSON numbers.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:6050",
+      "type": "string"
+    },
+    {
+      "key": "username",
+      "value": "admin",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "CHANGE_ME",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/utils/health-check/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "utils",
+                "health-check",
+                ""
+              ]
+            },
+            "description": "Unauthenticated liveness probe. Returns the bare JSON literal `true`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"body is true\", () => pm.expect(pm.response.json()).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Session",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/login/access-token",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "login",
+                "access-token"
+              ]
+            },
+            "description": "Body is **x-www-form-urlencoded**, not JSON. On success sets the `access_token` cookie (HttpOnly, Max-Age=3600). The token is never in the body.",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "{{username}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"echoes the username\", () => pm.expect(pm.response.json().username).to.eql(pm.collectionVariables.get(\"username\")));",
+                  "pm.test(\"session cookie was set\", () => pm.expect(pm.cookies.has(\"access_token\")).to.be.true);",
+                  "pm.test(\"token is not in the body\", () => pm.expect(pm.response.text()).to.not.include(\"access_token\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me (check session)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/login/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "login",
+                "me"
+              ]
+            },
+            "description": "Returns the logged-in account, or 401 when the cookie is missing or expired."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"returns the account\", () => pm.expect(pm.response.json()).to.have.property(\"username\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Reconcile",
+      "item": [
+        {
+          "name": "Reconcile \u2014 JSON",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reconcile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reconcile"
+              ]
+            },
+            "description": "The main call. Three files as multipart form-data. Returns the full reconciliation. Can take minutes on very large files.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "portal",
+                  "type": "file",
+                  "src": "portal.xlsx",
+                  "description": "Portal export (order lines)"
+                },
+                {
+                  "key": "vendor",
+                  "type": "file",
+                  "src": "vendor.xlsx",
+                  "description": "Vendor account statement"
+                },
+                {
+                  "key": "promo",
+                  "type": "file",
+                  "src": "promo.xlsx",
+                  "description": "Discount base sheet (promo SKUs)"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"all eleven top-level keys\", () => pm.expect(r).to.have.all.keys(\"category\",\"merchant_id\",\"period_start\",\"period_end\",\"rates\",\"orders\",\"unmatched_ledger\",\"line_variances\",\"exceptions\",\"detected\",\"summary\"));",
+                  "pm.test(\"portal tab detected\", () => pm.expect(r.detected.find(d => d.role === \"portal\").sheets).to.eql([\"E-SHop 1 Vendor \"]));",
+                  "pm.test(\"promo tab detected\", () => pm.expect(r.detected.find(d => d.role === \"promo\").sheets).to.eql([\"Discount Base Sheet\"]));",
+                  "pm.test(\"37 orders from 75 lines\", () => { pm.expect(r.summary.orders).to.eql(37); pm.expect(r.summary.portal_lines).to.eql(75); });",
+                  "pm.test(\"net payable 13876.31\", () => pm.expect(r.summary.net_payable).to.eql(\"13876.31\"));",
+                  "pm.test(\"money is a string\", () => pm.expect(r.summary.net_payable).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reconcile \u2014 XLSX report",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reconcile?format=xlsx",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reconcile"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "xlsx"
+                }
+              ]
+            },
+            "description": "Same call, returns a 6-sheet Excel report. Use **Send and Download** to save it.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "portal",
+                  "type": "file",
+                  "src": "portal.xlsx",
+                  "description": "Portal export (order lines)"
+                },
+                {
+                  "key": "vendor",
+                  "type": "file",
+                  "src": "vendor.xlsx",
+                  "description": "Vendor account statement"
+                },
+                {
+                  "key": "promo",
+                  "type": "file",
+                  "src": "promo.xlsx",
+                  "description": "Discount base sheet (promo SKUs)"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"is an xlsx\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.eql(\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\"));",
+                  "pm.test(\"named after the period\", () => pm.expect(pm.response.headers.get(\"Content-Disposition\")).to.include(\"reconciliation-eshop-\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reconcile \u2014 rate override",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reconcile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reconcile"
+              ]
+            },
+            "description": "Optional fields override the configured rates for one run: `standard_rate`, `promo_rate`, `promo_cutoff`. Here the cutoff predates every order, so nothing earns the promo rate.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "portal",
+                  "type": "file",
+                  "src": "portal.xlsx",
+                  "description": "Portal export (order lines)"
+                },
+                {
+                  "key": "vendor",
+                  "type": "file",
+                  "src": "vendor.xlsx",
+                  "description": "Vendor account statement"
+                },
+                {
+                  "key": "promo",
+                  "type": "file",
+                  "src": "promo.xlsx",
+                  "description": "Discount base sheet (promo SKUs)"
+                },
+                {
+                  "key": "promo_cutoff",
+                  "value": "2026-07-01",
+                  "type": "text",
+                  "description": "Override the promo cutoff for this run only"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"override echoed back\", () => pm.expect(r.rates.promo_cutoff).to.eql(\"2026-07-01\"));",
+                  "pm.test(\"no promo base\", () => pm.expect(r.summary.promo_base).to.eql(\"0.00\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reconcile \u2014 explicit period",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reconcile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reconcile"
+              ]
+            },
+            "description": "Optional `period_start` / `period_end` (and `category`). Defaults are derived from the portal data.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "portal",
+                  "type": "file",
+                  "src": "portal.xlsx",
+                  "description": "Portal export (order lines)"
+                },
+                {
+                  "key": "vendor",
+                  "type": "file",
+                  "src": "vendor.xlsx",
+                  "description": "Vendor account statement"
+                },
+                {
+                  "key": "promo",
+                  "type": "file",
+                  "src": "promo.xlsx",
+                  "description": "Discount base sheet (promo SKUs)"
+                },
+                {
+                  "key": "period_start",
+                  "value": "2026-07-22",
+                  "type": "text",
+                  "description": "YYYY-MM-DD"
+                },
+                {
+                  "key": "period_end",
+                  "value": "2026-08-25",
+                  "type": "text",
+                  "description": "YYYY-MM-DD"
+                },
+                {
+                  "key": "category",
+                  "value": "eshop",
+                  "type": "text",
+                  "description": "Defaults to eshop"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"period as sent\", () => { pm.expect(r.period_start).to.eql(\"2026-07-22\"); pm.expect(r.period_end).to.eql(\"2026-08-25\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Reconcile \u2014 travel",
+      "item": [
+        {
+          "name": "Travel \u2014 JSON",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reconcile/travel",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reconcile",
+                "travel"
+              ]
+            },
+            "description": "Reconciles one weekly claim against the portal export, booking by booking. The wallet history is optional; supplied, it proves that the wallet share of each booking actually left a wallet.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "portal",
+                  "type": "file",
+                  "src": "travel-portal.xlsx",
+                  "description": "Portal export \u2014 hotel and flight tabs are both read"
+                },
+                {
+                  "key": "vendor",
+                  "type": "file",
+                  "src": "travel-claim.xlsx",
+                  "description": "The vendor's weekly claim workbook"
+                },
+                {
+                  "key": "wallet",
+                  "type": "file",
+                  "src": "wallet-history.xlsx",
+                  "description": "Optional \u2014 proves the wallet share of each booking"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"category is travel\", () => pm.expect(r.category).to.eql(\"travel\"));",
+                  "pm.test(\"both portal tabs detected\", () => pm.expect(r.detected.find(d => d.role === \"portal\").sheets.length).to.be.above(0));",
+                  "pm.test(\"bookings are grouped\", () => pm.expect(r.summary.portal_bookings).to.be.at.most(r.summary.portal_rows));",
+                  "pm.test(\"payment methods are summarised\", () => pm.expect(r.payment_methods.by_label).to.be.an(\"array\"));",
+                  "pm.test(\"money is a string\", () => pm.expect(r.summary.vendor_net_payable).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Travel \u2014 XLSX report",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reconcile/travel?format=xlsx",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reconcile",
+                "travel"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "xlsx"
+                }
+              ]
+            },
+            "description": "The nine-sheet report, laid out the way the reconciliation is done by hand.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "portal",
+                  "type": "file",
+                  "src": "travel-portal.xlsx",
+                  "description": "Portal export \u2014 hotel and flight tabs are both read"
+                },
+                {
+                  "key": "vendor",
+                  "type": "file",
+                  "src": "travel-claim.xlsx",
+                  "description": "The vendor's weekly claim workbook"
+                },
+                {
+                  "key": "wallet",
+                  "type": "file",
+                  "src": "wallet-history.xlsx",
+                  "description": "Optional \u2014 proves the wallet share of each booking"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"an xlsx comes back\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"spreadsheetml\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Travel \u2014 without the wallet history",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reconcile/travel",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reconcile",
+                "travel"
+              ]
+            },
+            "description": "The wallet file is optional; without it the wallet block is null.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "portal",
+                  "type": "file",
+                  "src": "travel-portal.xlsx",
+                  "description": "Portal export \u2014 hotel and flight tabs are both read"
+                },
+                {
+                  "key": "vendor",
+                  "type": "file",
+                  "src": "travel-claim.xlsx",
+                  "description": "The vendor's weekly claim workbook"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"no wallet block\", () => pm.expect(r.wallet).to.eql(null));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Travel \u2014 rate override",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reconcile/travel",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reconcile",
+                "travel"
+              ]
+            },
+            "description": "Rates default to the server configuration. vat_rate=0 removes the international uplift.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "portal",
+                  "type": "file",
+                  "src": "travel-portal.xlsx",
+                  "description": "Portal export \u2014 hotel and flight tabs are both read"
+                },
+                {
+                  "key": "vendor",
+                  "type": "file",
+                  "src": "travel-claim.xlsx",
+                  "description": "The vendor's weekly claim workbook"
+                },
+                {
+                  "key": "wallet",
+                  "type": "file",
+                  "src": "wallet-history.xlsx",
+                  "description": "Optional \u2014 proves the wallet share of each booking"
+                },
+                {
+                  "key": "hotel_rate",
+                  "value": "0.05",
+                  "type": "text"
+                },
+                {
+                  "key": "flight_rate",
+                  "value": "0.03",
+                  "type": "text"
+                },
+                {
+                  "key": "vat_rate",
+                  "value": "0.15",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"the rates are echoed back\", () => pm.expect(r.rates.flight_rate).to.eql(\"0.03\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Travel \u2014 another category's export (422)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reconcile/travel",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reconcile",
+                "travel"
+              ]
+            },
+            "description": "A portal export with no Hotel or Flights rows is refused by name rather than reconciled as nonsense.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "portal",
+                  "type": "file",
+                  "src": "portal.xlsx",
+                  "description": "The eShop export \u2014 wrong category"
+                },
+                {
+                  "key": "vendor",
+                  "type": "file",
+                  "src": "travel-claim.xlsx"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"the message names the problem\", () => pm.expect(pm.response.json().detail).to.include(\"travel portal export\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Error cases",
+      "item": [
+        {
+          "name": "Login \u2014 wrong password (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/login/access-token",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "login",
+                "access-token"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "{{username}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "definitely-not-the-password",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"message\", () => pm.expect(pm.response.json().detail).to.eql(\"Incorrect username or password\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login \u2014 missing password (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/login/access-token",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "login",
+                "access-token"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "{{username}}",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"validation array\", () => pm.expect(pm.response.json().detail).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reconcile \u2014 wrong file in portal field (422)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reconcile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reconcile"
+              ]
+            },
+            "description": "vendor.xlsx sent as `portal`: the error names the field and the file.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "portal",
+                  "type": "file",
+                  "src": "vendor.xlsx",
+                  "description": "Portal export (order lines)"
+                },
+                {
+                  "key": "vendor",
+                  "type": "file",
+                  "src": "vendor.xlsx",
+                  "description": "Vendor account statement"
+                },
+                {
+                  "key": "promo",
+                  "type": "file",
+                  "src": "promo.xlsx",
+                  "description": "Discount base sheet (promo SKUs)"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"names the field\", () => pm.expect(pm.response.json().detail).to.include(\"'portal'\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reconcile \u2014 missing files (422)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reconcile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reconcile"
+              ]
+            },
+            "description": "No files: a validation array listing portal, vendor and promo.",
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"lists all three fields\", () => pm.expect(pm.response.json().detail.map(e => e.loc[1])).to.have.members([\"portal\",\"vendor\",\"promo\"]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reconcile \u2014 unknown category (422)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reconcile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reconcile"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "portal",
+                  "type": "file",
+                  "src": "portal.xlsx",
+                  "description": "Portal export (order lines)"
+                },
+                {
+                  "key": "vendor",
+                  "type": "file",
+                  "src": "vendor.xlsx",
+                  "description": "Vendor account statement"
+                },
+                {
+                  "key": "promo",
+                  "type": "file",
+                  "src": "promo.xlsx",
+                  "description": "Discount base sheet (promo SKUs)"
+                },
+                {
+                  "key": "category",
+                  "value": "groceries",
+                  "type": "text",
+                  "description": ""
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"lists available categories\", () => pm.expect(pm.response.json().detail).to.include(\"eshop\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Logout",
+      "item": [
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "logout"
+              ]
+            },
+            "description": "Clears the cookie. Works even when the session has already expired."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"message\", () => pm.expect(pm.response.json().message).to.eql(\"Logged out\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me after logout (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/login/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "login",
+                "me"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"message\", () => pm.expect(pm.response.json().detail).to.eql(\"Not authenticated\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reconcile after logout (401)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reconcile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reconcile"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "portal",
+                  "type": "file",
+                  "src": "portal.xlsx",
+                  "description": "Portal export (order lines)"
+                },
+                {
+                  "key": "vendor",
+                  "type": "file",
+                  "src": "vendor.xlsx",
+                  "description": "Vendor account statement"
+                },
+                {
+                  "key": "promo",
+                  "type": "file",
+                  "src": "promo.xlsx",
+                  "description": "Discount base sheet (promo SKUs)"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
