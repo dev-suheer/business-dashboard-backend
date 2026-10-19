@@ -50,7 +50,8 @@ async def run_food_reconciliation(
 
     Rows are paired on Partner Order ID = order_id. Dates are not compared.
     Only Delivered rows are settled. A break stays in the response and out of
-    the settled payable.
+    the settled payable. The Excel report opens on Dashboard, then Orders,
+    Exceptions, Cashback, and the uploaded Portal and Vendor sheets.
 
     Nothing is persisted. The response is the whole result.
     """
@@ -68,7 +69,12 @@ async def run_food_reconciliation(
             return result
 
         report = Path(tempfile.mkstemp(prefix="recon-food-", suffix=".xlsx")[1])
-        await run_in_threadpool(build_report, result, report)
+        await run_in_threadpool(
+            build_report,
+            result,
+            report,
+            {"portal": request.portal.path, "vendor": request.vendor.path},
+        )
         start = result.summary.portal_date_start
         end = result.summary.portal_date_end
         span = f"-{start}-to-{end}" if start and end else ""

@@ -1,10 +1,10 @@
 """The food endpoint: uploads, formats and the errors it must give back."""
 
-import zipfile
 from decimal import Decimal
 from io import BytesIO
 
 from fastapi.testclient import TestClient
+from openpyxl import load_workbook
 
 from app.core.config import settings
 from tests.conftest import FOOD_PORTAL, FOOD_VENDOR, TRAVEL_PORTAL, VENDOR_STATEMENT
@@ -42,9 +42,16 @@ def test_end_to_end_xlsx(auth_client: TestClient) -> None:
         "reconciliation-food-2026-09-01-to-2026-09-06.xlsx"
         in (response.headers["content-disposition"])
     )
-    with zipfile.ZipFile(BytesIO(response.content)) as book:
-        names = book.namelist()
-    assert "xl/workbook.xml" in names
+    book = load_workbook(BytesIO(response.content), read_only=True)
+    assert book.sheetnames == [
+        "Dashboard",
+        "Orders",
+        "Exceptions",
+        "Cashback",
+        "Portal",
+        "Vendor",
+    ]
+    book.close()
 
 
 def test_a_missing_file_is_a_validation_error(auth_client: TestClient) -> None:
