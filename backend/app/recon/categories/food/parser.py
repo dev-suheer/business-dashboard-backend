@@ -11,7 +11,7 @@ from typing import Any
 from openpyxl.workbook import Workbook
 
 from app.recon.categories.food.models import FoodPortalRow, FoodVendorRow
-from app.recon.cleaning import clean_text, to_date, to_decimal
+from app.recon.cleaning import clean_text, normalize_header, to_date, to_decimal
 from app.recon.excel import ColumnSpec, SheetSchema, iter_records
 
 PORTAL_SCHEMA = SheetSchema(
@@ -107,6 +107,15 @@ VENDOR_SCHEMA = SheetSchema(
         ),
     ),
 )
+
+
+# The wallet history's name for food movements, and the key they are filed under.
+WALLET_VERTICAL = "food"
+
+
+def wallet_type(raw: Any) -> str | None:
+    """Read a wallet history ``Wallet Type``: ``Food`` is ours, the rest are not."""
+    return WALLET_VERTICAL if normalize_header(raw) == "food" else None
 
 
 def order_key(raw: Any) -> str | None:

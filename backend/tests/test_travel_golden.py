@@ -13,7 +13,7 @@ from pathlib import Path
 import openpyxl
 import pytest
 
-from app.recon.categories.travel.export import build_report
+from app.recon.categories.travel.export import REASON_LABELS, build_report
 from app.recon.categories.travel.models import (
     BookingMatchState,
     BookingRecon,
@@ -299,25 +299,22 @@ def test_the_exception_list_leads_with_what_needs_action(
     assert severities[0] is Severity.HIGH
 
 
+SOURCES = {"portal": TRAVEL_PORTAL, "vendor": TRAVEL_CLAIMS["13"]}
+
+
 def test_the_report_carries_every_sheet(result: TravelResult, tmp_path: Path) -> None:
-    path = build_report(result, tmp_path / "travel.xlsx")
-    assert path.exists()
-    with zipfile.ZipFile(path) as book:
-        sheets = book.read("xl/workbook.xml").decode()
-    for name in (
-        "Summary",
-        "Matched - Booking Analysis",
-        "Matched - Base Differences",
-        "Matched - Invoice Lines",
-        "Unmatched - Explanation",
+    path = build_report(result, tmp_path / "travel.xlsx", SOURCES)
+    book = openpyxl.load_workbook(path, read_only=True)
+    assert book.sheetnames == [
+        "Dashboard",
+        "Orders",
         "Exceptions",
-        "Ref - Portal Rows",
-        "Ref - Vendor Rows",
-        "Ref - Payment Methods",
-        "Ref - Wallet",
-        "Ref - Claim Periods",
-    ):
-        assert name in sheets
+        "Wallet",
+        "Cashback",
+        "Portal",
+        "Vendor",
+    ]
+    book.close()
 
 
 def test_the_report_omits_the_wallet_sheet_when_no_wallet_was_uploaded(
@@ -326,7 +323,8 @@ def test_the_report_omits_the_wallet_sheet_when_no_wallet_was_uploaded(
     path = build_report(reconcile("13", wallet=False), tmp_path / "travel.xlsx")
     with zipfile.ZipFile(path) as book:
         sheets = book.read("xl/workbook.xml").decode()
-    assert "Ref - Wallet" not in sheets
+    assert 'name="Wallet"' not in sheets
+    assert 'name="Cashback"' not in sheets
 
 
 def test_hotel_and_flight_commission_split_with_its_ex_vat_column(
@@ -417,25 +415,136 @@ def test_every_portal_row_is_reported_exactly_once(claim: str) -> None:
 
 @pytest.mark.parametrize("claim", ["12", "13"])
 def test_the_report_splits_matched_from_unmatched(claim: str, tmp_path: Path) -> None:
+    """Matched bookings are totalled; every other booking is listed beneath."""
     result = reconcile(claim)
     path = build_report(result, tmp_path / "travel.xlsx")
     book = openpyxl.load_workbook(path, read_only=True)
-
-    def data_rows(sheet: str, header_rows: int = 1) -> list[tuple[object, ...]]:
-        rows = list(book[sheet].iter_rows(min_row=header_rows + 1, values_only=True))
-        # Up to the computed total row.
-        end = next(i for i, r in enumerate(rows) if str(r[0] or "").startswith("Total"))
-        return rows[:end]
+    rows = list(book["Orders"].iter_rows(values_only=True))
+    headers = list(rows[0])
+    match = headers.index("MATCH ID'S")
+    verdict = headers.index("Verdict")
 
     s = result.summary
-    analysis = data_rows("Matched - Booking Analysis", header_rows=2)
-    assert len(analysis) == s.bookings_matched
-    assert len(data_rows("Unmatched - Explanation")) == s.bookings_unmatched
-    assert len(data_rows("Ref - Portal Rows")) == s.portal_rows - s.bookings_matched
-    vendor_refs = data_rows("Ref - Vendor Rows")
-    unmatched_lines = [r for r in vendor_refs if str(r[0]).startswith("Unmatched")]
-    assert len(data_rows("Matched - Invoice Lines")) + len(unmatched_lines) == (
-        s.vendor_lines
+    total = next(i for i, r in enumerate(rows) if str(r[0] or "").startswith("Total"))
+    matched = rows[1:total]
+    assert len(matched) == s.bookings_matched
+    assert all(r[match] == "TRUE" for r in matched)
+    title = next(
+        i
+        for i, r in enumerate(rows)
+        if str(r[0] or "").startswith("Bookings not in the totals")
     )
-    summary = [r[0] for r in book["Summary"].iter_rows(values_only=True)]
-    assert f"{s.bookings_unmatched} booking IDs could not be matched" in summary
+    unmatched = [r for r in rows[title + 1 :] if any(v is not None for v in r)]
+    assert len(unmatched) == s.bookings_unmatched
+    reasons = set(REASON_LABELS.values())
+    assert all(r[verdict] in reasons for r in unmatched)
+    book.close()
+
+
+def test_the_orders_sheet_mirrors_the_clients_analysis(
+    result: TravelResult, tmp_path: Path
+) -> None:
+    path = build_report(result, tmp_path / "travel.xlsx", SOURCES)
+    book = openpyxl.load_workbook(path)
+    sheet = book["Orders"]
+    headers = [cell.value for cell in next(sheet.iter_rows(min_row=1, max_row=1))]
+    for header in (
+        "Partner Order ID",
+        "MATCH ID'S",
+        "Com Rate Check",
+        "Vendor Rate Check",
+        "Actual As Vendor",
+        "Total Invoice Amount",
+        "Verdict",
+    ):
+        assert header in headers
+    # Portal green, checks light green, claim green, as on food's sheet.
+    assert sheet.cell(1, 1).fill.fgColor.rgb == "FF375623"
+    totals = 2 + result.summary.bookings_matched
+    order_total = headers.index("Order Total") + 1
+    column = sheet.cell(2, order_total).column_letter
+    assert sheet.cell(totals, order_total).value == f"=SUM({column}2:{column}8)"
+    hotel = next(
+        row
+        for row in range(2, totals)
+        if sheet.cell(row, headers.index("Partner Order ID") + 1).value
+        == "H260819107345500"
+    )
+    assert sheet.cell(hotel, headers.index("BASE DIFFERENCE") + 1).value == -1.06
+    assert sheet.cell(hotel, headers.index("Verdict") + 1).value == "Base differs"
+    labels = {
+        sheet.cell(row, 1).value: row
+        for row in range(totals, sheet.max_row + 1)
+        if sheet.cell(row, 1).value
+    }
+    base = labels["Base Amount"]
+    assert sheet.cell(base, 6).value == f"=D{base}-E{base}"
+    assert sheet.cell(base - 1, 5).value == "ALMOSAFER"
+    book.close()
+
+
+def test_the_dashboard_reads_the_matched_bookings(
+    result: TravelResult, tmp_path: Path
+) -> None:
+    path = build_report(result, tmp_path / "travel.xlsx", SOURCES)
+    book = openpyxl.load_workbook(path)
+    dashboard = book["Dashboard"]
+    labels = {
+        dashboard.cell(row, 1).value: row
+        for row in range(1, dashboard.max_row + 1)
+        if dashboard.cell(row, 1).value
+    }
+    header = labels["SG TRAVEL ORDER Amount"]
+    values = {
+        dashboard.cell(header, col).value: dashboard.cell(header + 1, col).value
+        for col in range(3, 18)
+    }
+    s = result.summary
+    assert values["Order"] == s.bookings_matched == 7
+    assert Decimal(str(values["Net Payable"])) == s.net_payable_as_vendor
+    assert Decimal(str(values["Booking Amount"])) == s.portal_base
+    breakdown = labels["Breakdown By Most Used"]
+    assert dashboard.cell(breakdown, 4).value == "Revenue By Provider"
+    total = breakdown + 1
+    assert dashboard.cell(total, 1).value == "TOTAL"
+    # A booking billed by two airlines is one order, under each airline.
+    assert dashboard.cell(total, 2).value == 7
+    providers = range(total + 1, dashboard.max_row + 1)
+    assert sum(dashboard.cell(row, 2).value for row in providers) == 8
+    assert Decimal(str(dashboard.cell(total, 10).value)) == s.net_payable_as_vendor
+    book.close()
+
+
+def test_the_cashback_bills_each_booking_once(
+    result: TravelResult, tmp_path: Path
+) -> None:
+    path = build_report(result, tmp_path / "travel.xlsx", SOURCES)
+    book = openpyxl.load_workbook(path)
+    cashback = book["Cashback"]
+    portal = book["Portal"]
+    lines = list(cashback.iter_rows(min_row=2, values_only=True))
+    # Every booking's primary row, its repeat row left out.
+    assert len(lines) == len(result.bookings) - sum(
+        1 for b in result.bookings if b.portal is None
+    )
+    assert len({line[1] for line in lines}) == len(lines)
+    by_booking = {line[1]: line for line in lines}
+    hotel = by_booking["H260819107345500"]
+    assert hotel[0] == "Almosafer"
+    assert hotel[4] == "Hotel Booking"
+    assert hotel[7] == "Domestic Sales (15%)"
+    cell = hotel[6]
+    assert cell.startswith("=Portal!") and cell.endswith("/1.15")
+    reference = cell[len("=Portal!") : -len("/1.15")]
+    # The formula points at that booking's Commission Charged on the copy.
+    column = "".join(ch for ch in reference if ch.isalpha())
+    row = int("".join(ch for ch in reference if ch.isdigit()))
+    header_row = next(
+        r
+        for r in range(1, portal.max_row + 1)
+        if portal.cell(r, 1).value == "Order Date"
+    )
+    assert portal[f"{column}{header_row}"].value == "Commission Charged"
+    assert portal[f"{column}{row}"].value == 58.09
+    assert by_booking["A26082185665500"][4] == "Flight Booking"
+    book.close()

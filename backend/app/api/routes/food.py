@@ -1,7 +1,8 @@
 """The food reconciliation endpoint.
 
-Its own route: food takes a portal export and a Chefz order report, and no
-rate or period fields. The upload plumbing is shared.
+Its own route: food takes a portal export, a Chefz order report and an
+optional wallet history, and no rate or period fields. The upload plumbing is
+shared.
 """
 
 import logging
@@ -43,6 +44,12 @@ async def run_food_reconciliation(
         File(description="Portal export. Only Vertical = Food rows are read."),
     ],
     vendor: Annotated[UploadFile, File(description="The Chefz order report.")],
+    wallet: Annotated[
+        UploadFile | None,
+        File(
+            description="Optional wallet history, to prove the wallet share of each order."
+        ),
+    ] = None,
     response_format: Annotated[Literal["json", "xlsx"], Query(alias="format")] = "json",
 ) -> Any:
     """
@@ -51,7 +58,11 @@ async def run_food_reconciliation(
     Rows are paired on Partner Order ID = order_id. Dates are not compared.
     Only Delivered rows are settled. A break stays in the response and out of
     the settled payable. The Excel report opens on Dashboard, then Orders,
-    Exceptions, Cashback, and the uploaded Portal and Vendor sheets.
+    Exceptions, Wallet when a wallet history was uploaded, Cashback, and the
+    uploaded Portal and Vendor sheets.
+
+    The wallet history is optional. Supplied, it proves that the wallet share
+    of each order actually left a wallet, and for the same amount.
 
     Nothing is persisted. The response is the whole result.
     """
@@ -63,6 +74,11 @@ async def run_food_reconciliation(
             portal=await spool(portal, "portal", workdir),
             vendor=await spool(vendor, "vendor", workdir),
             max_rows=settings.MAX_ROWS_PER_SHEET,
+            wallet=(
+                await spool(wallet, "wallet", workdir)
+                if wallet is not None and wallet.filename
+                else None
+            ),
         )
         result = await run_in_threadpool(run, request)
         if response_format == "json":

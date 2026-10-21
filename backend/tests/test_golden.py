@@ -202,17 +202,15 @@ def test_rates_are_echoed_back_for_audit(result: ReconResult) -> None:
 # --- export -----------------------------------------------------------------
 
 
-def test_the_report_has_all_six_sheets(result: ReconResult, tmp_path: Path) -> None:
+def test_the_report_follows_the_food_workbook(
+    result: ReconResult, tmp_path: Path
+) -> None:
+    """Without the uploads there is nothing to copy or to point a cashback at."""
     path = build_report(result, tmp_path / "report.xlsx")
     assert path.stat().st_size > 0
     with zipfile.ZipFile(path) as book:
         names = book.read("xl/workbook.xml").decode()
-    for sheet in (
-        "Summary",
-        "Matched Detail",
-        "Exceptions",
-        "Commission Variance",
-        "Settlement Bridge",
-        "Unmatched Ledger Rows",
-    ):
+    for sheet in ("Dashboard", "Orders", "Exceptions"):
         assert sheet in names
+    for sheet in ("Wallet", "Cashback", "Portal", "Vendor"):
+        assert f'name="{sheet}"' not in names

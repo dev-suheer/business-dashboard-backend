@@ -18,6 +18,12 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.recon.exceptions import ReconException
 from app.recon.models import SheetManifest
 
+# The wallet check is shared by every category; travel's names stay importable.
+from app.recon.wallet import WalletCheck as WalletCheck
+from app.recon.wallet import WalletEvent as WalletEvent
+from app.recon.wallet import WalletReconciliation as WalletReconciliation
+from app.recon.wallet import WalletState as WalletState
+
 
 class Vertical(StrEnum):
     HOTEL = "hotel"
@@ -82,13 +88,6 @@ class UnmatchedReason(StrEnum):
     OTHER = "other"
 
 
-class WalletState(StrEnum):
-    MATCHED = "matched"
-    AMOUNT_MISMATCH = "amount_mismatch"
-    OUT_OF_WINDOW = "out_of_window"
-    MISSING = "missing"
-
-
 class TravelPortalRow(BaseModel):
     """One row of the portal export, coerced but not yet judged.
 
@@ -120,8 +119,13 @@ class TravelPortalRow(BaseModel):
     payment_method: str | None = None
 
     sub_total: Decimal = Decimal(0)
+    # Display only: the promo code, the SG discount and the pre-discount total
+    # feed the report's dashboard, never a calculation.
+    promocode: str | None = None
+    discount: Decimal = Decimal(0)
     vat: Decimal = Decimal(0)
     order_total: Decimal = Decimal(0)
+    total_amount: Decimal = Decimal(0)
     # Hotels leave ``Commission Amount`` at 0 and fill ``Commission Charged``;
     # flights fill both. ``commission_charged`` is the figure under test.
     commission_amount: Decimal = Decimal(0)
@@ -235,22 +239,6 @@ class ClaimPeriodTotals(BaseModel):
     unprovided_commission: Decimal | None = None
 
 
-class WalletEvent(BaseModel):
-    """One wallet-history movement, already narrowed to a travel vertical."""
-
-    model_config = ConfigDict(frozen=True)
-
-    source: str
-    row: int
-    event_id: str | None = None
-    vertical: Vertical
-    sg_order_id: str
-    amount: Decimal
-    message: str | None = None
-    event_date: date | None = None
-    payment_type: str | None = None
-
-
 class BookingRecon(BaseModel):
     """One booking, both sides, reconciled. The single rounding point.
 
@@ -311,6 +299,8 @@ class BookingRecon(BaseModel):
 
     repeat_of: str | None = None
     flags: list[str] = Field(default_factory=list)
+    # The primary portal row, whole, for the report's portal columns.
+    portal: TravelPortalRow | None = None
 
 
 class PaymentMethodTotals(BaseModel):
@@ -332,31 +322,6 @@ class PaymentMethodSummary(BaseModel):
 
     by_label: list[PaymentMethodTotals] = Field(default_factory=list)
     by_instrument: list[PaymentMethodTotals] = Field(default_factory=list)
-
-
-class WalletCheck(BaseModel):
-    vertical: Vertical
-    sg_order_id: str
-    booking_id: str | None = None
-    order_date: date
-    portal_wallet_amount: Decimal
-    history_paid: Decimal | None = None
-    history_refunded: Decimal | None = None
-    events: int = 0
-    state: WalletState
-    diff: Decimal | None = None
-
-
-class WalletReconciliation(BaseModel):
-    window_start: date | None = None
-    window_end: date | None = None
-    rows_checked: int = 0
-    matched: int = 0
-    amount_mismatch: int = 0
-    out_of_window: int = 0
-    missing: int = 0
-    checks: list[WalletCheck] = Field(default_factory=list)
-    unmatched_history: list[WalletEvent] = Field(default_factory=list)
 
 
 class TravelRateConfig(BaseModel):

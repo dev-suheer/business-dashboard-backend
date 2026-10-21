@@ -307,6 +307,7 @@ def build_booking(acc: BookingAccumulator, rates: TravelRateConfig) -> BookingRe
         ),
         vat_uplift_shortfall=money(commission_as_vendor - sg_expected),
         flags=flags,
+        portal=row,
     )
 
 

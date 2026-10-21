@@ -175,6 +175,8 @@ def match(
 
         order.match_state = MatchState.MATCHED
         order.vendor_amount = money(entry_totals.debit)
+        order.vendor_credit = money(entry_totals.credit)
+        order.vendor_date = entry_totals.first_date
         order.amount_diff = money(order.portal_gmv - entry_totals.debit)
         if abs(order.amount_diff) > order_tolerance:
             outcome.exceptions.append(

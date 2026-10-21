@@ -1,8 +1,9 @@
 """The reconciliation pipeline (plan.md section 5).
 
-Parse, extract, resolve, apply rules, match, summarise. Every stage streams:
-nothing here holds a whole sheet, and the portal export — by far the largest
-input — is reduced to order-level state as it is read.
+Parse, extract, resolve, apply rules, match, check the wallet when a history
+was uploaded, summarise. Every stage streams: nothing here holds a whole
+sheet, and the portal export — by far the largest input — is reduced to
+order-level state as it is read.
 """
 
 import logging
@@ -36,6 +37,12 @@ from app.recon.models import (
     VarianceClass,
 )
 from app.recon.registry import get_adapter
+from app.recon.wallet import (
+    WalletPayment,
+    WalletReconciliation,
+    load_wallet,
+    reconcile_wallet,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +58,7 @@ class ReconRequest:
     period_start: date | None
     period_end: date | None
     max_rows: int
+    wallet: Upload | None = None
 
 
 def reconcile(request: ReconRequest) -> ReconResult:
@@ -81,6 +89,12 @@ def reconcile(request: ReconRequest) -> ReconResult:
     )
 
     exceptions = outcome.exceptions + _order_exceptions(orders, settlements)
+    wallet: WalletReconciliation | None = None
+    if request.wallet is not None:
+        wallet, wallet_exceptions = _check_wallet(
+            adapter, request, request.wallet, orders, manifest
+        )
+        exceptions += wallet_exceptions
     summary = _build_summary(
         orders=orders,
         accumulators=accumulators,
@@ -104,6 +118,7 @@ def reconcile(request: ReconRequest) -> ReconResult:
         exceptions=sort_exceptions(exceptions),
         detected=manifest,
         summary=summary,
+        wallet=wallet,
     )
 
 
@@ -243,6 +258,31 @@ def _load_ledger(
         entries = list(adapter.read_ledger(workbook, sheets, max_rows=request.max_rows))
         _note(manifest, upload, sheets, len(entries))
     return entries
+
+
+def _check_wallet(
+    adapter: CategoryAdapter[Any],
+    request: ReconRequest,
+    upload: Upload,
+    orders: list[OrderRecon],
+    manifest: list[SheetManifest],
+) -> tuple[WalletReconciliation, list[ReconException]]:
+    """One check per order: the wallet share is an order-level figure."""
+    history, sheet = load_wallet(
+        upload, wallet_type=adapter.wallet_type, max_rows=request.max_rows
+    )
+    _note(manifest, upload, [sheet], history.events)
+    payments = [
+        WalletPayment(
+            vertical=adapter.wallet_vertical,
+            sg_order_id=adapter.wallet_order_id(order.order_no),
+            reference=order.order_no,
+            order_date=order.order_date,
+            wallet_amount=order.wallet_amount,
+        )
+        for order in orders
+    ]
+    return reconcile_wallet(payments, history, tolerance=request.rates.line_tolerance)
 
 
 def _note(

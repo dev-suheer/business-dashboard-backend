@@ -1,7 +1,8 @@
 """The food reconciliation pipeline (plan-food.md section 5).
 
 Read both workbooks, pair on order id, judge each pair, then summarise. Dates
-are not a match condition. Nothing is persisted.
+are not a match condition. When a wallet history is uploaded, every wallet-paid
+portal row is checked against it. Nothing is persisted.
 """
 
 import logging
@@ -17,6 +18,12 @@ from app.recon.excel import detect_sheets, open_workbook
 from app.recon.exceptions import sort_exceptions
 from app.recon.inputs import ReconInputError, Upload
 from app.recon.models import SheetManifest
+from app.recon.wallet import (
+    WalletPayment,
+    WalletReconciliation,
+    load_wallet,
+    reconcile_wallet,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +33,7 @@ class FoodRequest:
     portal: Upload
     vendor: Upload
     max_rows: int
+    wallet: Upload | None = None
 
 
 def run(request: FoodRequest) -> FoodResult:
@@ -33,6 +41,25 @@ def run(request: FoodRequest) -> FoodResult:
     portal_rows = _load_portal(request, manifest)
     vendor_rows = _load_vendor(request, manifest)
     orders, exceptions = rules.reconcile(portal_rows, vendor_rows)
+    wallet: WalletReconciliation | None = None
+    if request.wallet is not None:
+        history, sheet = load_wallet(
+            request.wallet, wallet_type=parser.wallet_type, max_rows=request.max_rows
+        )
+        manifest.append(
+            SheetManifest(
+                role=request.wallet.role,
+                filename=request.wallet.filename,
+                sheets=[sheet],
+                rows=history.events,
+            )
+        )
+        wallet, wallet_exceptions = reconcile_wallet(
+            [_wallet_payment(row) for row in portal_rows],
+            history,
+            tolerance=rules.TOLERANCE,
+        )
+        exceptions += wallet_exceptions
     exceptions = sort_exceptions(exceptions)
     summary = rules.summarise(portal_rows, vendor_rows, orders, exceptions)
     providers = {
@@ -53,6 +80,17 @@ def run(request: FoodRequest) -> FoodResult:
         exceptions=exceptions,
         detected=manifest,
         summary=summary,
+        wallet=wallet,
+    )
+
+
+def _wallet_payment(row: FoodPortalRow) -> WalletPayment:
+    return WalletPayment(
+        vertical=parser.WALLET_VERTICAL,
+        sg_order_id=row.sg_order_id,
+        reference=row.order_id,
+        order_date=row.order_date,
+        wallet_amount=row.wallet_amount,
     )
 
 

@@ -1,10 +1,11 @@
 """The seam between the generic pipeline and one category's specifics.
 
-A category supplies four sheet schemas, four readers and two rule functions.
-Everything else — matching, summarising, exporting — is shared.
+A category supplies four sheet schemas, four readers and two rule functions,
+plus how the wallet history names its orders. Everything else — matching,
+summarising, the wallet check — is shared.
 """
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Protocol
@@ -20,6 +21,7 @@ from app.recon.models import (
     RateConfig,
     Settlement,
 )
+from app.recon.wallet import WalletType
 
 
 class PortalReader(Protocol):
@@ -107,3 +109,9 @@ class CategoryAdapter[AccT: Accumulator]:
     new_accumulator: AccumulatorFactory[AccT]
     evaluate_line: LineEvaluator
     build_order: OrderBuilder[AccT]
+
+    # The category's ``Wallet Type`` in the wallet history, its key there, and
+    # the SG Order ID an order number is filed under.
+    wallet_type: WalletType
+    wallet_vertical: str
+    wallet_order_id: Callable[[str], str | None]

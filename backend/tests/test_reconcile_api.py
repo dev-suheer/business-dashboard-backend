@@ -43,6 +43,29 @@ def test_end_to_end_xlsx(
         assert "xl/workbook.xml" in book.namelist()
 
 
+def test_the_wallet_file_is_optional(
+    auth_client: TestClient, upload_files: dict[str, tuple[str, bytes, str]]
+) -> None:
+    from tests.conftest import TRAVEL_WALLET
+
+    assert auth_client.post(RECONCILE, files=upload_files).json()["wallet"] is None
+    upload_files["wallet"] = (
+        "wallet_history.xlsx",
+        TRAVEL_WALLET.read_bytes(),
+        XLSX,
+    )
+    response = auth_client.post(RECONCILE, files=upload_files)
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert Decimal(body["summary"]["net_payable"]) == Decimal("13876.31")
+    states = {c["booking_id"]: c["state"] for c in body["wallet"]["checks"]}
+    assert states["SG-SH-08986"] == "matched"
+    report = auth_client.post(RECONCILE, files=upload_files, params={"format": "xlsx"})
+    assert report.status_code == 200, report.text
+    with zipfile.ZipFile(BytesIO(report.content)) as book:
+        assert 'name="Wallet"' in book.read("xl/workbook.xml").decode()
+
+
 def test_a_run_level_rate_override_changes_the_result(
     auth_client: TestClient, upload_files: dict[str, tuple[str, bytes, str]]
 ) -> None:

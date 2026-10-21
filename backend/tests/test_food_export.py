@@ -10,8 +10,9 @@ from app.recon.categories.food.export import build_report
 from app.recon.categories.food.models import FoodPortalRow, FoodResult, FoodVendorRow
 from app.recon.categories.food.pipeline import FoodRequest, run
 from app.recon.categories.food.rules import reconcile, summarise
+from app.recon.exceptions import ExceptionCode
 from app.recon.inputs import Upload
-from tests.conftest import FOOD_PORTAL, FOOD_VENDOR
+from tests.conftest import FOOD_PORTAL, FOOD_VENDOR, TRAVEL_WALLET
 
 
 def _cents(value: object) -> Decimal:
@@ -248,4 +249,43 @@ def test_exception_status_names_each_side_when_they_differ(tmp_path: Path) -> No
         found[("mixed", "STATUS_MISMATCH")] == "Portal: Delivered / Vendor: Cancelled"
     )
     assert found[("cancelled", "STATUS_NOT_DELIVERED")] == "Cancelled"
+    book.close()
+
+
+def test_a_wallet_history_adds_the_wallet_sheet(tmp_path: Path) -> None:
+    """The food sample leaves SG Order ID blank, so nothing can be looked up."""
+    result = run(
+        FoodRequest(
+            portal=Upload("portal", FOOD_PORTAL.name, FOOD_PORTAL),
+            vendor=Upload("vendor", FOOD_VENDOR.name, FOOD_VENDOR),
+            max_rows=10_000,
+            wallet=Upload("wallet", TRAVEL_WALLET.name, TRAVEL_WALLET),
+        )
+    )
+    # The settled figures do not move.
+    assert result.summary.settled_orders == 297
+    assert result.summary.settled_due == Decimal("20748.07")
+    wallet = result.wallet
+    assert wallet is not None
+    assert wallet.rows_checked == 0
+    assert wallet.unkeyed == 188
+    # The history's five food payments have no portal row to stand on.
+    assert len(wallet.unmatched_history) == 5
+    assert {event.vertical for event in wallet.unmatched_history} == {"food"}
+    codes = [exc.code for exc in result.exceptions]
+    assert codes.count(ExceptionCode.WALLET_ORDER_ID_MISSING) == 1
+    assert codes.count(ExceptionCode.WALLET_HISTORY_UNMATCHED) == 5
+
+    path = tmp_path / "food.xlsx"
+    build_report(result, path, {"portal": FOOD_PORTAL, "vendor": FOOD_VENDOR})
+    book = load_workbook(path, read_only=True)
+    assert book.sheetnames == [
+        "Dashboard",
+        "Orders",
+        "Exceptions",
+        "Wallet",
+        "Cashback",
+        "Portal",
+        "Vendor",
+    ]
     book.close()

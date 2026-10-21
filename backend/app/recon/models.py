@@ -12,6 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.recon.cleaning import money
 from app.recon.exceptions import ReconException
+from app.recon.wallet import WalletReconciliation
 
 
 class OrderStatus(StrEnum):
@@ -66,6 +67,13 @@ class PortalLine(BaseModel):
     # Prior-cycle settlement, when the export carries a "Paid" column. This is
     # what makes clawbacks computable without a separate history upload.
     amount_paid: Decimal | None = None
+    # Display only. The payment columns are order-level and repeat on every
+    # line of the order; shipping is settled outside this reconciliation.
+    payment_type: str | None = None
+    wallet_amount: Decimal | None = None
+    non_wallet_amount: Decimal | None = None
+    shipping_owner: str | None = None
+    shipping_cost: Decimal | None = None
 
     # Resolved by the rules engine, not by the parser.
     rate: Decimal = Decimal(0)
@@ -129,6 +137,18 @@ class Settlement(BaseModel):
     cycle_ref: str | None = None
 
 
+class OrderBrand(BaseModel):
+    """One brand's lines within an order, for the report's breakdown."""
+
+    brand: str
+    lines: int = 0
+    gmv: Decimal = Decimal(0)
+    coupon_value: Decimal = Decimal(0)
+    # Unrounded, like the line figures it sums, so a breakdown total is
+    # quantized once rather than built from rounded parts.
+    expected_commission: Decimal = Decimal(0)
+
+
 class OrderRecon(BaseModel):
     """One order, reconciled."""
 
@@ -141,6 +161,9 @@ class OrderRecon(BaseModel):
     portal_gmv: Decimal
     vendor_amount: Decimal | None = None
     amount_diff: Decimal | None = None
+    # The rest of the statement's side: credit notes and the first document date.
+    vendor_credit: Decimal | None = None
+    vendor_date: date | None = None
 
     expected_commission: Decimal
     actual_commission: Decimal
@@ -158,6 +181,16 @@ class OrderRecon(BaseModel):
 
     match_state: MatchState = MatchState.UNMATCHED
     flags: list[str] = Field(default_factory=list)
+
+    # Display only: the report's dashboard and Orders sheet read these, and no
+    # figure above depends on them. Shipping is never deducted.
+    payment_type: str | None = None
+    wallet_amount: Decimal = Decimal(0)
+    non_wallet_amount: Decimal = Decimal(0)
+    coupon_value: Decimal = Decimal(0)
+    shipping_cost: Decimal = Decimal(0)
+    sg_shipping: Decimal = Decimal(0)
+    brands: list[OrderBrand] = Field(default_factory=list)
 
 
 class LineVariance(BaseModel):
@@ -241,3 +274,5 @@ class ReconResult(BaseModel):
     exceptions: list[ReconException] = Field(default_factory=list)
     detected: list[SheetManifest] = Field(default_factory=list)
     summary: Summary
+    # Only when a wallet history was uploaded.
+    wallet: WalletReconciliation | None = None

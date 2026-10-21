@@ -13,6 +13,7 @@ from decimal import Decimal
 from app.recon.cleaning import money
 from app.recon.models import (
     LineVariance,
+    OrderBrand,
     OrderRecon,
     OrderStatus,
     PortalLine,
@@ -99,6 +100,14 @@ def evaluate_line(
 
 
 @dataclass
+class _BrandTotals:
+    lines: int = 0
+    gmv: Decimal = Decimal(0)
+    coupon_value: Decimal = Decimal(0)
+    expected_commission: Decimal = Decimal(0)
+
+
+@dataclass
 class OrderAccumulator:
     """Order-level totals built up line by line.
 
@@ -120,6 +129,14 @@ class OrderAccumulator:
     overcharged: Decimal = Decimal(0)
     statuses: set[OrderStatus] = field(default_factory=set)
     amount_paid: Decimal | None = None
+    # Display only; nothing above reads them.
+    payment_type: str | None = None
+    wallet_amount: Decimal | None = None
+    non_wallet_amount: Decimal | None = None
+    coupon_value: Decimal = Decimal(0)
+    shipping_cost: Decimal = Decimal(0)
+    sg_shipping: Decimal = Decimal(0)
+    brands: dict[str, _BrandTotals] = field(default_factory=dict)
 
     def add(self, line: PortalLine, rates: RateConfig) -> None:
         self.line_count += 1
@@ -142,6 +159,28 @@ class OrderAccumulator:
             self.overcharged += line.commission_variance
         if line.amount_paid:
             self.amount_paid = (self.amount_paid or Decimal(0)) + line.amount_paid
+        self._add_display(line)
+
+    def _add_display(self, line: PortalLine) -> None:
+        # The payment columns repeat the order's figure on every line, so the
+        # first line's value stands and they are never summed.
+        if self.payment_type is None:
+            self.payment_type = line.payment_type
+        if self.wallet_amount is None:
+            self.wallet_amount = line.wallet_amount
+        if self.non_wallet_amount is None:
+            self.non_wallet_amount = line.non_wallet_amount
+        if line.coupon_value:
+            self.coupon_value += line.coupon_value
+        if line.shipping_cost:
+            self.shipping_cost += line.shipping_cost
+            if (line.shipping_owner or "").casefold() == "sg":
+                self.sg_shipping += line.shipping_cost
+        brand = self.brands.setdefault(line.brand or "Unknown", _BrandTotals())
+        brand.lines += 1
+        brand.gmv += line.gmv
+        brand.coupon_value += line.coupon_value or Decimal(0)
+        brand.expected_commission += line.expected_commission
 
 
 def build_order(
@@ -216,6 +255,22 @@ def build_order(
         net_payable=money(payable + adjustments),
         included_in_payable=included,
         flags=flags,
+        payment_type=acc.payment_type,
+        wallet_amount=money(acc.wallet_amount or Decimal(0)),
+        non_wallet_amount=money(acc.non_wallet_amount or Decimal(0)),
+        coupon_value=money(acc.coupon_value),
+        shipping_cost=money(acc.shipping_cost),
+        sg_shipping=money(acc.sg_shipping),
+        brands=[
+            OrderBrand(
+                brand=name,
+                lines=totals.lines,
+                gmv=money(totals.gmv),
+                coupon_value=money(totals.coupon_value),
+                expected_commission=totals.expected_commission,
+            )
+            for name, totals in acc.brands.items()
+        ],
     )
 
 

@@ -56,6 +56,12 @@ async def run_reconciliation(
         UploadFile | None,
         File(description="Optional prior settlement history, for clawbacks."),
     ] = None,
+    wallet: Annotated[
+        UploadFile | None,
+        File(
+            description="Optional wallet history, to prove the wallet share of each order."
+        ),
+    ] = None,
     category: Annotated[str, Form()] = "eshop",
     period_start: Annotated[date | None, Form()] = None,
     period_end: Annotated[date | None, Form()] = None,
@@ -71,6 +77,9 @@ async def run_reconciliation(
     several tabs can be uploaded to more than one field. The vendor statement is
     different: every ledger-shaped sheet in it is read and the union
     deduplicated, because the PDF converter emits overlapping copies.
+
+    The wallet history is optional. Supplied, it proves that the wallet share of
+    each order actually left a wallet, and for the same amount.
 
     Rates default to the server configuration and can be overridden per run,
     which makes a back-dated recalculation a single request.
@@ -109,6 +118,11 @@ async def run_reconciliation(
             period_start=period_start,
             period_end=period_end,
             max_rows=settings.MAX_ROWS_PER_SHEET,
+            wallet=(
+                await spool(wallet, "wallet", workdir)
+                if wallet is not None and wallet.filename
+                else None
+            ),
         )
         # Parsing and reconciling are CPU-bound; off the event loop they go.
         result = await run_in_threadpool(reconcile, request)
@@ -117,7 +131,12 @@ async def run_reconciliation(
             return result
 
         report = Path(tempfile.mkstemp(prefix="recon-report-", suffix=".xlsx")[1])
-        await run_in_threadpool(build_report, result, report)
+        await run_in_threadpool(
+            build_report,
+            result,
+            report,
+            {"portal": request.portal.path, "vendor": request.vendor.path},
+        )
         filename = (
             f"reconciliation-{result.category}-"
             f"{result.period_start}-to-{result.period_end}.xlsx"

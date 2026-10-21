@@ -16,6 +16,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.recon.exceptions import ReconException
 from app.recon.models import SheetManifest
+from app.recon.wallet import WalletReconciliation
 
 
 class FoodVerdict(StrEnum):
@@ -171,3 +172,5 @@ class FoodResult(BaseModel):
     exceptions: list[ReconException] = Field(default_factory=list)
     detected: list[SheetManifest] = Field(default_factory=list)
     summary: FoodSummary
+    # Only when a wallet history was uploaded.
+    wallet: WalletReconciliation | None = None

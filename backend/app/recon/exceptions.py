@@ -60,6 +60,7 @@ class ExceptionCode(StrEnum):
     WALLET_OUT_OF_WINDOW = "WALLET_OUT_OF_WINDOW"
     WALLET_HISTORY_UNMATCHED = "WALLET_HISTORY_UNMATCHED"
     WALLET_KEY_UNSTABLE = "WALLET_KEY_UNSTABLE"
+    WALLET_ORDER_ID_MISSING = "WALLET_ORDER_ID_MISSING"
 
     # --- food (plan-food.md section 6) -------------------------------------
     FOOD_AMOUNT_MISMATCH = "FOOD_AMOUNT_MISMATCH"
@@ -112,6 +113,7 @@ SEVERITIES: dict[ExceptionCode, Severity] = {
     ExceptionCode.WALLET_OUT_OF_WINDOW: Severity.INFO,
     ExceptionCode.WALLET_HISTORY_UNMATCHED: Severity.INFO,
     ExceptionCode.WALLET_KEY_UNSTABLE: Severity.MEDIUM,
+    ExceptionCode.WALLET_ORDER_ID_MISSING: Severity.MEDIUM,
     ExceptionCode.FOOD_AMOUNT_MISMATCH: Severity.HIGH,
     ExceptionCode.FEE_MISMATCH: Severity.HIGH,
     ExceptionCode.DELIVERY_SPLIT_MISMATCH: Severity.HIGH,

@@ -45,6 +45,8 @@ app/
     excel.py                 streaming reader, header and sheet detection
     inputs.py                Upload, ReconInputError — the shared vocabulary
     xlsx.py                  workbook formats shared by both reports
+    sheets.py                the sheets every category's report shares
+    wallet.py                the wallet-history check, for every category
     models.py                eshop's canonical models — Decimal throughout
     exceptions.py            exception codes and severities, for every category
     matcher.py               aggregate, join, tolerance, classify
@@ -91,9 +93,9 @@ Two traps a new category will meet, both of which cost time to find:
   pins all of it.
 - **`SG Order ID` is not an identity.** It is a per-export row sequence: the
   same booking is 251 in one export and 364 in another. Join on the booking id;
-  the wallet history is the one place the sequence has to be used, and travel's
-  wallet module reports a collapse in the match rate rather than a page of
-  missing rows.
+  the wallet history is the one place the sequence has to be used, and the
+  wallet check (`app/recon/wallet.py`) reports a collapse in the match rate
+  rather than a page of missing rows.
 
 ## Conventions
 

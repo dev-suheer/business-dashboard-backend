@@ -23,10 +23,12 @@ from app.recon.categories.travel.models import (
     TravelPortalRow,
     TravelSkippedRow,
     Vertical,
-    WalletEvent,
 )
 from app.recon.cleaning import clean_text, to_date, to_decimal
 from app.recon.excel import ColumnSpec, SheetSchema, iter_records
+from app.recon.wallet import WALLET_SCHEMA as WALLET_SCHEMA
+from app.recon.wallet import WalletEvent
+from app.recon.wallet import read_wallet as read_category_wallet
 
 # A booking id inside free text, for the claim's adjustment rows.
 ADJUSTMENT_BOOKING_RE = re.compile(r"[AH]\d{12,18}")
@@ -75,8 +77,11 @@ PORTAL_SCHEMA = SheetSchema(
         ColumnSpec("payment_status", ("Payment Status",)),
         ColumnSpec("payment_method", ("Payment Method",)),
         ColumnSpec("sub_total", ("Sub Total",)),
+        ColumnSpec("promocode", ("Promocode",)),
+        ColumnSpec("discount", ("SG Discount/Promo Amount",)),
         ColumnSpec("vat", ("VAT",), required=True),
         ColumnSpec("order_total", ("Order Total",), required=True),
+        ColumnSpec("total_amount", ("Total Amount",)),
         ColumnSpec("stated_rate", ("SG Comission %", "SG Commission %")),
         ColumnSpec("commission_amount", ("Commission Amount",)),
         ColumnSpec("partner_payout", ("Partner Payout",)),
@@ -163,21 +168,6 @@ CLAIM_SCHEMA = SheetSchema(
             "unprovided_commission",
             ("unprovided Commision invoices", "unprovided Commission invoices"),
         ),
-    ),
-)
-
-WALLET_SCHEMA = SheetSchema(
-    name="wallet history",
-    fingerprint=("Wallet Type", "SG Order ID", "Amount", "Message"),
-    exclude=("Partner Order ID", "Order Total"),
-    columns=(
-        ColumnSpec("event_id", ("ID",)),
-        ColumnSpec("wallet_type", ("Wallet Type",), required=True),
-        ColumnSpec("sg_order_id", ("SG Order ID",), required=True),
-        ColumnSpec("amount", ("Amount",), required=True),
-        ColumnSpec("message", ("Message",)),
-        ColumnSpec("event_date", ("Date",), required=True),
-        ColumnSpec("payment_type", ("Payment Type",)),
     ),
 )
 
@@ -295,6 +285,8 @@ def read_portal(
         if vertical is None or order_date is None:
             continue
         key = portal_booking_key(record["booking_id"])
+        order_total = _amount(record["order_total"])
+        total_amount = to_decimal(record.get("total_amount"))
         yield TravelPortalRow(
             source=source,
             sheet=sheet,
@@ -331,8 +323,11 @@ def read_portal(
             ),
             payment_method=clean_text(record.get("payment_method")),
             sub_total=_amount(record.get("sub_total")),
+            promocode=clean_text(record.get("promocode")),
+            discount=_amount(record.get("discount")),
             vat=_amount(record["vat"]),
-            order_total=_amount(record["order_total"]),
+            order_total=order_total,
+            total_amount=total_amount if total_amount is not None else order_total,
             commission_amount=_amount(record.get("commission_amount")),
             partner_payout=_amount(record.get("partner_payout")),
             commission_charged=_amount(record["commission_charged"]),
@@ -467,22 +462,10 @@ def read_wallet(
     Eleven of the file's fifteen wallet types belong to other categories; they
     are skipped here so nothing downstream has to know they exist.
     """
-    for index, record in enumerate(
-        iter_records(workbook[sheet], WALLET_SCHEMA, max_rows=max_rows), start=1
-    ):
-        vertical = vertical_from_text(record["wallet_type"])
-        sg_order_id = clean_text(record["sg_order_id"])
-        amount = to_decimal(record["amount"])
-        if vertical is None or sg_order_id is None or amount is None:
-            continue
-        yield WalletEvent(
-            source=source,
-            row=index,
-            event_id=clean_text(record.get("event_id")),
-            vertical=vertical,
-            sg_order_id=sg_order_id,
-            amount=amount,
-            message=clean_text(record.get("message")),
-            event_date=to_date(record["event_date"]),
-            payment_type=clean_text(record.get("payment_type")),
-        )
+    return read_category_wallet(
+        workbook,
+        sheet,
+        source=source,
+        max_rows=max_rows,
+        wallet_type=vertical_from_text,
+    )

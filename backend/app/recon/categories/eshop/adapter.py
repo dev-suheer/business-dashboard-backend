@@ -26,4 +26,7 @@ ADAPTER: CategoryAdapter[rules.OrderAccumulator] = CategoryAdapter(
     new_accumulator=_new_accumulator,
     evaluate_line=rules.evaluate_line,
     build_order=rules.build_order,
+    wallet_type=parser.wallet_type,
+    wallet_vertical=parser.WALLET_VERTICAL,
+    wallet_order_id=parser.wallet_order_id,
 )

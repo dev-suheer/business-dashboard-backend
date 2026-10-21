@@ -40,7 +40,7 @@ running account. It is not produced from these two uploads and is not part of th
 
 ## 2. Inputs
 
-Two files per run. Nothing else. Each file is searched for the sheet its role needs. Columns
+Two files per run, and an optional wallet history (section 2.4). Each file is searched for the sheet its role needs. Columns
 are located by header text, so a title row above the headers is ignored. The sample vendor tab
 has that title row (`Common Field`, `Rate %`) and the real headers on row 2.
 
@@ -124,6 +124,14 @@ either input. `tests/test_travel_schemas.py` already pins the shared-header trap
 the mirror case.
 
 `SG Order ID` is not a key, here or anywhere else.
+
+### 2.4 Wallet history (optional)
+
+The same wallet history travel reads (plan-travel.md section 3.8). Food movements are the `Food`
+wallet type, filed under the portal's `SG Order ID` — the one place that sequence is used. A
+wallet-paid row with no `SG Order ID`, as on every row of the sample portal tab, cannot be looked
+up: it is counted, and `WALLET_ORDER_ID_MISSING` is raised once for the run. The check never moves
+the settled payable.
 
 ---
 
@@ -307,7 +315,7 @@ Uploads stream to temp files. Sheets are read row by row. Nothing is persisted.
 POST /api/v1/reconcile/food?format=json|xlsx
 ```
 
-Multipart: `portal` (required), `vendor` (required). No rate fields and no period fields.
+Multipart: `portal` (required), `vendor` (required), `wallet` (optional). No rate fields and no period fields.
 Session-cookie auth, the same 415 / 413 / 422 mapping as the other recon endpoints, nothing
 persisted, the whole result in the response.
 
@@ -317,17 +325,22 @@ persisted, the whole result in the response.
 
 ## 8. Excel export
 
-Three sheets. Not the running `Final Summary`.
+Not the running `Final Summary`. The client signed this workbook off, and travel and eShop
+carry the same tabs.
 
 | # | Sheet | Contents |
 |---|---|---|
-| 1 | Orders | Portal columns (without the three `Customer` columns), the six checks, the vendor columns, and a verdict. Settled rows and held rows both appear, so a break is visible next to the order |
-| 2 | Summary | Settled count and settled due. Held amount breaks and one-sided orders, each with a count and the vendor due where we have one. Compensation total, reported and not deducted. The rates actually seen, as a legend, not as configuration |
-| 3 | Exceptions | severity, code, order id, amount, detail |
+| 1 | Dashboard | the client's dashboard: the headline block, cash collected against the portal total, the delivery split between customer, us and the restaurant, and a "Breakdown By Most Used" table by restaurant |
+| 2 | Orders | Portal columns (without the three `Customer` columns), the six checks, the vendor columns, and a verdict, with the totals and the summary block from the bottom of the hand-built sheet. Paired and vendor-only orders are totalled; portal-only orders are listed beneath, out of the totals |
+| 3 | Exceptions | severity, code, order, the order's status, amount, detail |
+| 4 | Wallet | only when a wallet history was uploaded: each wallet-paid row against the history, then the movements with no portal row |
+| 5 | Cashback | one invoice line per portal order, ready to import: unit price `=SG Delivery Expense/1.15`, tax `Domestic Sales (15%)` |
+| 6 | Portal | the portal upload, copied row for row |
+| 7 | Vendor | the vendor upload, copied row for row |
 
-The totals block on the hand-built sheet (food subtotal, customer delivery, SG delivery,
-commission, portal-vs-vendor food gap) is the Summary sheet, limited to **settled** rows.
-Held rows are lines under it, not folded into the settled due.
+Cashback, Portal and Vendor need the uploads themselves, so a report built from the result
+alone has the first three sheets (and Wallet). The JSON result keeps everything the
+workbook leaves out.
 
 ---
 

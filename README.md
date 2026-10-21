@@ -23,7 +23,9 @@ the promotional SKU catalogue — one request returns:
 - a settlement bridge from computed net payable to the vendor's closing balance
 - an exception list, split by severity, with informational prior- and
   later-period items kept out of the way of real breaks
-- the same result as a formatted six-sheet `.xlsx` report
+- the same result as a formatted `.xlsx` report with the same tabs in every
+  category: Dashboard, Orders, Exceptions, Wallet (when a wallet history is
+  uploaded), Cashback, and copies of the Portal and Vendor uploads
 
 ## API
 
@@ -70,6 +72,7 @@ included.
 | `vendor` | yes | Vendor account statement |
 | `promo` | yes | Discount base sheet (promotional SKUs) |
 | `settlements` | no | Prior settlement history, for clawbacks |
+| `wallet` | no | Wallet history, to prove the wallet share of each order |
 | `category` | no | Defaults to `eshop` |
 | `period_start`, `period_end` | no | Default to the portal order-date range |
 | `standard_rate`, `promo_rate`, `promo_cutoff` | no | Per-run overrides of the configured rates |
@@ -111,8 +114,7 @@ decided by the VAT on the claim, never by its `DOM/INT` label, which the sample
 data proves unreliable. The run settles on our own base at the vendor's contract
 rate and reports the uplift we never charged the customer, booking by booking.
 
-See [plan-travel.md](./plan-travel.md) for the full rule set and the nine-sheet
-report.
+See [plan-travel.md](./plan-travel.md) for the full rule set and the report.
 
 ### Reconciling food
 
@@ -121,6 +123,8 @@ on `Partner Order ID` = `order_id`. Dates are not compared. Only `Delivered`
 rows settle. The JSON is the whole result: one object per order with the portal
 side, the six checks, the vendor side, a verdict, and the settled due. A sample
 response is in [frontend/food-reconcile.sample.json](./frontend/food-reconcile.sample.json).
+An optional `wallet` upload checks each wallet-paid order against the wallet
+history, as travel does.
 
 See [plan-food.md](./plan-food.md).
 

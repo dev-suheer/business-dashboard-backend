@@ -36,7 +36,7 @@ from app.recon.categories.travel.models import (
     WalletReconciliation,
 )
 from app.recon.categories.travel.rules import BookingAccumulator, Window
-from app.recon.categories.travel.wallet import WalletHistory, reconcile_wallet
+from app.recon.categories.travel.wallet import reconcile_wallet
 from app.recon.cleaning import money
 from app.recon.excel import detect_sheet, detect_sheets, open_workbook
 from app.recon.exceptions import (
@@ -48,6 +48,7 @@ from app.recon.exceptions import (
 from app.recon.inputs import ReconInputError, Upload
 from app.recon.matcher import group_exceptions
 from app.recon.models import SheetManifest
+from app.recon.wallet import load_wallet
 
 logger = logging.getLogger(__name__)
 
@@ -384,19 +385,10 @@ def _load_wallet(
     portal: _Portal,
     manifest: list[SheetManifest],
 ) -> tuple[WalletReconciliation, list[ReconException]]:
-    history = WalletHistory()
-    with open_workbook(upload.path) as workbook:
-        sheet = detect_sheet(workbook, parser.WALLET_SCHEMA)
-        if sheet is None:
-            raise ReconInputError(
-                f"No {parser.WALLET_SCHEMA.name} sheet found in {upload.filename!r} "
-                f"uploaded as {upload.role!r}."
-            )
-        for event in parser.read_wallet(
-            workbook, sheet, source=upload.filename, max_rows=request.max_rows
-        ):
-            history.add(event)
-        _note(manifest, upload, [sheet], history.events)
+    history, sheet = load_wallet(
+        upload, wallet_type=parser.vertical_from_text, max_rows=request.max_rows
+    )
+    _note(manifest, upload, [sheet], history.events)
     return reconcile_wallet(
         portal.wallet_rows,
         history,

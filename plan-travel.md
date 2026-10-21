@@ -339,19 +339,21 @@ Multipart: `portal` (required), `vendor` (required), `wallet` (optional); form f
 
 ## 8. Excel export
 
-Nine sheets, mirroring the workbook the client builds by hand today.
+The same tabs as the food report, which the client signed off on (plan-food.md section 8).
 
-| # | Sheet | Mirrors |
+| # | Sheet | Contents |
 |---|---|---|
-| 1 | Summary | KPIs, the money block, the VAT-uplift shortfall, the hotel-vs-flight split with its ÷1.15 ex-VAT column, and the rates legend |
-| 2 | Booking Analysis | their `Analysis` tab: portal and vendor side by side plus the five computed columns |
-| 3 | Base Differences | their `Sheet1`: `SHOPPINGGATE ‖ ALMOSAFIR ‖ DIFFERENCE`, differing bookings only |
-| 4 | Vendor Invoice Lines | their `Vedor Report`, each line tagged with its group |
-| 5 | Refunds & Adjustments | credits, retained fees, full-vs-partial, commission reversal, adjustments |
-| 6 | Payment Methods | their pivot filter, by label and by instrument |
-| 7 | Wallet Reconciliation | only when a wallet file was uploaded |
-| 8 | Exceptions | severity, code, booking, amount, detail |
-| 9 | Claim Periods | the vendor's own claim ledger beside our computed figure |
+| 1 | Dashboard | the client's dashboard: the headline block, cash collected against the portal total, the commission at the contract rate by vertical, with its ÷1.15 ex-VAT figure, and a "Breakdown By Most Used" table by the claim's Service Provider |
+| 2 | Orders | their `Analysis` tab: the portal columns, the rate checks (`Com Rate Check`, `Vendor Rate Check`, `Actual As Vendor`, `Net Payable`, the base difference, the VAT uplift), then the claim columns, one row per matched booking. The totals carry their `Sheet1` block, `SHOPPINGGATE ‖ ALMOSAFER ‖ DIFFERENCE`, and the rates legend. Unmatched bookings are listed beneath with the reason, out of the totals |
+| 3 | Exceptions | severity, code, order, the order's status, amount, detail |
+| 4 | Wallet | only when a wallet history was uploaded: each wallet-paid row against the history, then the movements with no portal row |
+| 5 | Cashback | one invoice line per booking's primary portal row, ready to import: unit price `=Commission Charged/1.15`, tax `Domestic Sales (15%)` |
+| 6 | Portal | the portal upload, copied row for row |
+| 7 | Vendor | the vendor upload, copied row for row |
+
+Cashback, Portal and Vendor need the uploads themselves, so a report built from the result
+alone has the first three sheets (and Wallet). The JSON result keeps everything the
+workbook leaves out.
 
 ---
 

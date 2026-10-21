@@ -112,7 +112,12 @@ async def run_travel_reconciliation(
             return result
 
         report = Path(tempfile.mkstemp(prefix="recon-travel-", suffix=".xlsx")[1])
-        await run_in_threadpool(build_report, result, report)
+        await run_in_threadpool(
+            build_report,
+            result,
+            report,
+            {"portal": request.portal.path, "vendor": request.vendor.path},
+        )
         filename = (
             f"reconciliation-travel-{result.period_start}-to-{result.period_end}.xlsx"
         )

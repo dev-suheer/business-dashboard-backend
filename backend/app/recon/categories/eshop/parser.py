@@ -11,7 +11,13 @@ from typing import Any
 
 from openpyxl.workbook import Workbook
 
-from app.recon.cleaning import clean_text, money, to_date, to_decimal
+from app.recon.cleaning import (
+    clean_text,
+    money,
+    normalize_header,
+    to_date,
+    to_decimal,
+)
 from app.recon.excel import (
     ColumnSpec,
     SheetFormatError,
@@ -30,6 +36,11 @@ from app.recon.models import (
 # plan.md 3.6. Matched against the *description*, never the reference column,
 # which the vendor's system truncates to ten characters.
 ORDER_RE = re.compile(r"SG-SH-\d+")
+# The wallet history files an eShop movement under the order number's digits:
+# SG-SH-08986 is SG Order ID 8986.
+WALLET_ORDER_RE = re.compile(r"(\d+)$")
+# The wallet history's name for eShop movements, and the key they are filed under.
+WALLET_VERTICAL = "eshop"
 
 
 PORTAL_SCHEMA = SheetSchema(
@@ -56,6 +67,12 @@ PORTAL_SCHEMA = SheetSchema(
         # Prior-cycle settlement. Present in the sample export, and the reason a
         # separate settlement upload is a fallback rather than a precondition.
         ColumnSpec("amount_paid", ("Paid",)),
+        # Display only: the report's dashboard, and the wallet check.
+        ColumnSpec("payment_type", ("Payment Type",)),
+        ColumnSpec("wallet_amount", ("Wallet Amount",)),
+        ColumnSpec("non_wallet_amount", ("Non-Wallet Amount",)),
+        ColumnSpec("shipping_owner", ("Shipping Ownership",)),
+        ColumnSpec("shipping_cost", ("Shipping Cost",)),
     ),
 )
 
@@ -117,6 +134,18 @@ def extract_order_no(raw: Any) -> str | None:
         return None
     match = ORDER_RE.search(text.upper())
     return match.group(0) if match else None
+
+
+def wallet_type(raw: Any) -> str | None:
+    """Read a wallet history ``Wallet Type``: ``Eshop Order`` is ours."""
+    key = normalize_header(raw).replace("-", "")
+    return WALLET_VERTICAL if key in {"eshoporder", "eshoporders", "eshop"} else None
+
+
+def wallet_order_id(order_no: str) -> str | None:
+    """The SG Order ID the wallet history files an order under."""
+    match = WALLET_ORDER_RE.search(order_no)
+    return str(int(match.group(1))) if match else None
 
 
 def classify_doc_type(raw: Any) -> LedgerDocType:
@@ -203,6 +232,11 @@ def read_portal(
             brand=clean_text(record.get("brand")),
             item_title=clean_text(record.get("item_title")),
             amount_paid=to_decimal(record.get("amount_paid")),
+            payment_type=clean_text(record.get("payment_type")),
+            wallet_amount=to_decimal(record.get("wallet_amount")),
+            non_wallet_amount=to_decimal(record.get("non_wallet_amount")),
+            shipping_owner=clean_text(record.get("shipping_owner")),
+            shipping_cost=to_decimal(record.get("shipping_cost")),
         )
 
 

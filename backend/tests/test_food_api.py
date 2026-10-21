@@ -7,7 +7,13 @@ from fastapi.testclient import TestClient
 from openpyxl import load_workbook
 
 from app.core.config import settings
-from tests.conftest import FOOD_PORTAL, FOOD_VENDOR, TRAVEL_PORTAL, VENDOR_STATEMENT
+from tests.conftest import (
+    FOOD_PORTAL,
+    FOOD_VENDOR,
+    TRAVEL_PORTAL,
+    TRAVEL_WALLET,
+    VENDOR_STATEMENT,
+)
 
 FOOD = f"{settings.API_V1_STR}/reconcile/food"
 XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -52,6 +58,19 @@ def test_end_to_end_xlsx(auth_client: TestClient) -> None:
         "Vendor",
     ]
     book.close()
+
+
+def test_the_wallet_file_is_optional(auth_client: TestClient) -> None:
+    assert auth_client.post(FOOD, files=_files()).json()["wallet"] is None
+    files = _files()
+    files["wallet"] = ("wallet_history.xlsx", TRAVEL_WALLET.read_bytes(), XLSX)
+    response = auth_client.post(FOOD, files=files)
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["wallet"]["unkeyed"] == 188
+    assert Decimal(str(body["summary"]["settled_due"])) == Decimal("20748.07")
+    detected = {item["role"]: item["sheets"] for item in body["detected"]}
+    assert detected["wallet"] == ["Sheet1"]
 
 
 def test_a_missing_file_is_a_validation_error(auth_client: TestClient) -> None:
