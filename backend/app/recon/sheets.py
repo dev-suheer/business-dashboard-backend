@@ -573,10 +573,13 @@ class CashbackLine:
 
 
 def cashback_sheet(
-    book: Any, fmt: dict[str, Any], lines: Sequence[CashbackLine]
+    book: Any,
+    fmt: dict[str, Any],
+    lines: Sequence[CashbackLine],
+    title: str = "Cashback",
 ) -> None:
     """One invoice line per portal row the category bills, ready to import."""
-    sheet = book.add_worksheet("Cashback")
+    sheet = book.add_worksheet(title)
     table(sheet, fmt, _CASHBACK_HEADERS, _CASHBACK_WIDTHS)
     for offset, line in enumerate(lines, start=1):
         write_text(sheet, offset, 0, line.partner)

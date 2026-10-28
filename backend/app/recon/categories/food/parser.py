@@ -108,6 +108,31 @@ VENDOR_SCHEMA = SheetSchema(
     ),
 )
 
+# The cashback file is a spin report. A finished recon workbook also carries
+# the reward columns, bolted onto its Orders sheet; Spin Event ID is what the
+# source table has and that sheet does not.
+FINANCE_SCHEMA = SheetSchema(
+    name="finance report",
+    fingerprint=(
+        "Spin Event ID",
+        "Order ID",
+        "Reward Amount (SAR)",
+        "Reward Code",
+        "Reward Type",
+        "Outcome",
+        "Vertical Name",
+    ),
+    exclude=("MATCH ID'S", "Match ID's", "Partner Order ID"),
+    columns=(
+        ColumnSpec("order_id", ("Order ID",), required=True),
+        ColumnSpec("reward_amount", ("Reward Amount (SAR)",), required=True),
+        ColumnSpec("vertical_name", ("Vertical Name",), required=True),
+        ColumnSpec("reward_code", ("Reward Code",), required=True),
+        ColumnSpec("reward_type", ("Reward Type",), required=True),
+        ColumnSpec("outcome", ("Outcome",), required=True),
+    ),
+)
+
 
 # The wallet history's name for food movements, and the key they are filed under.
 WALLET_VERTICAL = "food"

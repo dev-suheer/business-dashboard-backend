@@ -4,7 +4,7 @@ from decimal import Decimal
 from io import BytesIO
 
 from fastapi.testclient import TestClient
-from openpyxl import load_workbook
+from openpyxl import Workbook, load_workbook
 
 from app.core.config import settings
 from tests.conftest import (
@@ -53,7 +53,7 @@ def test_end_to_end_xlsx(auth_client: TestClient) -> None:
         "Dashboard",
         "Orders",
         "Exceptions",
-        "Cashback",
+        "B2C Invoices ERP",
         "Portal",
         "Vendor",
     ]
@@ -98,6 +98,48 @@ def test_a_non_excel_upload_is_refused(auth_client: TestClient) -> None:
     files["portal"] = ("portal.csv", b"not a workbook", "text/csv")
     response = auth_client.post(FOOD, files=files)
     assert response.status_code == 415
+
+
+def _finance_bytes() -> bytes:
+    book = Workbook()
+    sheet = book.active
+    assert sheet is not None
+    headers = [
+        "Spin Event ID",
+        "User ID",
+        "Order ID",
+        "Reward Amount (SAR)",
+        "Reward Code",
+        "Reward Type",
+        "Outcome",
+        "Vertical Name",
+    ]
+    for col, header in enumerate(headers, start=1):
+        sheet.cell(1, col, header)
+    sheet.cell(2, 3, 59709)
+    buffer = BytesIO()
+    book.save(buffer)
+    return buffer.getvalue()
+
+
+def test_a_finance_report_is_optional_and_copied(auth_client: TestClient) -> None:
+    files = _files()
+    files["finance"] = ("finance.xlsx", _finance_bytes(), XLSX)
+    response = auth_client.post(FOOD, files=files, params={"format": "xlsx"})
+    assert response.status_code == 200, response.text
+    book = load_workbook(BytesIO(response.content), read_only=True)
+    assert book.sheetnames[-1] == "Finance Report"
+    book.close()
+
+
+def test_a_finance_file_without_the_spin_table_is_rejected(
+    auth_client: TestClient,
+) -> None:
+    files = _files()
+    files["finance"] = ("finance.xlsx", FOOD_VENDOR.read_bytes(), XLSX)
+    response = auth_client.post(FOOD, files=files)
+    assert response.status_code == 422
+    assert "finance" in response.json()["detail"]
 
 
 def test_the_endpoint_needs_a_session(client: TestClient) -> None:

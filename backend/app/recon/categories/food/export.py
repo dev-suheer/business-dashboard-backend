@@ -2,17 +2,21 @@
 
 The Orders sheet follows the client's ANALYSIS & RECON layout: portal columns,
 the six checks, then the vendor columns, with their totals and the summary
-block from the bottom of that sheet. One-sided orders stay on the sheet and
-out of those totals.
+block from the bottom of that sheet. Only matched orders that are not
+cancelled are listed, so the totals leave out vendor rows with no portal
+order. Those rows, and cancelled orders, stay on the Exceptions sheet.
 
 The Portal and Vendor sheets are the uploads themselves, copied row for row,
 including a title row and columns the recon does not use. They are a record of
 what was read, not a second reconciliation.
+
+When a finance report is uploaded, it is copied as its own sheet and the
+Orders sheet looks each row's SG Order ID up in that sheet's Order ID. The
+five cashback columns are formulas, so opening the cell shows the lookup.
 """
 
 import re
 from dataclasses import dataclass, field
-from datetime import date, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -22,14 +26,15 @@ import xlsxwriter
 from app.recon.categories.food import parser
 from app.recon.categories.food.models import FoodOrder, FoodResult, FoodVerdict
 from app.recon.cleaning import money
+from app.recon.excel import SheetFormatError, detect_sheets, find_header, open_workbook
 from app.recon.exceptions import ReconException
+from app.recon.models import SheetManifest
 from app.recon.sheets import (
     PORTAL_TITLE,
     VENDOR_TITLE,
     BreakdownEntry,
     CashbackLine,
     DashBlock,
-    PortalRecord,
     breakdown_total,
     cashback_sheet,
     exceptions_sheet,
@@ -103,6 +108,24 @@ _COLUMNS: tuple[tuple[str, str, int, str, str], ...] = (
     ("verdict", "Verdict", 14, "meta", "text"),
 )
 
+# After the vendor columns. The last two names are not on the client's draft;
+# Reward Type and Outcome are the two facts that sit beside the reward.
+_CASHBACK_COLUMNS: tuple[tuple[str, str, int, str, str], ...] = (
+    ("cashback_reward", "Cash Back Reward", 18, "cashback", "money"),
+    ("vertical_name", "Vertical Name", 18, "cashback", "text"),
+    ("reward_code", "Reward Code", 16, "cashback", "text"),
+    ("reward_type", "Reward Type", 14, "cashback", "text"),
+    ("outcome", "Outcome", 12, "cashback", "text"),
+)
+_CASHBACK_FIELDS = (
+    "reward_amount",
+    "vertical_name",
+    "reward_code",
+    "reward_type",
+    "outcome",
+)
+FINANCE_TITLE = "Finance Report"
+
 _COL = {spec[0]: index for index, spec in enumerate(_COLUMNS)}
 
 
@@ -113,11 +136,14 @@ def build_report(
 ) -> Path:
     """Write the report. ``sources`` maps ``portal`` and ``vendor`` to the uploads.
 
-    Those two sheets, and Cashback, are appended only when the paths are
+    Portal, Vendor, and B2C Invoices ERP are appended only when the paths are
     supplied. The download route always supplies them; a caller that only has
     ``FoodResult`` still gets Dashboard, Orders, and Exceptions. Wallet follows
-    Exceptions when a wallet history was uploaded.
+    Exceptions when a wallet history was uploaded. B2C invoices are the matched
+    orders that are not cancelled, and their unit price reads the Orders sheet.
+    A ``finance`` path adds the cashback columns and a copy of that report.
     """
+    finance = finance_layout(sources.get("finance")) if sources else None
     book = xlsxwriter.Workbook(
         str(path),
         {
@@ -128,13 +154,23 @@ def build_report(
     )
     try:
         fmt = report_formats(book)
+        fmt["cashback_header"] = book.add_format(
+            {
+                "bold": True,
+                "bg_color": "#1F4E79",
+                "font_color": "white",
+                "border": 1,
+                "text_wrap": True,
+                "valign": "vcenter",
+            }
+        )
         _dashboard_sheet(book, fmt, result)
-        _orders_sheet(book, fmt, result)
+        _orders_sheet(book, fmt, result, finance)
         _exceptions_sheet(book, fmt, result)
         if result.wallet is not None:
             wallet_sheet(book, fmt, result.wallet)
         if sources:
-            _cashback_sheet(book, fmt, result, sources)
+            _b2c_invoices_sheet(book, fmt, result, sources)
             source_sheets(
                 book,
                 fmt,
@@ -145,6 +181,28 @@ def build_report(
                     ("vendor", VENDOR_TITLE, parser.VENDOR_SCHEMA, "vendor_header"),
                 ),
             )
+            if finance is not None:
+                source_sheets(
+                    book,
+                    fmt,
+                    [
+                        SheetManifest(
+                            role="finance",
+                            filename="finance.xlsx",
+                            sheets=finance.sheets,
+                            rows=0,
+                        )
+                    ],
+                    sources,
+                    (
+                        (
+                            "finance",
+                            FINANCE_TITLE,
+                            parser.FINANCE_SCHEMA,
+                            "cashback_header",
+                        ),
+                    ),
+                )
     finally:
         book.close()
     return path
@@ -420,20 +478,62 @@ def _dashboard_view(result: FoodResult) -> _DashboardView:
     return view
 
 
-def _orders_sheet(book: Any, fmt: dict[str, Any], result: FoodResult) -> None:
-    sheet = book.add_worksheet("Orders")
-    write_column_headers(sheet, fmt, _COLUMNS)
+@dataclass(frozen=True)
+class _FinanceLayout:
+    """The copied report's sheets, and which column holds each lookup field."""
 
-    included = [
-        order
-        for order in result.orders
-        if _paired(order) or order.verdict is FoodVerdict.VENDOR_ONLY
-    ]
-    portal_only = [
-        order for order in result.orders if order.verdict is FoodVerdict.PORTAL_ONLY
-    ]
+    sheets: list[str]
+    columns: dict[str, int]
+
+
+def finance_layout(path: Path | None) -> _FinanceLayout | None:
+    """The spin table inside a finance upload, or None when none was supplied.
+
+    Order ID is unique on the report, so the first exact match is the reward.
+    A worked recon file that already has the reward columns bolted on does not
+    match: it has no Spin Event ID.
+    """
+    if path is None:
+        return None
+    with open_workbook(path) as workbook:
+        names = detect_sheets(workbook, parser.FINANCE_SCHEMA)
+        if not names:
+            raise SheetFormatError(
+                "No finance report table found in 'finance'. Expected columns "
+                "Spin Event ID, Order ID, Reward Amount (SAR), Reward Code, "
+                "Reward Type, Outcome and Vertical Name."
+            )
+        match = find_header(workbook[names[0]], parser.FINANCE_SCHEMA)
+        if match is None:
+            raise SheetFormatError(
+                "No finance report table found in 'finance'. Expected columns "
+                "Spin Event ID, Order ID, Reward Amount (SAR), Reward Code, "
+                "Reward Type, Outcome and Vertical Name."
+            )
+        missing = match.missing(parser.FINANCE_SCHEMA)
+        if missing:
+            raise SheetFormatError(
+                "'finance' is missing column(s): " + ", ".join(missing)
+            )
+        return _FinanceLayout(sheets=list(names), columns=dict(match.columns))
+
+
+def _orders_sheet(
+    book: Any,
+    fmt: dict[str, Any],
+    result: FoodResult,
+    finance: _FinanceLayout | None,
+) -> None:
+    columns = _COLUMNS + _CASHBACK_COLUMNS if finance is not None else _COLUMNS
+    sheet = book.add_worksheet("Orders")
+    write_column_headers(sheet, fmt, columns)
+
+    included = _orders_on_sheet(result)
     for offset, order in enumerate(included):
-        _write_order(sheet, fmt, 1 + offset, order)
+        row = 1 + offset
+        _write_order(sheet, fmt, row, order)
+        if finance is not None:
+            _write_cashback(sheet, fmt, row, finance)
 
     first = 2
     last = 1 + len(included)
@@ -443,11 +543,34 @@ def _orders_sheet(book: Any, fmt: dict[str, Any], result: FoodResult) -> None:
         _write_delivery_sum(sheet, fmt, totals + 1, totals)
         _write_paired_total(sheet, fmt, totals + 2, totals)
         _write_client_summary(sheet, fmt, totals + 4, totals)
-    if portal_only:
-        note_row = (totals + 10) if included else 2
-        _write_one_sided(sheet, fmt, note_row, portal_only)
     if included:
-        sheet.autofilter(0, 0, last - 1, len(_COLUMNS) - 1)
+        sheet.autofilter(0, 0, last - 1, len(columns) - 1)
+
+
+def _write_cashback(
+    sheet: Any, fmt: dict[str, Any], row: int, finance: _FinanceLayout
+) -> None:
+    """Five lookups of this row's SG Order ID. A blank id, or no reward, is NA."""
+    excel_row = row + 1
+    key = letter(finance.columns["order_id"])
+    paired = zip(_CASHBACK_COLUMNS, _CASHBACK_FIELDS, strict=True)
+    for offset, (spec, field_name) in enumerate(paired):
+        formula = _cashback_formula(excel_row, key, letter(finance.columns[field_name]))
+        style = fmt["money"] if spec[4] == "money" else None
+        sheet.write_formula(row, len(_COLUMNS) + offset, formula, style)
+
+
+def _cashback_formula(excel_row: int, key_col: str, return_col: str) -> str:
+    """Exact lookup. SG Order ID is text; the report's Order ID may be a number."""
+    cell = f"{letter(_COL['sg_order_id'])}{excel_row}"
+    lookup = f"'{FINANCE_TITLE}'!{key_col}:{key_col}"
+    found = f"'{FINANCE_TITLE}'!{return_col}:{return_col}"
+    number = f"IFERROR(VALUE({cell}),{cell})"
+    return (
+        f'=IF({cell}="","NA",IFNA('
+        f"XLOOKUP({number},{lookup},{found},NA(),0),"
+        f'XLOOKUP({cell}&"",{lookup},{found},"NA",0)))'
+    )
 
 
 # ``rules._not_delivered`` writes this sentence for a row that never becomes an order.
@@ -482,60 +605,75 @@ def _exception_status(exc: ReconException, statuses: dict[str, str]) -> str:
     return match.group("status") if match else ""
 
 
-_CASHBACK_PRODUCT = "Food Delivery"
+_INVOICE_SHEET = "B2C Invoices ERP"
+_INVOICE_PRODUCT = "Food Delivery"
+_CANCELLED = frozenset({"cancelled", "canceled"})
 
 
-def _cashback_sheet(
+def _b2c_invoices_sheet(
     book: Any,
     fmt: dict[str, Any],
     result: FoodResult,
     sources: dict[str, Path],
 ) -> None:
-    """One invoice line per portal order. Unit price is the delivery expense ex VAT."""
-    detected = {item.role: item.sheets for item in result.detected}
-    path = sources.get("portal")
-    names = detected.get("portal") or []
-    if path is None or not names:
-        return
+    """Matched orders that are not cancelled. Unit price reads the Orders sheet."""
+    contacts = _invoice_contacts(result, sources)
+    delivery = letter(_COL["sg_delivery"])
+    lines: list[CashbackLine] = []
+    for excel_row, order in enumerate(_orders_on_sheet(result), start=2):
+        if not _paired(order) or _cancelled(order):
+            continue
+        portal = order.portal
+        assert portal is not None
+        lines.append(
+            CashbackLine(
+                partner=(portal.provider or "").strip(),
+                order_id=order.order_id,
+                contact=contacts.get(order.order_id, ""),
+                bill_date=portal.order_date,
+                product=_INVOICE_PRODUCT,
+                unit_cell=f"Orders!{delivery}{excel_row}",
+            )
+        )
+    cashback_sheet(book, fmt, lines, title=_INVOICE_SHEET)
+
+
+def _orders_on_sheet(result: FoodResult) -> list[FoodOrder]:
+    """Matched orders that are not cancelled, in workbook order.
+
+    A vendor row with no portal order has MATCH ID'S false. Leaving it on
+    this sheet puts its amounts into the totals. It is already an exception.
+    """
+    return [
+        order for order in result.orders if _paired(order) and not _cancelled(order)
+    ]
+
+
+def _cancelled(order: FoodOrder) -> bool:
+    statuses = []
+    if order.portal is not None:
+        statuses.append(order.portal.order_status)
+    if order.vendor is not None:
+        statuses.append(order.vendor.order_status)
+    return any(status.casefold() in _CANCELLED for status in statuses)
+
+
+def _invoice_contacts(result: FoodResult, sources: dict[str, Path]) -> dict[str, str]:
     contacts = {
         order.order_id: order.vendor.customer_name
         for order in result.orders
         if order.vendor is not None and order.vendor.customer_name
     }
-    lines = [
-        line
-        for record in portal_records(path, names, parser.PORTAL_SCHEMA)
-        if (line := _cashback_line(record, contacts)) is not None
-    ]
-    cashback_sheet(book, fmt, lines)
-
-
-def _cashback_line(
-    record: PortalRecord, contacts: dict[str, str]
-) -> CashbackLine | None:
-    order_id = order_id_text(record.get("partnerorderid"))
-    if not order_id:
-        return None
-    vertical = record.get("vertical")
-    if vertical is None or str(vertical).strip().casefold() != "food":
-        return None
-    unit_cell = record.cell("sgdeliveryexpense")
-    if unit_cell is None:
-        return None
-    partner = record.get("providername")
-    contact = record.contact()
-    if not contact:
-        contact = contacts.get(order_id, "")
-    bill_date = record.get("orderdate")
-    when = bill_date if isinstance(bill_date, (date, datetime)) else None
-    return CashbackLine(
-        partner="" if partner is None else str(partner).strip(),
-        order_id=order_id,
-        contact=contact,
-        bill_date=when,
-        product=_CASHBACK_PRODUCT,
-        unit_cell=unit_cell,
-    )
+    path = sources.get("portal")
+    names = {item.role: item.sheets for item in result.detected}.get("portal") or []
+    if path is None or not names:
+        return contacts
+    for record in portal_records(path, names, parser.PORTAL_SCHEMA):
+        order_id = order_id_text(record.get("partnerorderid"))
+        contact = record.contact()
+        if order_id and contact:
+            contacts[order_id] = contact
+    return contacts
 
 
 def _paired(order: FoodOrder) -> bool:
@@ -652,16 +790,6 @@ def _write_client_summary(
     for offset, (_title, formula, highlight) in enumerate(measures):
         style = "yellow" if highlight else "money"
         sheet.write_formula(row + 2, 4 + offset, formula, fmt[style])
-
-
-def _write_one_sided(
-    sheet: Any, fmt: dict[str, Any], row: int, orders: list[FoodOrder]
-) -> None:
-    sheet.write(
-        row, 0, "Portal orders with no vendor row, not in the totals", fmt["title"]
-    )
-    for offset, order in enumerate(orders, start=1):
-        _write_order(sheet, fmt, row + offset, order)
 
 
 def _order_values(order: FoodOrder) -> list[Any]:
