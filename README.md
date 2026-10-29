@@ -25,7 +25,8 @@ the promotional SKU catalogue — one request returns:
   later-period items kept out of the way of real breaks
 - the same result as a formatted `.xlsx` report with the same tabs in every
   category: Dashboard, Orders, Exceptions, Wallet (when a wallet history is
-  uploaded), Cashback, and copies of the Portal and Vendor uploads
+  uploaded), B2C Invoices ERP, copies of the Portal and Vendor uploads, and
+  Finance Report (when a finance report is uploaded)
 
 ## API
 
@@ -73,6 +74,7 @@ included.
 | `promo` | yes | Discount base sheet (promotional SKUs) |
 | `settlements` | no | Prior settlement history, for clawbacks |
 | `wallet` | no | Wallet history, to prove the wallet share of each order |
+| `finance` | no | Finance (cashback) report; each order's number digits are looked up in its Order ID |
 | `category` | no | Defaults to `eshop` |
 | `period_start`, `period_end` | no | Default to the portal order-date range |
 | `standard_rate`, `promo_rate`, `promo_cutoff` | no | Per-run overrides of the configured rates |
@@ -99,6 +101,7 @@ vendor's weekly claim, so it has its own endpoint and its own result shape.
 | `portal` | yes | Portal export; hotel and flight tabs are both read |
 | `vendor` | yes | The vendor's weekly claim workbook |
 | `wallet` | no | Wallet history, to prove the wallet share of each booking |
+| `finance` | no | Finance (cashback) report; each booking's SG Order ID is looked up in its Order ID |
 | `period_start`, `period_end` | no | Default to the portal order-date range |
 | `hotel_rate`, `flight_rate`, `vat_rate` | no | Per-run overrides of the configured rates |
 | `format` (query) | no | `json` (default) or `xlsx` |
@@ -124,7 +127,8 @@ rows settle. The JSON is the whole result: one object per order with the portal
 side, the six checks, the vendor side, a verdict, and the settled due. A sample
 response is in [frontend/food-reconcile.sample.json](./frontend/food-reconcile.sample.json).
 An optional `wallet` upload checks each wallet-paid order against the wallet
-history, as travel does.
+history, as travel does. An optional `finance` upload looks each order's SG Order
+ID up in the finance (cashback) report.
 
 See [plan-food.md](./plan-food.md).
 

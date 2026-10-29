@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from openpyxl import Workbook
 
 from app.core import credentials as credentials_module
 from app.core.config import settings
@@ -123,3 +124,45 @@ def travel_upload_files() -> dict[str, tuple[str, bytes, str]]:
         "vendor": ("claim_13.xlsx", TRAVEL_CLAIMS["13"].read_bytes(), xlsx),
         "wallet": ("wallet_history.xlsx", TRAVEL_WALLET.read_bytes(), xlsx),
     }
+
+
+FINANCE_HEADERS = (
+    "Spin Event ID",
+    "User ID",
+    "Order ID",
+    "Order Type",
+    "Order Amount (SAR)",
+    "Reward Amount (SAR)",
+    "Reward Code",
+    "Reward Type",
+    "Outcome",
+    "Spin Earned At (KSA)",
+    "Reward Earned At (KSA)",
+    "AOV Tier ID",
+    "AOV Tier Name",
+    "Vertical ID",
+    "Vertical Name",
+)
+
+
+def write_finance_report(path: Path, order_ids: list[int], vertical: str) -> Path:
+    """A spin report as the client sends it: a summary block above the table."""
+    book = Workbook()
+    sheet = book.active
+    assert sheet is not None
+    sheet.title = "CASHBACK"
+    sheet["A1"] = "Total spins"
+    sheet["B1"] = len(order_ids)
+    for col, header in enumerate(FINANCE_HEADERS, start=1):
+        sheet.cell(14, col, header)
+    for offset, order_id in enumerate(order_ids):
+        row = 15 + offset
+        sheet.cell(row, 1, 61167 + offset)
+        sheet.cell(row, 3, order_id)
+        sheet.cell(row, 6, 4.13)
+        sheet.cell(row, 7, "PERCENT_10")
+        sheet.cell(row, 8, 0.1)
+        sheet.cell(row, 9, "won")
+        sheet.cell(row, 15, vertical)
+    book.save(path)
+    return path

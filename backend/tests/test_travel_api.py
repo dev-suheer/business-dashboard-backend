@@ -3,11 +3,18 @@
 import zipfile
 from decimal import Decimal
 from io import BytesIO
+from pathlib import Path
 
 from fastapi.testclient import TestClient
+from openpyxl import load_workbook
 
 from app.core.config import settings
-from tests.conftest import VENDOR_STATEMENT, WORKINGS
+from tests.conftest import (
+    TRAVEL_CLAIMS,
+    VENDOR_STATEMENT,
+    WORKINGS,
+    write_finance_report,
+)
 
 TRAVEL = f"{settings.API_V1_STR}/reconcile/travel"
 XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -57,6 +64,31 @@ def test_the_wallet_file_is_optional(
     assert response.json()["wallet"] is None
 
 
+def test_a_finance_report_is_optional_and_copied(
+    auth_client: TestClient, travel_upload_files: Files, tmp_path: Path
+) -> None:
+    finance = write_finance_report(tmp_path / "finance.xlsx", [121], "hotel")
+    travel_upload_files["finance"] = ("finance.xlsx", finance.read_bytes(), XLSX)
+    response = auth_client.post(
+        TRAVEL, files=travel_upload_files, params={"format": "xlsx"}
+    )
+    assert response.status_code == 200, response.text
+    book = load_workbook(BytesIO(response.content), read_only=True)
+    assert book.sheetnames[-1] == "Finance Report"
+    assert "B2C Invoices ERP" in book.sheetnames
+    book.close()
+
+
+def test_a_finance_file_without_the_spin_table_is_rejected(
+    auth_client: TestClient, travel_upload_files: Files
+) -> None:
+    claim = TRAVEL_CLAIMS["13"].read_bytes()
+    travel_upload_files["finance"] = ("finance.xlsx", claim, XLSX)
+    response = auth_client.post(TRAVEL, files=travel_upload_files)
+    assert response.status_code == 422
+    assert "finance" in response.json()["detail"]
+
+
 def test_rates_can_be_overridden_per_run(
     auth_client: TestClient, travel_upload_files: Files
 ) -> None:
@@ -95,6 +127,15 @@ def test_a_workbook_with_no_claim_sheet_is_rejected_by_name(
     response = auth_client.post(TRAVEL, files=travel_upload_files)
     assert response.status_code == 422
     assert "vendor claim report" in response.json()["detail"]
+
+
+def test_a_damaged_wallet_file_is_a_422_naming_the_field(
+    auth_client: TestClient, travel_upload_files: Files
+) -> None:
+    travel_upload_files["wallet"] = ("wallet.xlsx", b"not a workbook", XLSX)
+    response = auth_client.post(TRAVEL, files=travel_upload_files)
+    assert response.status_code == 422
+    assert "'wallet' is not a readable Excel workbook" in response.json()["detail"]
 
 
 def test_a_non_excel_upload_is_refused(

@@ -93,6 +93,16 @@ def test_an_account_statement_is_rejected_by_name(auth_client: TestClient) -> No
     assert "food vendor report" in response.json()["detail"]
 
 
+def test_a_damaged_finance_file_is_a_422_naming_the_field(
+    auth_client: TestClient,
+) -> None:
+    files = _files()
+    files["finance"] = ("finance.xlsx", b"not a workbook", XLSX)
+    response = auth_client.post(FOOD, files=files)
+    assert response.status_code == 422
+    assert "'finance' is not a readable Excel workbook" in response.json()["detail"]
+
+
 def test_a_non_excel_upload_is_refused(auth_client: TestClient) -> None:
     files = _files()
     files["portal"] = ("portal.csv", b"not a workbook", "text/csv")

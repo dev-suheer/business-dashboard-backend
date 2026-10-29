@@ -315,7 +315,7 @@ Uploads stream to temp files. Sheets are read row by row. Nothing is persisted.
 POST /api/v1/reconcile/food?format=json|xlsx
 ```
 
-Multipart: `portal` (required), `vendor` (required), `wallet` (optional). No rate fields and no period fields.
+Multipart: `portal` (required), `vendor` (required), `wallet` (optional), `finance` (optional). No rate fields and no period fields.
 Session-cookie auth, the same 415 / 413 / 422 mapping as the other recon endpoints, nothing
 persisted, the whole result in the response.
 
@@ -331,15 +331,16 @@ carry the same tabs.
 | # | Sheet | Contents |
 |---|---|---|
 | 1 | Dashboard | the client's dashboard: the headline block, cash collected against the portal total, the delivery split between customer, us and the restaurant, and a "Breakdown By Most Used" table by restaurant |
-| 2 | Orders | Portal columns (without the three `Customer` columns), the six checks, the vendor columns, and a verdict, with the totals and the summary block from the bottom of the hand-built sheet. Paired and vendor-only orders are totalled; portal-only orders are listed beneath, out of the totals |
+| 2 | Orders | Portal columns (without the three `Customer` columns), the six checks, the vendor columns, and a verdict, with the totals and the summary block from the bottom of the hand-built sheet. Only matched orders that are not cancelled are listed and totalled; one-sided and cancelled orders stay on Exceptions |
 | 3 | Exceptions | severity, code, order, the order's status, amount, detail |
 | 4 | Wallet | only when a wallet history was uploaded: each wallet-paid row against the history, then the movements with no portal row |
-| 5 | Cashback | one invoice line per portal order, ready to import: unit price `=SG Delivery Expense/1.15`, tax `Domestic Sales (15%)` |
+| 5 | B2C Invoices ERP | one invoice line per order on the Orders sheet, ready to import: unit price `=Orders!<SG Delivery Expense>/1.15`, tax `Domestic Sales (15%)` |
 | 6 | Portal | the portal upload, copied row for row |
 | 7 | Vendor | the vendor upload, copied row for row |
+| 8 | Finance Report | only when a finance report was uploaded: the report, copied row for row. Orders then gains five lookup columns after the verdict (Cash Back Reward, Vertical Name, Reward Code, Reward Type, Outcome), each the row's SG Order ID looked up in the report's Order ID, `NA` when there is none |
 
-Cashback, Portal and Vendor need the uploads themselves, so a report built from the result
-alone has the first three sheets (and Wallet). The JSON result keeps everything the
+B2C Invoices ERP, Portal and Vendor need the uploads themselves, so a report built from the
+result alone has the first three sheets (and Wallet). The JSON result keeps everything the
 workbook leaves out.
 
 ---

@@ -212,5 +212,5 @@ def test_the_report_follows_the_food_workbook(
         names = book.read("xl/workbook.xml").decode()
     for sheet in ("Dashboard", "Orders", "Exceptions"):
         assert sheet in names
-    for sheet in ("Wallet", "Cashback", "Portal", "Vendor"):
+    for sheet in ("Wallet", "B2C Invoices ERP", "Portal", "Vendor", "Finance Report"):
         assert f'name="{sheet}"' not in names

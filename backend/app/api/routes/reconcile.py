@@ -28,6 +28,7 @@ from app.core.config import settings
 from app.recon.engine import ReconRequest, reconcile
 from app.recon.excel import SheetFormatError
 from app.recon.export import build_report
+from app.recon.finance import finance_layout
 from app.recon.inputs import ReconInputError
 from app.recon.models import RateConfig, ReconResult
 from app.recon.registry import UnknownCategoryError
@@ -62,6 +63,16 @@ async def run_reconciliation(
             description="Optional wallet history, to prove the wallet share of each order."
         ),
     ] = None,
+    finance: Annotated[
+        UploadFile | None,
+        File(
+            description=(
+                "Optional finance report. Its Order ID is matched to the order "
+                "number's digits (SG-SH-08986 is 8986) and written as cashback "
+                "columns on the Orders sheet."
+            )
+        ),
+    ] = None,
     category: Annotated[str, Form()] = "eshop",
     period_start: Annotated[date | None, Form()] = None,
     period_end: Annotated[date | None, Form()] = None,
@@ -79,7 +90,9 @@ async def run_reconciliation(
     deduplicated, because the PDF converter emits overlapping copies.
 
     The wallet history is optional. Supplied, it proves that the wallet share of
-    each order actually left a wallet, and for the same amount.
+    each order actually left a wallet, and for the same amount. The finance
+    report is optional too. Supplied, each Orders row looks its order number's
+    digits up in that report's Order ID.
 
     Rates default to the server configuration and can be overridden per run,
     which makes a back-dated recalculation a single request.
@@ -124,6 +137,14 @@ async def run_reconciliation(
                 else None
             ),
         )
+        finance_upload = (
+            await spool(finance, "finance", workdir)
+            if finance is not None and finance.filename
+            else None
+        )
+        if finance_upload is not None:
+            # Reject a file with no spin table before the recon runs.
+            await run_in_threadpool(finance_layout, finance_upload.path)
         # Parsing and reconciling are CPU-bound; off the event loop they go.
         result = await run_in_threadpool(reconcile, request)
 
@@ -131,12 +152,10 @@ async def run_reconciliation(
             return result
 
         report = Path(tempfile.mkstemp(prefix="recon-report-", suffix=".xlsx")[1])
-        await run_in_threadpool(
-            build_report,
-            result,
-            report,
-            {"portal": request.portal.path, "vendor": request.vendor.path},
-        )
+        sources = {"portal": request.portal.path, "vendor": request.vendor.path}
+        if finance_upload is not None:
+            sources["finance"] = finance_upload.path
+        await run_in_threadpool(build_report, result, report, sources)
         filename = (
             f"reconciliation-{result.category}-"
             f"{result.period_start}-to-{result.period_end}.xlsx"

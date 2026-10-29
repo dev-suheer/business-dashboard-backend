@@ -22,6 +22,7 @@ from app.recon.categories.travel.export import build_report
 from app.recon.categories.travel.models import TravelRateConfig, TravelResult
 from app.recon.categories.travel.pipeline import TravelRequest, run
 from app.recon.excel import SheetFormatError
+from app.recon.finance import finance_layout
 from app.recon.inputs import ReconInputError
 
 logger = logging.getLogger(__name__)
@@ -52,6 +53,15 @@ async def run_travel_reconciliation(
             description="Optional wallet history, to prove the wallet share of each booking."
         ),
     ] = None,
+    finance: Annotated[
+        UploadFile | None,
+        File(
+            description=(
+                "Optional finance report. Its Order ID is matched to SG Order ID "
+                "and written as cashback columns on the Orders sheet."
+            )
+        ),
+    ] = None,
     period_start: Annotated[date | None, Form()] = None,
     period_end: Annotated[date | None, Form()] = None,
     hotel_rate: Annotated[Decimal | None, Form()] = None,
@@ -68,7 +78,9 @@ async def run_travel_reconciliation(
     are ignored rather than rejected.
 
     The wallet history is optional. Supplied, it proves that the wallet share of
-    each booking actually left a wallet, and for the same amount.
+    each booking actually left a wallet, and for the same amount. The finance
+    report is optional too. Supplied, each Orders row looks its SG Order ID up
+    in that report's Order ID.
 
     Rates default to the server configuration and can be overridden per run,
     which makes a back-dated recalculation a single request.
@@ -105,6 +117,14 @@ async def run_travel_reconciliation(
             period_end=period_end,
             max_rows=settings.MAX_ROWS_PER_SHEET,
         )
+        finance_upload = (
+            await spool(finance, "finance", workdir)
+            if finance is not None and finance.filename
+            else None
+        )
+        if finance_upload is not None:
+            # Reject a file with no spin table before the recon runs.
+            await run_in_threadpool(finance_layout, finance_upload.path)
         # Parsing and reconciling are CPU-bound; off the event loop they go.
         result = await run_in_threadpool(run, request)
 
@@ -112,12 +132,10 @@ async def run_travel_reconciliation(
             return result
 
         report = Path(tempfile.mkstemp(prefix="recon-travel-", suffix=".xlsx")[1])
-        await run_in_threadpool(
-            build_report,
-            result,
-            report,
-            {"portal": request.portal.path, "vendor": request.vendor.path},
-        )
+        sources = {"portal": request.portal.path, "vendor": request.vendor.path}
+        if finance_upload is not None:
+            sources["finance"] = finance_upload.path
+        await run_in_threadpool(build_report, result, report, sources)
         filename = (
             f"reconciliation-travel-{result.period_start}-to-{result.period_end}.xlsx"
         )

@@ -32,6 +32,7 @@ Column = tuple[str, str, int, str, str]
 
 PORTAL_TITLE = "Portal"
 VENDOR_TITLE = "Vendor"
+B2C_INVOICES_TITLE = "B2C Invoices ERP"
 
 
 def report_formats(book: xlsxwriter.Workbook) -> dict[str, Any]:
@@ -133,6 +134,17 @@ def report_formats(book: xlsxwriter.Workbook) -> dict[str, Any]:
         }
     )
     fmt["dash_text"] = book.add_format({"border": 1})
+    # The finance report's columns on Orders, and its copied header.
+    fmt["cashback_header"] = book.add_format(
+        {
+            "bold": True,
+            "bg_color": "#1F4E79",
+            "font_color": "white",
+            "border": 1,
+            "text_wrap": True,
+            "valign": "vcenter",
+        }
+    )
     return fmt
 
 
@@ -568,7 +580,8 @@ class CashbackLine:
     contact: str
     bill_date: date | datetime | None
     product: str
-    # The Portal-sheet cell the unit price is taken from, ex VAT.
+    # The cell the unit price is taken from, before VAT: on the Orders sheet,
+    # or on the Portal copy.
     unit_cell: str
 
 
@@ -576,9 +589,9 @@ def cashback_sheet(
     book: Any,
     fmt: dict[str, Any],
     lines: Sequence[CashbackLine],
-    title: str = "Cashback",
+    title: str = B2C_INVOICES_TITLE,
 ) -> None:
-    """One invoice line per portal row the category bills, ready to import."""
+    """One invoice line per order the category bills, ready to import."""
     sheet = book.add_worksheet(title)
     table(sheet, fmt, _CASHBACK_HEADERS, _CASHBACK_WIDTHS)
     for offset, line in enumerate(lines, start=1):

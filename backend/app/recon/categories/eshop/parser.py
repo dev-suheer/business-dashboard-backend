@@ -143,7 +143,10 @@ def wallet_type(raw: Any) -> str | None:
 
 
 def wallet_order_id(order_no: str) -> str | None:
-    """The SG Order ID the wallet history files an order under."""
+    """The SG Order ID an order is filed under.
+
+    The wallet history and the finance report both use it.
+    """
     match = WALLET_ORDER_RE.search(order_no)
     return str(int(match.group(1))) if match else None
 

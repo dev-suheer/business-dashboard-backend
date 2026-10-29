@@ -383,7 +383,7 @@ Each carries `code`, `severity`, `order_no`, `amount`, `detail`.
 
 | Method | Path | Returns |
 |---|---|---|
-| `POST` | `/api/reconcile` | multipart: `portal`, `vendor`, `promo`, optional `settlements` and `wallet`, plus `category`, `period_start`, `period_end` → `{job_id, summary}` |
+| `POST` | `/api/reconcile` | multipart: `portal`, `vendor`, `promo`, optional `settlements`, `wallet` and `finance`, plus `category`, `period_start`, `period_end` → `{job_id, summary}` |
 | `GET` | `/api/jobs/{id}/summary` | KPI block |
 | `GET` | `/api/jobs/{id}/orders` | paginated matched detail, filterable by status / flag / variance class |
 | `GET` | `/api/jobs/{id}/exceptions` | grouped by code and severity |
@@ -411,12 +411,13 @@ The same tabs as the food report, which the client signed off on (plan-food.md s
 | 2 | Orders | One row per order: the portal side, the checks and the payable, then the statement's side, and a verdict. The orders in the payable are totalled, with the settlement bridge beneath (payable before adjustments, adjustments, net payable, vendor closing balance, unexplained difference) and a legend naming the rates and cutoff used for that run. RTO and clawback orders, and statement orders with no portal row, are listed under it |
 | 3 | Exceptions | severity, code, order, the order's status, amount, detail |
 | 4 | Wallet | only when a wallet history was uploaded: each wallet-paid row against the history, then the movements with no portal row |
-| 5 | Cashback | one invoice line per portal row carrying SG-owned shipping, ready to import: unit price `=Shipping Cost/1.15`, tax `Domestic Sales (15%)` |
+| 5 | B2C Invoices ERP | one invoice line per order in the payable and on the statement that carries SG-owned shipping, ready to import: unit price `=Portal!<Shipping Cost>/1.15`, tax `Domestic Sales (15%)`. RTO and clawback orders are not billed; returns are. The price reads the Portal copy because only a portal line says who owns its shipping |
 | 6 | Portal | the portal upload, copied row for row |
 | 7 | Vendor | the vendor upload, copied row for row |
+| 8 | Finance Report | only when a finance report was uploaded: the report, copied row for row. Orders then gains five lookup columns after the verdict (Cash Back Reward, Vertical Name, Reward Code, Reward Type, Outcome), each the order number's digits (SG-SH-08986 is 8986, as in the wallet history) looked up in the report's Order ID, `NA` when there is none |
 
-Cashback, Portal and Vendor need the uploads themselves, so a report built from the result
-alone has the first three sheets (and Wallet). The JSON result keeps everything the
+B2C Invoices ERP, Portal and Vendor need the uploads themselves, so a report built from the
+result alone has the first three sheets (and Wallet). The JSON result keeps everything the
 workbook leaves out.
 
 Freeze header rows, autofilter every table, currency format `#,##0.00`, and a fill on a

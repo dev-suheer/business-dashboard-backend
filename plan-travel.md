@@ -329,7 +329,7 @@ read; only rows that raise an exception are retained.
 POST /api/v1/reconcile/travel?format=json|xlsx
 ```
 
-Multipart: `portal` (required), `vendor` (required), `wallet` (optional); form fields
+Multipart: `portal` (required), `vendor` (required), `wallet` (optional), `finance` (optional); form fields
 `period_start`, `period_end`, `hotel_rate`, `flight_rate`, `vat_rate`. Session-cookie auth, the same
 415 / 413 / 422 mapping as the eshop endpoint, nothing persisted, the whole result in the response.
 
@@ -347,12 +347,13 @@ The same tabs as the food report, which the client signed off on (plan-food.md s
 | 2 | Orders | their `Analysis` tab: the portal columns, the rate checks (`Com Rate Check`, `Vendor Rate Check`, `Actual As Vendor`, `Net Payable`, the base difference, the VAT uplift), then the claim columns, one row per matched booking. The totals carry their `Sheet1` block, `SHOPPINGGATE ‖ ALMOSAFER ‖ DIFFERENCE`, and the rates legend. Unmatched bookings are listed beneath with the reason, out of the totals |
 | 3 | Exceptions | severity, code, order, the order's status, amount, detail |
 | 4 | Wallet | only when a wallet history was uploaded: each wallet-paid row against the history, then the movements with no portal row |
-| 5 | Cashback | one invoice line per booking's primary portal row, ready to import: unit price `=Commission Charged/1.15`, tax `Domestic Sales (15%)` |
+| 5 | B2C Invoices ERP | one invoice line per matched booking, the Orders sheet's own rows, ready to import: unit price `=Orders!<Commission Charged>/1.15`, tax `Domestic Sales (15%)`. Refunded, cancelled and one-sided bookings are not billed |
 | 6 | Portal | the portal upload, copied row for row |
 | 7 | Vendor | the vendor upload, copied row for row |
+| 8 | Finance Report | only when a finance report was uploaded: the report, copied row for row. Orders then gains five lookup columns after the verdict (Cash Back Reward, Vertical Name, Reward Code, Reward Type, Outcome), each the row's SG Order ID looked up in the report's Order ID, `NA` when there is none |
 
-Cashback, Portal and Vendor need the uploads themselves, so a report built from the result
-alone has the first three sheets (and Wallet). The JSON result keeps everything the
+B2C Invoices ERP, Portal and Vendor need the uploads themselves, so a report built from the
+result alone has the first three sheets (and Wallet). The JSON result keeps everything the
 workbook leaves out.
 
 ---

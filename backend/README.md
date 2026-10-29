@@ -47,6 +47,7 @@ app/
     xlsx.py                  workbook formats shared by both reports
     sheets.py                the sheets every category's report shares
     wallet.py                the wallet-history check, for every category
+    finance.py               the finance report's cashback lookups, for every category
     models.py                eshop's canonical models — Decimal throughout
     exceptions.py            exception codes and severities, for every category
     matcher.py               aggregate, join, tolerance, classify

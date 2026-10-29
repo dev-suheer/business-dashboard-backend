@@ -1,9 +1,11 @@
 import zipfile
 from decimal import Decimal
 from io import BytesIO
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from openpyxl import load_workbook
 
 from app.core.config import settings
 
@@ -66,6 +68,34 @@ def test_the_wallet_file_is_optional(
         assert 'name="Wallet"' in book.read("xl/workbook.xml").decode()
 
 
+def test_a_finance_report_is_optional_and_copied(
+    auth_client: TestClient,
+    upload_files: dict[str, tuple[str, bytes, str]],
+    tmp_path: Path,
+) -> None:
+    from tests.conftest import write_finance_report
+
+    finance = write_finance_report(tmp_path / "finance.xlsx", [8986], "eshop")
+    upload_files["finance"] = ("finance.xlsx", finance.read_bytes(), XLSX)
+    response = auth_client.post(
+        RECONCILE, files=upload_files, params={"format": "xlsx"}
+    )
+    assert response.status_code == 200, response.text
+    book = load_workbook(BytesIO(response.content), read_only=True)
+    assert book.sheetnames[-1] == "Finance Report"
+    assert "B2C Invoices ERP" in book.sheetnames
+    book.close()
+
+
+def test_a_finance_file_without_the_spin_table_is_rejected(
+    auth_client: TestClient, upload_files: dict[str, tuple[str, bytes, str]]
+) -> None:
+    upload_files["finance"] = ("finance.xlsx", upload_files["vendor"][1], XLSX)
+    response = auth_client.post(RECONCILE, files=upload_files)
+    assert response.status_code == 422
+    assert "finance" in response.json()["detail"]
+
+
 def test_a_run_level_rate_override_changes_the_result(
     auth_client: TestClient, upload_files: dict[str, tuple[str, bytes, str]]
 ) -> None:
@@ -106,6 +136,15 @@ def test_wrong_file_in_a_field_is_a_422_naming_the_field(
     assert response.status_code == 422
     detail = response.json()["detail"]
     assert "portal" in detail and "vendor_statement.xlsx" in detail
+
+
+def test_a_damaged_workbook_is_a_422_naming_the_field(
+    auth_client: TestClient, upload_files: dict[str, tuple[str, bytes, str]]
+) -> None:
+    upload_files["portal"] = ("portal.xlsx", b"not a workbook", XLSX)
+    response = auth_client.post(RECONCILE, files=upload_files)
+    assert response.status_code == 422
+    assert "'portal' is not a readable Excel workbook" in response.json()["detail"]
 
 
 def test_a_non_excel_upload_is_rejected(

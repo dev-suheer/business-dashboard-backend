@@ -16,10 +16,11 @@ from fastapi.concurrency import run_in_threadpool
 from app.api.deps import get_current_user
 from app.api.routes._uploads import XLSX_MEDIA_TYPE, cleanup, spool, xlsx_response
 from app.core.config import settings
-from app.recon.categories.food.export import build_report, finance_layout
+from app.recon.categories.food.export import build_report
 from app.recon.categories.food.models import FoodResult
 from app.recon.categories.food.pipeline import FoodRequest, run
 from app.recon.excel import SheetFormatError
+from app.recon.finance import finance_layout
 from app.recon.inputs import ReconInputError
 
 logger = logging.getLogger(__name__)

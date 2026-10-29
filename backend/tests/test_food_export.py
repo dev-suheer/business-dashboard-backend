@@ -394,7 +394,8 @@ def test_a_finance_report_adds_cashback_lookups(tmp_path: Path) -> None:
     ]
     assert headers[headers.index("Verdict") + 1] == "Cash Back Reward"
     reward = _formula(sheet.cell(2, headers.index("Cash Back Reward") + 1))
-    assert reward.startswith('=IF(C2="","NA",IFNA(')
+    # Excel reads an unprefixed IFNA as #NAME?.
+    assert reward.startswith('=IF(C2="","NA",_xlfn.IFNA(')
     assert "XLOOKUP(IFERROR(VALUE(C2),C2)" in reward
     assert "'Finance Report'!C:C" in reward
     assert "'Finance Report'!F:F" in reward

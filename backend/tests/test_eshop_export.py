@@ -13,7 +13,12 @@ from app.recon.exceptions import ExceptionCode
 from app.recon.export import build_report
 from app.recon.models import RateConfig, ReconResult
 from app.recon.wallet import WalletState
-from tests.conftest import TRAVEL_WALLET, VENDOR_STATEMENT, WORKINGS
+from tests.conftest import (
+    TRAVEL_WALLET,
+    VENDOR_STATEMENT,
+    WORKINGS,
+    write_finance_report,
+)
 
 SOURCES = {"portal": WORKINGS, "vendor": VENDOR_STATEMENT}
 
@@ -90,7 +95,7 @@ def test_the_report_has_the_food_sheets(result: ReconResult, tmp_path: Path) -> 
         "Orders",
         "Exceptions",
         "Wallet",
-        "Cashback",
+        "B2C Invoices ERP",
         "Portal",
         "Vendor",
     ]
@@ -167,24 +172,85 @@ def test_the_orders_sheet_carries_the_settlement_bridge(
     book.close()
 
 
-def test_the_cashback_bills_sg_shipping(result: ReconResult, tmp_path: Path) -> None:
+def test_b2c_invoices_bill_sg_shipping_on_billed_orders(
+    result: ReconResult, tmp_path: Path
+) -> None:
     path = build_report(result, tmp_path / "eshop.xlsx", SOURCES)
     book = load_workbook(path)
-    cashback = book["Cashback"]
+    invoices = book["B2C Invoices ERP"]
     portal = book["Portal"]
-    lines = list(cashback.iter_rows(min_row=2, values_only=True))
-    # Every order with SG-owned shipping, which the export puts on its first line.
-    assert len(lines) == 37
+    lines = list(invoices.iter_rows(min_row=2, values_only=True))
+    # The 34 orders in the payable, all on the statement and shipped by SG. The
+    # three RTOs, the clawback among them, are not billed.
+    assert len(lines) == 34
+    billed = {line[1] for line in lines}
+    for rto in ("SG-SH-03344", "SG-SH-05422", "SG-SH-06118"):
+        assert rto not in billed
+    # A return was delivered, so its shipping is billed.
+    assert "SG-SH-07435" in billed
     first = lines[0]
     assert first[0] == "RM"
-    assert first[1] == "SG-SH-03344"
+    assert first[1] == "SG-SH-05257"
     assert first[2] is None
     assert first[4] == "eShop Delivery"
     assert first[5] == 1
-    assert first[6] == "=Portal!Y2/1.15"
+    # Read from the Portal copy: only a portal line says who owns the shipping.
+    assert first[6] == "=Portal!Y3/1.15"
     assert first[7] == "Domestic Sales (15%)"
     assert portal["Y1"].value == "Shipping Cost"
-    assert portal["Y2"].value == 15
+    assert portal["Y3"].value == 15
+    assert portal["E3"].value == "SG-SH-05257"
+    book.close()
+
+
+def _formula(cell: Any) -> str:
+    """openpyxl returns a dynamic-array formula as an object, not a string."""
+    value = cell.value
+    text = getattr(value, "text", None)
+    return text if isinstance(text, str) else str(value)
+
+
+def test_a_finance_report_adds_cashback_lookups(
+    result: ReconResult, tmp_path: Path
+) -> None:
+    finance = write_finance_report(tmp_path / "finance.xlsx", [8986], "eshop")
+    path = build_report(
+        result, tmp_path / "eshop.xlsx", {**SOURCES, "finance": finance}
+    )
+    book = load_workbook(path)
+    assert book.sheetnames[-1] == "Finance Report"
+    sheet = book["Orders"]
+    headers = [cell.value for cell in next(sheet.iter_rows(min_row=1, max_row=1))]
+    assert headers[headers.index("Verdict") + 1 :] == [
+        "Cash Back Reward",
+        "Vertical Name",
+        "Reward Code",
+        "Reward Type",
+        "Outcome",
+    ]
+    order_col = headers.index("Order Number") + 1
+    reward_col = headers.index("Cash Back Reward") + 1
+    rows = {
+        sheet.cell(row, order_col).value: row for row in range(2, sheet.max_row + 1)
+    }
+    # The key is the order number's digits, as the wallet history files it.
+    reward = _formula(sheet.cell(rows["SG-SH-08986"], reward_col))
+    assert reward.startswith('=IF("8986"="","NA",_xlfn.IFNA(_xlfn.XLOOKUP(')
+    assert "'Finance Report'!C:C" in reward
+    assert "'Finance Report'!F:F" in reward
+    # Orders out of the payable are looked up too; statement rows are not.
+    assert '"3344"' in _formula(sheet.cell(rows["SG-SH-03344"], reward_col))
+    assert sheet.cell(rows["SG-SH-12154"], reward_col).value is None
+    # The rewards are not totalled.
+    totals = next(
+        row
+        for row in range(2, sheet.max_row + 1)
+        if str(sheet.cell(row, 1).value or "").startswith("Total")
+    )
+    assert sheet.cell(totals, reward_col).value is None
+    copied = book["Finance Report"]
+    assert copied.cell(14, 3).value == "Order ID"
+    assert copied.cell(15, 3).value == 8986
     book.close()
 
 

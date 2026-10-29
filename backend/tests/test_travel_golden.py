@@ -26,7 +26,12 @@ from app.recon.categories.travel.models import (
 from app.recon.categories.travel.pipeline import TravelRequest, run
 from app.recon.exceptions import ExceptionCode, Severity
 from app.recon.inputs import Upload
-from tests.conftest import TRAVEL_CLAIMS, TRAVEL_PORTAL, TRAVEL_WALLET
+from tests.conftest import (
+    TRAVEL_CLAIMS,
+    TRAVEL_PORTAL,
+    TRAVEL_WALLET,
+    write_finance_report,
+)
 
 RATES = TravelRateConfig(
     hotel_rate=Decimal("0.05"),
@@ -310,7 +315,7 @@ def test_the_report_carries_every_sheet(result: TravelResult, tmp_path: Path) ->
         "Orders",
         "Exceptions",
         "Wallet",
-        "Cashback",
+        "B2C Invoices ERP",
         "Portal",
         "Vendor",
     ]
@@ -324,7 +329,7 @@ def test_the_report_omits_the_wallet_sheet_when_no_wallet_was_uploaded(
     with zipfile.ZipFile(path) as book:
         sheets = book.read("xl/workbook.xml").decode()
     assert 'name="Wallet"' not in sheets
-    assert 'name="Cashback"' not in sheets
+    assert 'name="B2C Invoices ERP"' not in sheets
 
 
 def test_hotel_and_flight_commission_split_with_its_ex_vat_column(
@@ -515,36 +520,80 @@ def test_the_dashboard_reads_the_matched_bookings(
     book.close()
 
 
-def test_the_cashback_bills_each_booking_once(
+def test_b2c_invoices_bill_each_matched_booking_once(
     result: TravelResult, tmp_path: Path
 ) -> None:
     path = build_report(result, tmp_path / "travel.xlsx", SOURCES)
     book = openpyxl.load_workbook(path)
-    cashback = book["Cashback"]
-    portal = book["Portal"]
-    lines = list(cashback.iter_rows(min_row=2, values_only=True))
-    # Every booking's primary row, its repeat row left out.
-    assert len(lines) == len(result.bookings) - sum(
-        1 for b in result.bookings if b.portal is None
-    )
+    invoices = book["B2C Invoices ERP"]
+    orders = book["Orders"]
+    lines = list(invoices.iter_rows(min_row=2, values_only=True))
+    # The matched bookings only: refunded, cancelled and one-sided ones are not.
+    assert len(lines) == result.summary.bookings_matched == 7
     assert len({line[1] for line in lines}) == len(lines)
     by_booking = {line[1]: line for line in lines}
+    assert "A260726150195500" not in by_booking
     hotel = by_booking["H260819107345500"]
     assert hotel[0] == "Almosafer"
+    assert hotel[2] == "حسن فقيه"
     assert hotel[4] == "Hotel Booking"
     assert hotel[7] == "Domestic Sales (15%)"
     cell = hotel[6]
-    assert cell.startswith("=Portal!") and cell.endswith("/1.15")
-    reference = cell[len("=Portal!") : -len("/1.15")]
-    # The formula points at that booking's Commission Charged on the copy.
+    assert cell.startswith("=Orders!") and cell.endswith("/1.15")
+    reference = cell[len("=Orders!") : -len("/1.15")]
+    # The formula points at that booking's Commission Charged on Orders.
     column = "".join(ch for ch in reference if ch.isalpha())
     row = int("".join(ch for ch in reference if ch.isdigit()))
-    header_row = next(
-        r
-        for r in range(1, portal.max_row + 1)
-        if portal.cell(r, 1).value == "Order Date"
-    )
-    assert portal[f"{column}{header_row}"].value == "Commission Charged"
-    assert portal[f"{column}{row}"].value == 58.09
+    assert orders[f"{column}1"].value == "Commission Charged"
+    assert orders[f"D{row}"].value == "H260819107345500"
+    assert orders[f"{column}{row}"].value == 58.09
     assert by_booking["A26082185665500"][4] == "Flight Booking"
+    book.close()
+
+
+def _formula(cell: object) -> str:
+    """openpyxl returns a dynamic-array formula as an object, not a string."""
+    value = getattr(cell, "value", None)
+    text = getattr(value, "text", None)
+    return text if isinstance(text, str) else str(value)
+
+
+def test_a_finance_report_adds_cashback_lookups(
+    result: TravelResult, tmp_path: Path
+) -> None:
+    finance = write_finance_report(tmp_path / "finance.xlsx", [121], "hotel")
+    path = build_report(
+        result, tmp_path / "travel.xlsx", {**SOURCES, "finance": finance}
+    )
+    book = openpyxl.load_workbook(path)
+    assert book.sheetnames[-1] == "Finance Report"
+    sheet = book["Orders"]
+    headers = [cell.value for cell in next(sheet.iter_rows(min_row=1, max_row=1))]
+    assert headers[headers.index("Verdict") + 1 :] == [
+        "Cash Back Reward",
+        "Vertical Name",
+        "Reward Code",
+        "Reward Type",
+        "Outcome",
+    ]
+    assert headers[2] == "SG Order ID"
+    reward_col = headers.index("Cash Back Reward") + 1
+    reward = _formula(sheet.cell(2, reward_col))
+    assert reward.startswith('=IF(C2="","NA",_xlfn.IFNA(_xlfn.XLOOKUP(')
+    assert "'Finance Report'!C:C" in reward
+    assert "'Finance Report'!F:F" in reward
+    totals = 2 + result.summary.bookings_matched
+    assert str(sheet.cell(totals, 1).value).startswith("Total")
+    # The rewards are not totalled.
+    assert sheet.cell(totals, reward_col).value is None
+    # Bookings listed under the totals are looked up too.
+    title = next(
+        row
+        for row in range(totals, sheet.max_row + 1)
+        if str(sheet.cell(row, 1).value or "").startswith("Bookings not in")
+    )
+    below = _formula(sheet.cell(title + 1, reward_col))
+    assert below.startswith(f'=IF(C{title + 1}="","NA",')
+    copied = book["Finance Report"]
+    assert copied.cell(15, 3).value == 121
     book.close()

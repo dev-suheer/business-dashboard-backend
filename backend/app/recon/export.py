@@ -1,8 +1,9 @@
 """The eShop Excel report (plan.md section 8).
 
 The client signed off on the food workbook, and eShop follows it: Dashboard,
-Orders, Exceptions, Wallet when a wallet history was uploaded, Cashback, and
-copies of the Portal and Vendor uploads.
+Orders, Exceptions, Wallet when a wallet history was uploaded, B2C Invoices
+ERP, copies of the Portal and Vendor uploads, and Finance Report when that
+file was uploaded.
 
 The Orders sheet has one row per order: the portal side, the checks and the
 payable, then the statement's side, coloured like food's. The orders in the
@@ -10,6 +11,10 @@ payable are totalled, and the settlement bridge sits beneath: payable before
 adjustments, adjustments, net payable, the vendor's closing balance and what
 is left unexplained. Orders out of the payable, and statement orders with no
 portal row, are listed under that and stay out of the totals.
+
+When a finance report is uploaded, each portal order's row looks the digits of
+its order number up in that report's Order ID, in five cashback columns after
+Verdict: SG-SH-08986 is 8986, the same key the wallet history uses.
 
 Written with ``constant_memory``, which flushes each row to disk as it is added
 instead of buffering the workbook. That caps memory regardless of how many
@@ -26,7 +31,15 @@ from typing import Any
 import xlsxwriter
 
 from app.recon.categories.eshop import parser
+from app.recon.cleaning import clean_text
 from app.recon.exceptions import ReconException
+from app.recon.finance import (
+    CASHBACK_COLUMNS,
+    FinanceLayout,
+    finance_layout,
+    finance_sheet,
+    write_cashback,
+)
 from app.recon.models import LedgerEntry, MatchState, OrderRecon, ReconResult
 from app.recon.sheets import (
     PORTAL_TITLE,
@@ -97,9 +110,12 @@ def build_report(
 ) -> Path:
     """Write the report. ``sources`` maps ``portal`` and ``vendor`` to the uploads.
 
-    Cashback and the Portal and Vendor copies are appended only when the paths
-    are supplied, which the download route always does.
+    B2C Invoices ERP and the Portal and Vendor copies are appended only when
+    the paths are supplied, which the download route always does. B2C invoices
+    are the orders in the payable that are on the statement. A ``finance``
+    path adds the cashback columns and a copy of that report.
     """
+    finance = finance_layout(sources.get("finance")) if sources else None
     book = xlsxwriter.Workbook(
         str(path),
         {
@@ -111,12 +127,12 @@ def build_report(
     try:
         fmt = report_formats(book)
         _dashboard_sheet(book, fmt, result)
-        _orders_sheet(book, fmt, result)
+        _orders_sheet(book, fmt, result, finance)
         _exceptions_sheet(book, fmt, result)
         if result.wallet is not None:
             wallet_sheet(book, fmt, result.wallet)
         if sources:
-            _cashback_sheet(book, fmt, result, sources)
+            _b2c_invoices_sheet(book, fmt, result, sources)
             source_sheets(
                 book,
                 fmt,
@@ -127,6 +143,8 @@ def build_report(
                     ("vendor", VENDOR_TITLE, parser.LEDGER_SCHEMA, "vendor_header"),
                 ),
             )
+            if finance is not None:
+                finance_sheet(book, fmt, sources, finance)
     finally:
         book.close()
     return path
@@ -314,9 +332,15 @@ def _breakdown(
 # --- Orders -----------------------------------------------------------------
 
 
-def _orders_sheet(book: Any, fmt: dict[str, Any], result: ReconResult) -> None:
+def _orders_sheet(
+    book: Any,
+    fmt: dict[str, Any],
+    result: ReconResult,
+    finance: FinanceLayout | None,
+) -> None:
+    columns = _COLUMNS + CASHBACK_COLUMNS if finance is not None else _COLUMNS
     sheet = book.add_worksheet("Orders")
-    write_column_headers(sheet, fmt, _COLUMNS)
+    write_column_headers(sheet, fmt, columns)
     rates = result.rates
     tolerances = {
         "amount_diff": rates.order_tolerance,
@@ -340,6 +364,7 @@ def _orders_sheet(book: Any, fmt: dict[str, Any], result: ReconResult) -> None:
             _order_values(order, result),
             tolerances=tolerances,
         )
+        _write_cashback(sheet, fmt, 1 + offset, order, finance)
 
     first = 2
     last = 1 + len(included)
@@ -349,7 +374,7 @@ def _orders_sheet(book: Any, fmt: dict[str, Any], result: ReconResult) -> None:
         sheet.write(totals, 0, f"Total, {len(included)} in the payable", fmt["label"])
         write_sum_row(sheet, fmt, totals, first, last, _COLUMNS)
         row = _write_bridge(sheet, fmt, totals + 2, result) + 2
-        sheet.autofilter(0, 0, last - 1, len(_COLUMNS) - 1)
+        sheet.autofilter(0, 0, last - 1, len(columns) - 1)
     if excluded:
         sheet.write(
             row, 0, "Orders not in the payable, not in the totals", fmt["title"]
@@ -363,6 +388,7 @@ def _orders_sheet(book: Any, fmt: dict[str, Any], result: ReconResult) -> None:
                 _order_values(order, result),
                 tolerances=tolerances,
             )
+            _write_cashback(sheet, fmt, row + offset, order, finance)
         row += len(excluded) + 2
     if statement_only:
         sheet.write(
@@ -375,6 +401,25 @@ def _orders_sheet(book: Any, fmt: dict[str, Any], result: ReconResult) -> None:
             write_order_row(
                 sheet, fmt, row + offset, _COLUMNS, _statement_values(entry)
             )
+
+
+def _write_cashback(
+    sheet: Any,
+    fmt: dict[str, Any],
+    row: int,
+    order: OrderRecon,
+    finance: FinanceLayout | None,
+) -> None:
+    """The finance lookups after Verdict, keyed on the order number's digits.
+
+    The Orders sheet has no SG Order ID column, so the key is written into the
+    formula as text: SG-SH-08986 looks up "8986".
+    """
+    if finance is None:
+        return
+    digits = parser.wallet_order_id(order.order_no)
+    key = f'"{digits}"' if digits is not None else None
+    write_cashback(sheet, fmt, row, len(_COLUMNS), key, finance)
 
 
 def _write_bridge(
@@ -489,41 +534,53 @@ def _exceptions_sheet(book: Any, fmt: dict[str, Any], result: ReconResult) -> No
     exceptions_sheet(book, fmt, result.exceptions, status_of)
 
 
-# --- Cashback ---------------------------------------------------------------
+# --- B2C Invoices ERP -------------------------------------------------------
 
-_CASHBACK_PRODUCT = "eShop Delivery"
+_INVOICE_PRODUCT = "eShop Delivery"
 
 
-def _cashback_sheet(
+def _b2c_invoices_sheet(
     book: Any,
     fmt: dict[str, Any],
     result: ReconResult,
     sources: dict[str, Path],
 ) -> None:
-    """One invoice line per portal row that carries SG-owned shipping.
+    """One invoice line per billed order that carries SG-owned shipping.
 
-    Unit price is the shipping cost ex VAT. The export puts an order's shipping
-    on its first line, so this is one line per shipped order.
+    Billed orders are those in the payable and on the vendor statement: an RTO
+    or a clawback is not billed, a return is, because it was delivered. Unit
+    price is the shipping cost ex VAT. It reads the Portal copy rather than the
+    Orders sheet: only a portal line says who owns its shipping, and the
+    export puts an order's shipping on its first line, so this is one line per
+    shipped order.
     """
     detected = {item.role: item.sheets for item in result.detected}
     path = sources.get("portal")
     names = detected.get("portal") or []
     if path is None or not names:
         return
+    billed = {
+        order.order_no
+        for order in result.orders
+        if order.included_in_payable and order.vendor_amount is not None
+    }
     lines = [
         line
         for record in portal_records(path, names, parser.PORTAL_SCHEMA)
-        if (line := _cashback_line(record)) is not None
+        if (line := _invoice_line(record, billed)) is not None
     ]
     cashback_sheet(book, fmt, lines)
 
 
-def _cashback_line(record: PortalRecord) -> CashbackLine | None:
+def _invoice_line(record: PortalRecord, billed: set[str]) -> CashbackLine | None:
     order_id = order_id_text(record.get("ordernumber"))
     owner = record.get("shippingownership")
     cost = record.get("shippingcost")
     unit_cell = record.cell("shippingcost")
     if not order_id or unit_cell is None:
+        return None
+    # Normalised as the portal reader does, so it compares with the order number.
+    if (clean_text(order_id) or "").upper() not in billed:
         return None
     if not isinstance(owner, str) or owner.strip().casefold() != "sg":
         return None
@@ -537,6 +594,6 @@ def _cashback_line(record: PortalRecord) -> CashbackLine | None:
         # The eShop export carries no customer name.
         contact="",
         bill_date=bill_date if isinstance(bill_date, (date, datetime)) else None,
-        product=_CASHBACK_PRODUCT,
+        product=_INVOICE_PRODUCT,
         unit_cell=unit_cell,
     )

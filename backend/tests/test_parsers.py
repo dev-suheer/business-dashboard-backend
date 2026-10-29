@@ -1,6 +1,9 @@
+import io
+import zipfile
 from collections import Counter
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
@@ -26,6 +29,49 @@ from app.recon.models import LedgerDocType, LedgerEntry, OrderStatus
 from tests.conftest import VENDOR_STATEMENT, WORKINGS
 
 MAX_ROWS = 1_000_000
+
+
+def _damaged(kind: str) -> bytes:
+    if kind == "not a zip":
+        return b"not a workbook at all"
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as damaged:
+        if kind == "no workbook inside":
+            damaged.writestr("notes.txt", "hello")
+        else:
+            with zipfile.ZipFile(VENDOR_STATEMENT) as source:
+                for item in source.infolist():
+                    data = source.read(item.filename)
+                    if kind == "broken part" and item.filename == "xl/workbook.xml":
+                        data = b"<broken"
+                    # Cut off partway: it opens, and fails only once it is read.
+                    if (
+                        kind == "broken sheet"
+                        and item.filename == "xl/worksheets/sheet1.xml"
+                    ):
+                        data = data[: len(data) * 2 // 3]
+                    damaged.writestr(item, data)
+    return buffer.getvalue()
+
+
+@pytest.mark.parametrize(
+    "kind", ["not a zip", "no workbook inside", "broken part", "broken sheet"]
+)
+def test_a_damaged_workbook_is_refused_by_field_name(kind: str, tmp_path: Path) -> None:
+    """Uploads are spooled as <field>.xlsx, so the reason names the field."""
+    path = tmp_path / "wallet.xlsx"
+    path.write_bytes(_damaged(kind))
+    with pytest.raises(SheetFormatError, match="'wallet' is not a readable"):
+        with open_workbook(path) as workbook:
+            for _row in workbook.worksheets[0].iter_rows(values_only=True):
+                pass
+
+
+def test_a_fault_while_reading_is_not_blamed_on_the_file() -> None:
+    """Only a damaged file is reported as one; a bug in the reader still surfaces."""
+    with pytest.raises(KeyError):
+        with open_workbook(VENDOR_STATEMENT):
+            raise KeyError("not the file's fault")
 
 
 # --- order-number extraction (plan.md 3.6) ---------------------------------

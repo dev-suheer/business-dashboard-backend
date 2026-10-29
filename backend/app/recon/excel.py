@@ -9,17 +9,29 @@ Two rules follow from that and are enforced here:
   shift every column by one between pages.
 """
 
+import zlib
 from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+from xml.etree.ElementTree import ParseError
+from zipfile import BadZipFile
 
 from openpyxl import load_workbook
+from openpyxl.utils.exceptions import InvalidFileException
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from app.recon.cleaning import normalize_header
+
+# What openpyxl raises for a file that is not a readable workbook: not a zip,
+# a zip with no workbook in it, or a damaged part. A missing part is a
+# KeyError, which only counts while the workbook is being opened; once it is
+# open, a KeyError is a fault in the code reading it, not in the file.
+_UNREADABLE_ON_OPEN = (BadZipFile, KeyError, ParseError, InvalidFileException)
+# A read-only sheet is decompressed and parsed as it is iterated.
+_UNREADABLE_ON_READ = (BadZipFile, zlib.error, ParseError)
 
 # How many rows to inspect while hunting for the header. The vendor ledger puts
 # it on row 4 behind account metadata; nothing legitimate hides deeper.
@@ -87,13 +99,29 @@ def open_workbook(path: Path) -> Iterator[Workbook]:
     ``read_only`` streams rows; ``data_only`` returns the cached result of a
     formula rather than its text, which matters because the source workbooks are
     full of formulas.
+
+    A damaged file is a ``SheetFormatError``, so the upload is refused with a
+    reason instead of failing the request. Uploads are spooled as
+    ``<field>.xlsx``, so the file's stem names the field in that reason.
     """
-    workbook = load_workbook(filename=path, read_only=True, data_only=True)
+    try:
+        workbook = load_workbook(filename=path, read_only=True, data_only=True)
+    except _UNREADABLE_ON_OPEN as exc:
+        raise _unreadable(path) from exc
     try:
         yield workbook
+    except _UNREADABLE_ON_READ as exc:
+        raise _unreadable(path) from exc
     finally:
         # Read-only workbooks hold an open zip handle until closed.
         workbook.close()
+
+
+def _unreadable(path: Path) -> SheetFormatError:
+    return SheetFormatError(
+        f"'{path.stem}' is not a readable Excel workbook. Open it in Excel, "
+        "save it as .xlsx and upload it again."
+    )
 
 
 def _row_headers(row: Sequence[Any]) -> dict[str, int]:

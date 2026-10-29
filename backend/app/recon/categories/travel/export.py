@@ -1,8 +1,9 @@
 """The travel Excel report (plan-travel.md section 8).
 
 The client signed off on the food workbook, and travel follows it: Dashboard,
-Orders, Exceptions, Wallet when a wallet history was uploaded, Cashback, and
-copies of the Portal and Vendor uploads.
+Orders, Exceptions, Wallet when a wallet history was uploaded, B2C Invoices
+ERP, copies of the Portal and Vendor uploads, and Finance Report when that
+file was uploaded.
 
 The Orders sheet follows the client's own ``Analysis`` tab: the portal
 columns, the rate checks, then the claim columns, one row per matched booking.
@@ -11,11 +12,13 @@ client's ``Sheet1``. Unmatched bookings are listed under that, out of the
 totals, each with the reason it did not match. Only matched bookings feed a
 total, the same as the JSON summary.
 
+When a finance report is uploaded, each booking row looks its SG Order ID up
+in that report's Order ID, in five cashback columns after Verdict.
+
 Written with ``constant_memory``: rows go out strictly top to bottom.
 """
 
 from collections.abc import Callable, Sequence
-from datetime import date, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -32,6 +35,13 @@ from app.recon.categories.travel.models import (
 )
 from app.recon.cleaning import money
 from app.recon.exceptions import ReconException
+from app.recon.finance import (
+    CASHBACK_COLUMNS,
+    FinanceLayout,
+    finance_layout,
+    finance_sheet,
+    write_cashback,
+)
 from app.recon.sheets import (
     PORTAL_TITLE,
     VENDOR_TITLE,
@@ -39,11 +49,9 @@ from app.recon.sheets import (
     CashbackLine,
     Column,
     DashBlock,
-    PortalRecord,
     cashback_sheet,
     exceptions_sheet,
     letter,
-    order_id_text,
     portal_records,
     ranked,
     report_formats,
@@ -154,9 +162,12 @@ def build_report(
 ) -> Path:
     """Write the report. ``sources`` maps ``portal`` and ``vendor`` to the uploads.
 
-    Cashback and the Portal and Vendor copies are appended only when the paths
-    are supplied, which the download route always does.
+    B2C Invoices ERP and the Portal and Vendor copies are appended only when
+    the paths are supplied, which the download route always does. B2C invoices
+    are the matched bookings, and their unit price reads the Orders sheet. A
+    ``finance`` path adds the cashback columns and a copy of that report.
     """
+    finance = finance_layout(sources.get("finance")) if sources else None
     book = xlsxwriter.Workbook(
         str(path),
         {
@@ -169,12 +180,12 @@ def build_report(
         fmt = report_formats(book)
         lines = _lines_by_booking(result)
         _dashboard_sheet(book, fmt, result, lines)
-        _orders_sheet(book, fmt, result, lines)
+        _orders_sheet(book, fmt, result, lines, finance)
         _exceptions_sheet(book, fmt, result)
         if result.wallet is not None:
             wallet_sheet(book, fmt, result.wallet)
         if sources:
-            _cashback_sheet(book, fmt, result, sources)
+            _b2c_invoices_sheet(book, fmt, result, sources)
             source_sheets(
                 book,
                 fmt,
@@ -185,6 +196,8 @@ def build_report(
                     ("vendor", VENDOR_TITLE, parser.VENDOR_SCHEMA, "vendor_header"),
                 ),
             )
+            if finance is not None:
+                finance_sheet(book, fmt, sources, finance)
     finally:
         book.close()
     return path
@@ -386,9 +399,11 @@ def _orders_sheet(
     fmt: dict[str, Any],
     result: TravelResult,
     lines: dict[str, list[TravelInvoiceLine]],
+    finance: FinanceLayout | None,
 ) -> None:
+    columns = _COLUMNS + CASHBACK_COLUMNS if finance is not None else _COLUMNS
     sheet = book.add_worksheet("Orders")
-    write_column_headers(sheet, fmt, _COLUMNS)
+    write_column_headers(sheet, fmt, columns)
     tolerances = {
         "base_diff": result.rates.base_tolerance,
         "net_diff": result.rates.base_tolerance,
@@ -399,6 +414,7 @@ def _orders_sheet(
     for offset, booking in enumerate(matched):
         values = _booking_values(booking, lines.get(booking.booking_id, []), result)
         write_order_row(sheet, fmt, 1 + offset, _COLUMNS, values, tolerances=tolerances)
+        _write_cashback(sheet, fmt, 1 + offset, finance)
 
     first = 2
     last = 1 + len(matched)
@@ -408,7 +424,7 @@ def _orders_sheet(
         sheet.write(totals, 0, f"Total, {len(matched)} matched", fmt["label"])
         write_sum_row(sheet, fmt, totals, first, last, _COLUMNS)
         row = _write_client_summary(sheet, fmt, totals + 2, totals, result) + 2
-        sheet.autofilter(0, 0, last - 1, len(_COLUMNS) - 1)
+        sheet.autofilter(0, 0, last - 1, len(columns) - 1)
     if unmatched:
         sheet.write(
             row,
@@ -421,6 +437,17 @@ def _orders_sheet(
             write_order_row(
                 sheet, fmt, row + offset, _COLUMNS, values, tolerances=tolerances
             )
+            _write_cashback(sheet, fmt, row + offset, finance)
+
+
+def _write_cashback(
+    sheet: Any, fmt: dict[str, Any], row: int, finance: FinanceLayout | None
+) -> None:
+    """The finance lookups after Verdict. A booking with no SG Order ID is NA."""
+    if finance is None:
+        return
+    key = f"{letter(_COL['sg_order_id'])}{row + 1}"
+    write_cashback(sheet, fmt, row, len(_COLUMNS), key, finance)
 
 
 def _write_client_summary(
@@ -630,58 +657,62 @@ def _exceptions_sheet(book: Any, fmt: dict[str, Any], result: TravelResult) -> N
     exceptions_sheet(book, fmt, result.exceptions, status_of)
 
 
-# --- Cashback ---------------------------------------------------------------
+# --- B2C Invoices ERP -------------------------------------------------------
 
-_CASHBACK_PRODUCTS = {
+_INVOICE_PRODUCTS = {
     Vertical.HOTEL: "Hotel Booking",
     Vertical.FLIGHT: "Flight Booking",
 }
 
 
-def _cashback_sheet(
+def _b2c_invoices_sheet(
     book: Any,
     fmt: dict[str, Any],
     result: TravelResult,
     sources: dict[str, Path],
 ) -> None:
-    """One invoice line per booking. Unit price is the commission charged ex VAT.
+    """One invoice line per matched booking. Unit price reads the Orders sheet.
 
-    Only each booking's primary portal row is billed, so a repeated row never
-    doubles a line.
+    The matched bookings are the Orders sheet's own rows, in the same order, so
+    each line points at its booking's Commission Charged there. Refunded,
+    cancelled and one-sided bookings are not matched and are not billed.
     """
-    detected = {item.role: item.sheets for item in result.detected}
-    path = sources.get("portal")
-    names = detected.get("portal") or []
-    if path is None or not names:
-        return
-    primaries = {
-        (b.portal.sheet, b.portal.row) for b in result.bookings if b.portal is not None
-    }
-    lines = [
-        line
-        for record in portal_records(path, names, parser.PORTAL_SCHEMA)
-        if (record.sheet, record.ordinal) in primaries
-        and (line := _cashback_line(record)) is not None
-    ]
+    contacts = _invoice_contacts(result, sources)
+    charged = letter(_COL["commission_charged"])
+    lines: list[CashbackLine] = []
+    for excel_row, booking in enumerate(_matched(result), start=2):
+        row = booking.portal
+        if row is None:  # pragma: no cover - a matched booking has its portal row
+            continue
+        lines.append(
+            CashbackLine(
+                partner=(row.provider or "").strip(),
+                order_id=booking.booking_id,
+                contact=contacts.get((row.sheet, row.row), ""),
+                bill_date=row.order_date,
+                product=_INVOICE_PRODUCTS[row.vertical],
+                unit_cell=f"Orders!{charged}{excel_row}",
+            )
+        )
     cashback_sheet(book, fmt, lines)
 
 
-def _cashback_line(record: PortalRecord) -> CashbackLine | None:
-    order_id = order_id_text(record.get("partnerorderid"))
-    vertical = parser.vertical_from_text(record.get("vertical"))
-    unit_cell = record.cell("commissioncharged")
-    charged = record.get("commissioncharged")
-    if not order_id or vertical is None or unit_cell is None:
-        return None
-    if isinstance(charged, bool) or not isinstance(charged, (int, float)):
-        return None
-    partner = record.get("providername")
-    bill_date = record.get("orderdate")
-    return CashbackLine(
-        partner="" if partner is None else str(partner).strip(),
-        order_id=order_id,
-        contact=record.contact(),
-        bill_date=bill_date if isinstance(bill_date, (date, datetime)) else None,
-        product=_CASHBACK_PRODUCTS[vertical],
-        unit_cell=unit_cell,
-    )
+def _invoice_contacts(
+    result: TravelResult, sources: dict[str, Path]
+) -> dict[tuple[str, int], str]:
+    """The customer's name on each portal row, by sheet and data row.
+
+    The export repeats ``Customer`` three times, and the second is the name.
+    The parsed row keeps only the first, the customer's id, so the name is
+    read from the upload.
+    """
+    path = sources.get("portal")
+    names = {item.role: item.sheets for item in result.detected}.get("portal") or []
+    if path is None or not names:
+        return {}
+    contacts: dict[tuple[str, int], str] = {}
+    for record in portal_records(path, names, parser.PORTAL_SCHEMA):
+        contact = record.contact()
+        if contact:
+            contacts[(record.sheet, record.ordinal)] = contact
+    return contacts

@@ -26,9 +26,14 @@ import xlsxwriter
 from app.recon.categories.food import parser
 from app.recon.categories.food.models import FoodOrder, FoodResult, FoodVerdict
 from app.recon.cleaning import money
-from app.recon.excel import SheetFormatError, detect_sheets, find_header, open_workbook
 from app.recon.exceptions import ReconException
-from app.recon.models import SheetManifest
+from app.recon.finance import (
+    CASHBACK_COLUMNS,
+    FinanceLayout,
+    finance_layout,
+    finance_sheet,
+    write_cashback,
+)
 from app.recon.sheets import (
     PORTAL_TITLE,
     VENDOR_TITLE,
@@ -108,24 +113,6 @@ _COLUMNS: tuple[tuple[str, str, int, str, str], ...] = (
     ("verdict", "Verdict", 14, "meta", "text"),
 )
 
-# After the vendor columns. The last two names are not on the client's draft;
-# Reward Type and Outcome are the two facts that sit beside the reward.
-_CASHBACK_COLUMNS: tuple[tuple[str, str, int, str, str], ...] = (
-    ("cashback_reward", "Cash Back Reward", 18, "cashback", "money"),
-    ("vertical_name", "Vertical Name", 18, "cashback", "text"),
-    ("reward_code", "Reward Code", 16, "cashback", "text"),
-    ("reward_type", "Reward Type", 14, "cashback", "text"),
-    ("outcome", "Outcome", 12, "cashback", "text"),
-)
-_CASHBACK_FIELDS = (
-    "reward_amount",
-    "vertical_name",
-    "reward_code",
-    "reward_type",
-    "outcome",
-)
-FINANCE_TITLE = "Finance Report"
-
 _COL = {spec[0]: index for index, spec in enumerate(_COLUMNS)}
 
 
@@ -154,16 +141,6 @@ def build_report(
     )
     try:
         fmt = report_formats(book)
-        fmt["cashback_header"] = book.add_format(
-            {
-                "bold": True,
-                "bg_color": "#1F4E79",
-                "font_color": "white",
-                "border": 1,
-                "text_wrap": True,
-                "valign": "vcenter",
-            }
-        )
         _dashboard_sheet(book, fmt, result)
         _orders_sheet(book, fmt, result, finance)
         _exceptions_sheet(book, fmt, result)
@@ -182,27 +159,7 @@ def build_report(
                 ),
             )
             if finance is not None:
-                source_sheets(
-                    book,
-                    fmt,
-                    [
-                        SheetManifest(
-                            role="finance",
-                            filename="finance.xlsx",
-                            sheets=finance.sheets,
-                            rows=0,
-                        )
-                    ],
-                    sources,
-                    (
-                        (
-                            "finance",
-                            FINANCE_TITLE,
-                            parser.FINANCE_SCHEMA,
-                            "cashback_header",
-                        ),
-                    ),
-                )
+                finance_sheet(book, fmt, sources, finance)
     finally:
         book.close()
     return path
@@ -478,53 +435,13 @@ def _dashboard_view(result: FoodResult) -> _DashboardView:
     return view
 
 
-@dataclass(frozen=True)
-class _FinanceLayout:
-    """The copied report's sheets, and which column holds each lookup field."""
-
-    sheets: list[str]
-    columns: dict[str, int]
-
-
-def finance_layout(path: Path | None) -> _FinanceLayout | None:
-    """The spin table inside a finance upload, or None when none was supplied.
-
-    Order ID is unique on the report, so the first exact match is the reward.
-    A worked recon file that already has the reward columns bolted on does not
-    match: it has no Spin Event ID.
-    """
-    if path is None:
-        return None
-    with open_workbook(path) as workbook:
-        names = detect_sheets(workbook, parser.FINANCE_SCHEMA)
-        if not names:
-            raise SheetFormatError(
-                "No finance report table found in 'finance'. Expected columns "
-                "Spin Event ID, Order ID, Reward Amount (SAR), Reward Code, "
-                "Reward Type, Outcome and Vertical Name."
-            )
-        match = find_header(workbook[names[0]], parser.FINANCE_SCHEMA)
-        if match is None:
-            raise SheetFormatError(
-                "No finance report table found in 'finance'. Expected columns "
-                "Spin Event ID, Order ID, Reward Amount (SAR), Reward Code, "
-                "Reward Type, Outcome and Vertical Name."
-            )
-        missing = match.missing(parser.FINANCE_SCHEMA)
-        if missing:
-            raise SheetFormatError(
-                "'finance' is missing column(s): " + ", ".join(missing)
-            )
-        return _FinanceLayout(sheets=list(names), columns=dict(match.columns))
-
-
 def _orders_sheet(
     book: Any,
     fmt: dict[str, Any],
     result: FoodResult,
-    finance: _FinanceLayout | None,
+    finance: FinanceLayout | None,
 ) -> None:
-    columns = _COLUMNS + _CASHBACK_COLUMNS if finance is not None else _COLUMNS
+    columns = _COLUMNS + CASHBACK_COLUMNS if finance is not None else _COLUMNS
     sheet = book.add_worksheet("Orders")
     write_column_headers(sheet, fmt, columns)
 
@@ -533,7 +450,9 @@ def _orders_sheet(
         row = 1 + offset
         _write_order(sheet, fmt, row, order)
         if finance is not None:
-            _write_cashback(sheet, fmt, row, finance)
+            # This row's SG Order ID is the key.
+            key = f"{letter(_COL['sg_order_id'])}{row + 1}"
+            write_cashback(sheet, fmt, row, len(_COLUMNS), key, finance)
 
     first = 2
     last = 1 + len(included)
@@ -545,32 +464,6 @@ def _orders_sheet(
         _write_client_summary(sheet, fmt, totals + 4, totals)
     if included:
         sheet.autofilter(0, 0, last - 1, len(columns) - 1)
-
-
-def _write_cashback(
-    sheet: Any, fmt: dict[str, Any], row: int, finance: _FinanceLayout
-) -> None:
-    """Five lookups of this row's SG Order ID. A blank id, or no reward, is NA."""
-    excel_row = row + 1
-    key = letter(finance.columns["order_id"])
-    paired = zip(_CASHBACK_COLUMNS, _CASHBACK_FIELDS, strict=True)
-    for offset, (spec, field_name) in enumerate(paired):
-        formula = _cashback_formula(excel_row, key, letter(finance.columns[field_name]))
-        style = fmt["money"] if spec[4] == "money" else None
-        sheet.write_formula(row, len(_COLUMNS) + offset, formula, style)
-
-
-def _cashback_formula(excel_row: int, key_col: str, return_col: str) -> str:
-    """Exact lookup. SG Order ID is text; the report's Order ID may be a number."""
-    cell = f"{letter(_COL['sg_order_id'])}{excel_row}"
-    lookup = f"'{FINANCE_TITLE}'!{key_col}:{key_col}"
-    found = f"'{FINANCE_TITLE}'!{return_col}:{return_col}"
-    number = f"IFERROR(VALUE({cell}),{cell})"
-    return (
-        f'=IF({cell}="","NA",IFNA('
-        f"XLOOKUP({number},{lookup},{found},NA(),0),"
-        f'XLOOKUP({cell}&"",{lookup},{found},"NA",0)))'
-    )
 
 
 # ``rules._not_delivered`` writes this sentence for a row that never becomes an order.
