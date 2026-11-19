@@ -3,14 +3,16 @@
 The client signed off on the food workbook, and travel and eShop follow it:
 Dashboard, Orders, Exceptions, Wallet when a history was uploaded, Cashback,
 and copies of the Portal and Vendor uploads. What is the same in all three
-lives here: the palette, the dashboard blocks, the exceptions table, the
-cashback import, the wallet table and the source copies. Each category builds
-its own Orders sheet and decides what goes into the others.
+lives here: the palette, the dashboard blocks and the source copies. Each
+category builds its own Orders sheet and decides what goes into the others.
+The Exceptions, B2C invoice and Wallet sheets are tables in the setup
+(``app/config_model/standard_tabs.py``).
 
 Every report is written with ``constant_memory``, so rows go out strictly top
 to bottom and are never revisited.
 """
 
+import re
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, field
 from datetime import date, datetime, time
@@ -20,19 +22,12 @@ from typing import Any
 
 import xlsxwriter
 
-from app.recon.cleaning import money, normalize_header
+from app.recon.cleaning import normalize_header
 from app.recon.excel import SheetSchema, find_header, open_workbook
-from app.recon.exceptions import ReconException, Severity
-from app.recon.models import SheetManifest
-from app.recon.wallet import WalletReconciliation, WalletState
-from app.recon.xlsx import formats, num, table
+from app.recon.xlsx import formats, num
 
 # key, header, width, group (portal / check / vendor / meta), kind
 Column = tuple[str, str, int, str, str]
-
-PORTAL_TITLE = "Portal"
-VENDOR_TITLE = "Vendor"
-B2C_INVOICES_TITLE = "B2C Invoices ERP"
 
 
 def report_formats(book: xlsxwriter.Workbook) -> dict[str, Any]:
@@ -178,15 +173,66 @@ def write_text(sheet: Any, row: int, col: int, value: Any, style: Any = None) ->
 
 
 def write_column_headers(
-    sheet: Any, fmt: dict[str, Any], columns: Sequence[Column]
+    sheet: Any,
+    fmt: dict[str, Any],
+    columns: Sequence[Column],
+    styles: Sequence[Any] | None = None,
 ) -> None:
-    """The Orders header row, coloured by group, frozen."""
+    """The Orders header row, coloured by group (or each in ``styles``), frozen."""
     sheet.set_row(0, 32)
     sheet.freeze_panes(1, 0)
     for index, spec in enumerate(columns):
         _key, header, width, group, _kind = spec
         sheet.set_column(index, index, width)
-        sheet.write(0, index, header, fmt[f"{group}_header"])
+        style = styles[index] if styles is not None else fmt[f"{group}_header"]
+        sheet.write(0, index, header, style)
+
+
+def header_style(
+    book: xlsxwriter.Workbook, fmt: dict[str, Any], group: str, color: str | None
+) -> Any:
+    """A column header's format: its group's, or a header of its own colour,
+    with white or black text on it, whichever reads. Made once per colour."""
+    if color is None:
+        return fmt[f"{group}_header"]
+    key = f"header {color.upper()}"
+    if key not in fmt:
+        style = {
+            "bold": True,
+            "bg_color": color.upper(),
+            "border": 1,
+            "text_wrap": True,
+            "valign": "vcenter",
+        }
+        if _dark(color):
+            style["font_color"] = "white"
+        fmt[key] = book.add_format(style)
+    return fmt[key]
+
+
+def _dark(color: str) -> bool:
+    """Whether white text reads better than black on ``#RRGGBB`` (WCAG contrast)."""
+
+    def linear(channel: str) -> float:
+        value = int(channel, 16) / 255
+        return value / 12.92 if value <= 0.04045 else ((value + 0.055) / 1.055) ** 2.4
+
+    red, green, blue = (linear(color[i : i + 2]) for i in (1, 3, 5))
+    luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue
+    return 1.05 / (luminance + 0.05) > (luminance + 0.05) / 0.05
+
+
+def sheet_ref(title: str) -> str:
+    """A sheet's name as a formula on another sheet names it: as it is when it
+    is a plain name, quoted otherwise."""
+    if _PLAIN_SHEET.fullmatch(title) and not _CELL_LIKE.fullmatch(title):
+        return title
+    return "'" + title.replace("'", "''") + "'"
+
+
+_PLAIN_SHEET = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+# A name Excel would read as a cell (AB12, R1C1): quoted.
+_CELL_LIKE = re.compile(r"[A-Za-z]{1,3}[0-9]+|[RrCc][0-9]*|[Rr][0-9]*[Cc][0-9]*")
 
 
 def write_cell(
@@ -202,6 +248,9 @@ def write_cell(
 ) -> None:
     """One Orders cell. A ``diff`` beyond ``tolerance`` is shaded as a break."""
     if value is None:
+        return
+    if kind in _AS_IS:
+        _write_as_is(sheet, fmt, row, col, value, kind)
         return
     vendor = group == "vendor"
     if isinstance(value, date):
@@ -222,6 +271,50 @@ def write_cell(
         sheet.write(row, col, num(value), fmt[style])
         return
     write_text(sheet, row, col, value, fmt["text_vendor"] if vendor else None)
+
+
+# Kinds written as the value is, in any band: an id (a number when it is all
+# digits), a string (text even when empty), a date with its time.
+_AS_IS = frozenset({"id", "string", "datetime"})
+
+
+def _write_as_is(
+    sheet: Any, fmt: dict[str, Any], row: int, col: int, value: Any, kind: str
+) -> None:
+    if kind == "datetime":
+        # A date or a moment; anything else is left blank.
+        if isinstance(value, datetime):
+            style = "source_date" if _midnight(value) else "source_datetime"
+            sheet.write_datetime(row, col, value, fmt[style])
+        elif isinstance(value, date):
+            sheet.write_datetime(
+                row,
+                col,
+                datetime(value.year, value.month, value.day),
+                fmt["source_date"],
+            )
+        return
+    text = value if isinstance(value, str) else str(value)
+    if kind == "id" and text.isdigit():
+        sheet.write_number(row, col, int(text))
+    else:
+        sheet.write_string(row, col, text)
+
+
+def write_styled(sheet: Any, row: int, col: int, value: Any, style: Any) -> None:
+    """A cell in a format of its own: an empty one is still written, in it."""
+    if value is None or value == "":
+        sheet.write_blank(row, col, None, style)
+    elif isinstance(value, Decimal):
+        sheet.write(row, col, num(value), style)
+    elif isinstance(value, datetime):
+        sheet.write_datetime(row, col, value, style)
+    elif isinstance(value, date):
+        sheet.write_datetime(
+            row, col, datetime(value.year, value.month, value.day), style
+        )
+    else:
+        write_text(sheet, row, col, value, style)
 
 
 def write_order_row(
@@ -279,94 +372,55 @@ class DashBlock:
 
 @dataclass
 class BreakdownEntry:
-    """One row of the "Breakdown By Most Used" table.
-
-    ``extra`` is the last column, which each category names: food's Total
-    Delivery, travel's Net Payable, eShop's Total Shipping.
-    """
+    """One row of a breakdown table: a name, and its value in each column."""
 
     name: str
-    orders: int = 0
-    discounts: int = 0
-    revenue: Decimal = Decimal(0)
-    apple: Decimal = Decimal(0)
-    tamara: Decimal = Decimal(0)
-    card: Decimal = Decimal(0)
-    wallet: Decimal = Decimal(0)
-    commission: Decimal = Decimal(0)
-    extra: Decimal = Decimal(0)
-
-    def add_payment(self, method: str | None, card: Decimal, wallet: Decimal) -> None:
-        """The card share goes to the bucket its payment method names."""
-        self.wallet += wallet
-        bucket = payment_bucket(method)
-        if bucket == "apple":
-            self.apple += card
-        elif bucket == "tamara":
-            self.tamara += card
-        elif bucket == "card":
-            self.card += card
-
-    def quantize(self) -> None:
-        for name in _BREAKDOWN_MONEY:
-            setattr(self, name, money(getattr(self, name)))
+    values: list[Decimal | int]
 
 
-_BREAKDOWN_MONEY = (
-    "revenue",
-    "apple",
-    "tamara",
-    "card",
-    "wallet",
-    "commission",
-    "extra",
-)
+@dataclass(frozen=True)
+class DashBreakdown:
+    """A breakdown table as the dashboard writes it, below the blocks."""
+
+    # The names' header, then each column's.
+    headers: tuple[str, ...]
+    # Each column's kind: ``int`` or ``money``.
+    kinds: tuple[str, ...]
+    total: BreakdownEntry
+    entries: Sequence[BreakdownEntry]
 
 
-def breakdown_total(entries: Sequence[BreakdownEntry]) -> BreakdownEntry:
+def breakdown_total(entries: Sequence[BreakdownEntry], width: int) -> BreakdownEntry:
     """The TOTAL row: the sum of the rows."""
-    total = BreakdownEntry(name="TOTAL")
+    total = BreakdownEntry(name="TOTAL", values=[0] * width)
     for entry in entries:
-        total.orders += entry.orders
-        total.discounts += entry.discounts
-        for name in _BREAKDOWN_MONEY:
-            setattr(total, name, getattr(total, name) + getattr(entry, name))
+        total.values = [a + b for a, b in zip(total.values, entry.values, strict=True)]
     return total
 
 
-def ranked(entries: Sequence[BreakdownEntry]) -> list[BreakdownEntry]:
-    """Most used first, then by name."""
-    return sorted(entries, key=lambda item: (-item.orders, item.name))
-
-
-def payment_bucket(method: str | None) -> str:
-    text = (method or "").casefold()
-    if "tamara" in text:
-        return "tamara"
-    if "apple" in text:
-        return "apple"
-    if "card" in text:
-        return "card"
-    return "other"
-
-
-def share(part: Decimal, whole: Decimal) -> Decimal:
-    return Decimal(0) if whole == 0 else part / whole
+def ranked(entries: Sequence[BreakdownEntry], by: int | None) -> list[BreakdownEntry]:
+    """Most first in column ``by``, then by name; by name alone without one."""
+    if by is None:
+        return sorted(entries, key=lambda item: item.name)
+    return sorted(entries, key=lambda item: (-item.values[by], item.name))
 
 
 def write_dashboard(
     book: Any,
     fmt: dict[str, Any],
     blocks: Sequence[DashBlock],
-    breakdown_headers: tuple[str, ...],
-    total: BreakdownEntry,
-    entries: Sequence[BreakdownEntry],
+    breakdown: DashBreakdown | None,
+    title: str = "Dashboard",
 ) -> None:
     """The client dashboard: labelled blocks, then the breakdown table."""
-    sheet = book.add_worksheet("Dashboard")
+    sheet = book.add_worksheet(title)
     sheet.set_column(0, 0, 42)
     sheet.set_column(1, 1, 16)
-    sheet.set_column(2, DASH_ORIGIN + max(len(b.headers) for b in blocks), 15)
+    widest = max(
+        [DASH_ORIGIN + len(b.headers) for b in blocks]
+        + [len(breakdown.headers) - 1 if breakdown else 0, DASH_ORIGIN]
+    )
+    sheet.set_column(2, widest, 15)
     sheet.hide_gridlines(2)
 
     row = 2
@@ -382,15 +436,18 @@ def write_dashboard(
         _write_dash_numbers(sheet, fmt, row, DASH_ORIGIN, block.values)
         row += 3
 
+    if breakdown is None:
+        return
     sheet.set_row(row, 32)
-    _write_dash_headers(sheet, fmt, row, 0, breakdown_headers)
+    _write_dash_headers(sheet, fmt, row, 0, breakdown.headers)
     row += 1
-    _write_breakdown_row(sheet, fmt, row, total, total=True)
-    for entry in entries:
+    _write_breakdown_row(sheet, fmt, row, breakdown.total, breakdown.kinds, total=True)
+    for entry in breakdown.entries:
         row += 1
-        _write_breakdown_row(sheet, fmt, row, entry, total=False)
-    if entries:
-        sheet.autofilter(row - len(entries) - 1, 0, row, len(breakdown_headers) - 1)
+        _write_breakdown_row(sheet, fmt, row, entry, breakdown.kinds, total=False)
+    if breakdown.entries:
+        first = row - len(breakdown.entries) - 1
+        sheet.autofilter(first, 0, row, len(breakdown.headers) - 1)
 
 
 def _write_dash_headers(
@@ -421,6 +478,7 @@ def _write_breakdown_row(
     fmt: dict[str, Any],
     row: int,
     entry: BreakdownEntry,
+    kinds: tuple[str, ...],
     *,
     total: bool,
 ) -> None:
@@ -428,202 +486,15 @@ def _write_breakdown_row(
     whole = fmt["dash_total_int"] if total else fmt["dash_int"]
     amount = fmt["dash_total"] if total else fmt["dash_money"]
     write_text(sheet, row, 0, entry.name, text)
-    sheet.write_number(row, 1, entry.orders, whole)
-    sheet.write_number(row, 2, entry.discounts, whole)
-    for col, value in enumerate(
-        (
-            entry.revenue,
-            entry.apple,
-            entry.tamara,
-            entry.card,
-            entry.wallet,
-            entry.commission,
-            entry.extra,
-        ),
-        start=3,
-    ):
-        sheet.write_number(row, col, num(value), amount)
+    for col, (value, kind) in enumerate(zip(entry.values, kinds, strict=True), start=1):
+        if kind == "int" and isinstance(value, int):
+            sheet.write_number(row, col, value, whole)
+        else:
+            style = whole if kind == "int" else amount
+            sheet.write_number(row, col, num(Decimal(value)), style)
 
 
-# --- Exceptions -------------------------------------------------------------
-
-_EXCEPTION_HEADERS = ("Severity", "Code", "Order", "Status", "Amount", "Detail")
-_EXCEPTION_WIDTHS = (12, 32, 18, 36, 16, 88)
-
-
-def exceptions_sheet(
-    book: Any,
-    fmt: dict[str, Any],
-    exceptions: Sequence[ReconException],
-    status_of: Callable[[ReconException], str],
-) -> None:
-    """Severity, code, order, the order's status, amount, detail."""
-    sheet = book.add_worksheet("Exceptions")
-    table(sheet, fmt, _EXCEPTION_HEADERS, _EXCEPTION_WIDTHS)
-    for row, exc in enumerate(exceptions, start=1):
-        style = fmt["high"] if exc.severity is Severity.HIGH else fmt["info"]
-        sheet.write(row, 0, str(exc.severity), style)
-        sheet.write(row, 1, str(exc.code), style)
-        write_text(sheet, row, 2, exc.order_no or "")
-        write_text(sheet, row, 3, status_of(exc), style)
-        sheet.write(row, 4, num(exc.amount), fmt["money"])
-        write_text(sheet, row, 5, exc.detail)
-
-
-# --- Wallet -----------------------------------------------------------------
-
-_WALLET_HEADERS = (
-    "Vertical",
-    "SG Order ID",
-    "Order",
-    "Order Date",
-    "Portal Wallet",
-    "History Paid",
-    "History Refunded",
-    "Movements",
-    "State",
-    "Difference",
-)
-_WALLET_WIDTHS = (10, 12, 22, 12, 14, 14, 16, 11, 16, 13)
-
-
-def wallet_sheet(book: Any, fmt: dict[str, Any], wallet: WalletReconciliation) -> None:
-    """Each wallet-paid row against the history, then what the history held alone."""
-    sheet = book.add_worksheet("Wallet")
-    table(sheet, fmt, _WALLET_HEADERS, _WALLET_WIDTHS)
-    for row, check in enumerate(wallet.checks, start=1):
-        style = "money_bad" if check.state is WalletState.AMOUNT_MISMATCH else "money"
-        sheet.write_string(row, 0, check.vertical)
-        sheet.write_string(row, 1, check.sg_order_id)
-        write_text(sheet, row, 2, check.booking_id or "")
-        if check.order_date is not None:
-            sheet.write_datetime(
-                row,
-                3,
-                datetime(
-                    check.order_date.year, check.order_date.month, check.order_date.day
-                ),
-                fmt["date"],
-            )
-        sheet.write(row, 4, num(check.portal_wallet_amount), fmt["money"])
-        sheet.write(row, 5, num(check.history_paid), fmt["money"])
-        sheet.write(row, 6, num(check.history_refunded), fmt["money"])
-        sheet.write_number(row, 7, check.events)
-        sheet.write_string(row, 8, str(check.state))
-        sheet.write(row, 9, num(check.diff), fmt[style])
-
-    row = len(wallet.checks) + 2
-    sheet.write(row, 0, "Wallet movements with no portal row", fmt["title"])
-    row += 1
-    for event in wallet.unmatched_history:
-        sheet.write_string(row, 0, event.vertical)
-        sheet.write_string(row, 1, event.sg_order_id)
-        if event.event_date is not None:
-            sheet.write_datetime(
-                row,
-                3,
-                datetime(
-                    event.event_date.year, event.event_date.month, event.event_date.day
-                ),
-                fmt["date"],
-            )
-        sheet.write(row, 4, num(event.amount), fmt["money"])
-        write_text(sheet, row, 8, event.message or "")
-        row += 1
-
-    row += 1
-    sheet.write(row, 0, "Wallet history", fmt["title"])
-    row += 1
-    covers = (
-        f"{wallet.window_start} to {wallet.window_end}"
-        if wallet.window_start and wallet.window_end
-        else "no dated movements"
-    )
-    sheet.write(row, 0, "History covers", fmt["label"])
-    sheet.write_string(row, 2, covers)
-    row += 1
-    for label, count in (
-        ("Wallet-paid rows checked", wallet.rows_checked),
-        ("Found, same amount", wallet.matched),
-        ("Found, amount disagreed", wallet.amount_mismatch),
-        ("Outside the history's window", wallet.out_of_window),
-        ("Missing from the history", wallet.missing),
-        ("Wallet-paid rows with no SG Order ID, not checked", wallet.unkeyed),
-        ("History movements with no portal row", len(wallet.unmatched_history)),
-    ):
-        sheet.write(row, 0, label, fmt["label"])
-        sheet.write_number(row, 2, count)
-        row += 1
-
-
-# --- Cashback ---------------------------------------------------------------
-
-_CASHBACK_HEADERS = (
-    "Partner",
-    "Invoice Partner Display Name",
-    "Contact Name",
-    "Invoice/Bill Date",
-    "Invoice lines/Product",
-    "Invoice lines/Quantity",
-    "Invoice lines/Unit Price",
-    "Invoice lines/Taxes",
-)
-_CASHBACK_WIDTHS = (16, 28, 24, 18, 18, 22, 24, 26)
-_CASHBACK_TAX = "Domestic Sales (15%)"
-VAT_DIVISOR = Decimal("1.15")
-
-
-@dataclass(frozen=True)
-class CashbackLine:
-    partner: str
-    order_id: str
-    contact: str
-    bill_date: date | datetime | None
-    product: str
-    # The cell the unit price is taken from, before VAT: on the Orders sheet,
-    # or on the Portal copy.
-    unit_cell: str
-
-
-def cashback_sheet(
-    book: Any,
-    fmt: dict[str, Any],
-    lines: Sequence[CashbackLine],
-    title: str = B2C_INVOICES_TITLE,
-) -> None:
-    """One invoice line per order the category bills, ready to import."""
-    sheet = book.add_worksheet(title)
-    table(sheet, fmt, _CASHBACK_HEADERS, _CASHBACK_WIDTHS)
-    for offset, line in enumerate(lines, start=1):
-        write_text(sheet, offset, 0, line.partner)
-        _write_order_id(sheet, offset, 1, line.order_id)
-        write_text(sheet, offset, 2, line.contact)
-        _write_bill_date(sheet, fmt, offset, line.bill_date)
-        sheet.write_string(offset, 4, line.product)
-        sheet.write_number(offset, 5, 1)
-        sheet.write_formula(offset, 6, f"={line.unit_cell}/{VAT_DIVISOR}", fmt["money"])
-        sheet.write_string(offset, 7, _CASHBACK_TAX)
-    if lines:
-        sheet.autofilter(0, 0, len(lines), len(_CASHBACK_HEADERS) - 1)
-
-
-def _write_order_id(sheet: Any, row: int, col: int, order_id: str) -> None:
-    if order_id.isdigit():
-        sheet.write_number(row, col, int(order_id))
-    else:
-        sheet.write_string(row, col, order_id)
-
-
-def _write_bill_date(
-    sheet: Any, fmt: dict[str, Any], row: int, value: date | datetime | None
-) -> None:
-    if isinstance(value, datetime):
-        style = "source_date" if _midnight(value) else "source_datetime"
-        sheet.write_datetime(row, 3, value, fmt[style])
-    elif isinstance(value, date):
-        sheet.write_datetime(
-            row, 3, datetime(value.year, value.month, value.day), fmt["source_date"]
-        )
+# --- An upload's rows, where its copy puts them ----------------------------
 
 
 def order_id_text(value: Any) -> str:
@@ -654,16 +525,25 @@ class PortalRecord:
     # columns are listed apart.
     columns: dict[str, int]
     customers: list[int] = field(default_factory=list)
+    # Each column's normalised header, in order.
+    header_keys: tuple[str, ...] = ()
 
     def get(self, header: str) -> Any:
         return _at(self.values, self.columns.get(header))
 
-    def cell(self, header: str) -> str | None:
-        """The Portal-sheet reference of this row's cell under ``header``."""
+    def cell(
+        self, header: str, title: str, hidden: frozenset[str] = frozenset()
+    ) -> str | None:
+        """The reference of this row's cell under ``header`` on its copy, the
+        sheet called ``title``, which leaves out the ``hidden`` headers' columns."""
         col = self.columns.get(header)
         if col is None:
             return None
-        return f"{PORTAL_TITLE}!{letter(col)}{self.excel_row}"
+        if hidden:
+            if col < len(self.header_keys) and self.header_keys[col] in hidden:
+                return None
+            col -= sum(1 for key in self.header_keys[:col] if key in hidden)
+        return f"{sheet_ref(title)}!{letter(col)}{self.excel_row}"
 
     def contact(self) -> str:
         """The second Customer column is the name. The first is a numeric id."""
@@ -685,11 +565,13 @@ def portal_records(
     """
     columns: dict[str, int] = {}
     customers: list[int] = []
+    keys: tuple[str, ...] = ()
     for source in iter_source_rows(path, sheet_names, schema):
         if source.values is None or source.header_at is None:
             continue
         if source.cursor == source.header_at:
             columns, customers = _header_columns(source.values)
+            keys = tuple(normalize_header(value) for value in source.values)
         elif source.cursor > source.header_at:
             yield PortalRecord(
                 sheet=source.sheet,
@@ -698,6 +580,7 @@ def portal_records(
                 values=source.values,
                 columns=columns,
                 customers=customers,
+                header_keys=keys,
             )
 
 
@@ -719,7 +602,7 @@ def _at(row: tuple[Any, ...], index: int | None) -> Any:
     return row[index]
 
 
-# --- Source copies ----------------------------------------------------------
+# --- Copies of the uploads --------------------------------------------------
 
 
 @dataclass(frozen=True)
@@ -760,24 +643,20 @@ def iter_source_rows(
                 cursor += 1
 
 
-def source_sheets(
-    book: Any,
-    fmt: dict[str, Any],
-    detected: Sequence[SheetManifest],
-    sources: dict[str, Path],
-    copies: Sequence[tuple[str, str, SheetSchema, str]],
-) -> None:
-    """Append the uploaded sheets, one tab per (role, title, schema, header style)."""
-    by_role = {item.role: item.sheets for item in detected}
-    for role, title, schema, header_style in copies:
-        path = sources.get(role)
-        names = by_role.get(role) or []
-        if path is None or not names:
-            continue
-        _write_source_sheet(book, fmt, title, path, names, schema, header_style)
+@dataclass(frozen=True)
+class CopyEdits:
+    """How a copy differs from its upload: the columns it leaves out, by their
+    normalised header, and the columns it adds after the last one."""
+
+    hidden: frozenset[str] = frozenset()
+    # Each added column's header and width.
+    added: tuple[tuple[str, int], ...] = ()
+    # Writes a data row's added cells: the sheet, the row, its first added
+    # column, and the copy's column of each of the sheet's headers.
+    write: Callable[[Any, int, int, dict[str, int]], None] | None = None
 
 
-def _write_source_sheet(
+def write_copy(
     book: Any,
     fmt: dict[str, Any],
     title: str,
@@ -785,36 +664,127 @@ def _write_source_sheet(
     sheet_names: list[str],
     schema: SheetSchema,
     header_style: str,
+    edits: CopyEdits | None = None,
 ) -> None:
-    """Copy every detected sheet of one upload into a single worksheet.
+    """Copy every detected sheet of one upload into a single worksheet, as it
+    arrived, but for its ``edits``.
 
-    A single source sheet gets its header frozen and filtered.
+    A single source sheet gets its header frozen and filtered. A column left
+    out is left out of every row of its sheet, the rows above the header too,
+    and the columns after it move left; those rows wait for the header. The
+    added columns follow the header's last column, on each row after it that
+    has a value, and the filter takes them in.
     """
+    edits = edits or CopyEdits()
     sheet = book.add_worksheet(title)
     widths: list[int] = []
     filter_at: tuple[int, int] | None = None
     end = 0
     frozen = False
+    # The sheet being copied: the rows waiting for its header, the columns it
+    # leaves out, where each header landed, and where the added columns go.
+    current: str | None = None
+    waiting: list[SourceRow] = []
+    drop: frozenset[int] = frozenset()
+    landed: dict[str, int] = {}
+    first_added: int | None = None
 
     for source in iter_source_rows(path, sheet_names, schema):
         end = source.cursor + 1
         if source.values is None:
             write_text(sheet, source.cursor, 0, source.sheet, fmt["title"])
             continue
+        if source.sheet != current:
+            current, waiting, drop, landed, first_added = (
+                source.sheet,
+                [],
+                frozenset(),
+                {},
+                None,
+            )
         if source.single and source.header_at is not None and not frozen:
             sheet.freeze_panes(source.header_at + 1, 0)
             frozen = True
         is_header = source.header_at is not None and source.cursor == source.header_at
-        last_col = _write_source_row(
-            sheet, fmt, source.cursor, source.values, widths, is_header, header_style
+        if (
+            edits.hidden
+            and source.header_at is not None
+            and source.cursor < source.header_at
+        ):
+            waiting.append(source)
+            continue
+        if is_header:
+            drop = _dropped(source.values, edits.hidden)
+            for above in waiting:
+                assert above.values is not None
+                _write_source_row(
+                    sheet,
+                    fmt,
+                    above.cursor,
+                    above.values,
+                    widths,
+                    False,
+                    header_style,
+                    drop,
+                )
+            waiting = []
+        last_col, wrote = _write_source_row(
+            sheet,
+            fmt,
+            source.cursor,
+            source.values,
+            widths,
+            is_header,
+            header_style,
+            drop,
         )
-        if is_header and source.single:
-            filter_at = (source.cursor, last_col)
+        if is_header:
+            landed = _landed(source.values, drop)
+            first_added = last_col + 1
+            for offset, (header, width) in enumerate(edits.added):
+                col = first_added + offset
+                sheet.write_string(source.cursor, col, header, fmt[header_style])
+                if len(widths) <= col:
+                    widths.extend([12] * (col + 1 - len(widths)))
+                widths[col] = width
+            if source.single:
+                filter_at = (source.cursor, last_col + len(edits.added))
+        elif (
+            wrote
+            and edits.write is not None
+            and first_added is not None
+            and source.header_at is not None
+            and source.cursor > source.header_at
+        ):
+            edits.write(sheet, source.cursor, first_added, landed)
 
     for index, width in enumerate(widths):
         sheet.set_column(index, index, width)
     if filter_at is not None and end > filter_at[0] + 1:
         sheet.autofilter(filter_at[0], 0, end - 1, filter_at[1])
+
+
+def _dropped(header: tuple[Any, ...], hidden: frozenset[str]) -> frozenset[int]:
+    """The columns of a sheet whose header is one the copy leaves out."""
+    if not hidden:
+        return frozenset()
+    return frozenset(
+        index for index, value in enumerate(header) if normalize_header(value) in hidden
+    )
+
+
+def _landed(header: tuple[Any, ...], drop: frozenset[int]) -> dict[str, int]:
+    """Where each of a sheet's headers landed on the copy: its first column."""
+    landed: dict[str, int] = {}
+    shift = 0
+    for index, value in enumerate(header):
+        if index in drop:
+            shift += 1
+            continue
+        key = normalize_header(value)
+        if key and key not in landed:
+            landed[key] = index - shift
+    return landed
 
 
 def _write_source_row(
@@ -825,16 +795,24 @@ def _write_source_row(
     widths: list[int],
     is_header: bool,
     header_style: str,
-) -> int:
-    """Write one source row and return the last occupied column, 0-based."""
+    drop: frozenset[int] = frozenset(),
+) -> tuple[int, bool]:
+    """Write one source row, but for the ``drop`` columns, and return its last
+    occupied column on the copy, 0-based, and whether it had a value."""
     last = 0
+    wrote = False
+    shift = 0
     for col, value in enumerate(row):
+        if col in drop:
+            shift += 1
+            continue
         if value is None or value == "":
             continue
-        last = col
-        _write_source_cell(sheet, fmt, row_index, col, value, is_header, header_style)
-        _note_width(widths, col, value, is_header)
-    return last
+        last = col - shift
+        wrote = True
+        _write_source_cell(sheet, fmt, row_index, last, value, is_header, header_style)
+        _note_width(widths, last, value, is_header)
+    return last, wrote
 
 
 def _write_source_cell(

@@ -12,6 +12,9 @@ dependencies = [
     "openpyxl>=3.1.5",
     "xlsxwriter>=3.2.0",
     "sentry-sdk[fastapi]>=2.20",
+    "sqlalchemy>=2.0",
+    "psycopg[binary]>=3.2",
+    "alembic>=1.14",
 ]
 
 [dependency-groups]
@@ -43,6 +46,10 @@ ignore = [
     "B904",
 ]
 
+[tool.ruff.lint.isort]
+# ./alembic is the migrations folder, not the package; keep the package third-party.
+known-third-party = ["alembic"]
+
 [tool.ruff.lint.pyupgrade]
 # Keep runtime-evaluated annotations: FastAPI and pydantic introspect them.
 keep-runtime-typing = true
@@ -66,7 +73,6 @@ filterwarnings = [
 
 [tool.coverage.run]
 source = ["app"]
-omit = ["app/create_credentials.py"]
 
 [tool.coverage.report]
 show_missing = true

@@ -7,3 +7,6 @@ __pycache__
 .coverage
 htmlcov
 
+data/
+# Database dumps and file-store archives (development.md, Backups).
+backups/

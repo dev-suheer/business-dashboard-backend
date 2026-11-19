@@ -3,12 +3,18 @@
 One code means one thing. Where travel needs a check eshop also makes, it gets
 its own code rather than borrowing one, so that reading an exception never
 requires knowing which category produced it.
+
+These are the codes the approved rules raise. A category's configuration may
+raise codes of its own; it gives each its severity (``CategoryConfig.exceptions``).
 """
 
 from decimal import Decimal
 from enum import StrEnum
+from typing import Annotated
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from app.config_model.runtime import severity
 
 
 class Severity(StrEnum):
@@ -125,15 +131,21 @@ SEVERITIES: dict[ExceptionCode, Severity] = {
 
 
 class ReconException(BaseModel):
-    code: ExceptionCode
+    # One of the codes above, or one a configuration added.
+    code: Annotated[ExceptionCode | str, Field(union_mode="left_to_right")]
     severity: Severity
     order_no: str | None = None
     amount: Decimal | None = None
     detail: str = ""
 
 
+def exception_code(code: str) -> ExceptionCode | str:
+    """A code as the taxonomy names it, when it is one of its own."""
+    return ExceptionCode(code) if code in ExceptionCode._value2member_map_ else code
+
+
 def make_exception(
-    code: ExceptionCode,
+    code: ExceptionCode | str,
     *,
     order_no: str | None = None,
     amount: Decimal | None = None,
@@ -144,9 +156,15 @@ def make_exception(
     Severity is never passed in by the caller, so a code cannot be reported at
     two different severities from two different places.
     """
+    known = exception_code(code)
+    default = (
+        SEVERITIES.get(known, Severity.MEDIUM)
+        if isinstance(known, ExceptionCode)
+        else Severity.MEDIUM
+    )
     return ReconException(
-        code=code,
-        severity=SEVERITIES[code],
+        code=known,
+        severity=Severity(severity(str(code), default)),
         order_no=order_no,
         amount=amount,
         detail=detail,

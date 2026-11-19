@@ -2,6 +2,7 @@
 
 **Scope:** eShop category only (1 of 11). FastAPI backend, Excel uploads, dashboard + Excel export.
 **Constraints:** Excel files only. No database. All processing at runtime, in memory.
+**Implemented** as version 1 of eShop's configuration (`backend/app/config_model/seed_eshop.py`), run by the generic runner; the pipeline this plan describes was retired in v2 Phase 4.
 
 ---
 

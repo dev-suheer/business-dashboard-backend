@@ -157,3 +157,28 @@ def money(value: Decimal) -> Decimal:
     through here so results cannot drift between call sites.
     """
     return value.quantize(CENTS, rounding=ROUND_HALF_UP)
+
+
+def id_text(value: Any) -> str | None:
+    """An id as text, without the trailing ``.0`` a numeric cell gives it."""
+    text = clean_text(value)
+    if text is None:
+        return None
+    if text.endswith(".0") and text[:-2].isdigit():
+        return text[:-2]
+    return text
+
+
+def rate_fraction(value: Any) -> Decimal | None:
+    """A rate as a fraction.
+
+    One file writes ``5.00 %`` and another ``5``; both mean five percent.
+    ``to_decimal`` already turns a percent sign into a fraction, so only a bare
+    number above 1 still needs scaling.
+    """
+    number = to_decimal(value)
+    if number is None:
+        return None
+    if number > 1:
+        return number / Decimal(100)
+    return number

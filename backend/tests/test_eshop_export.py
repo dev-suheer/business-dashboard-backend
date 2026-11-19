@@ -1,5 +1,6 @@
 """The eShop workbook follows the food one, and the wallet history is checked."""
 
+from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -7,50 +8,27 @@ from typing import Any
 import pytest
 from openpyxl import load_workbook
 
-from app.core.config import settings
-from app.recon.engine import ReconRequest, Upload, reconcile
 from app.recon.exceptions import ExceptionCode
-from app.recon.export import build_report
-from app.recon.models import RateConfig, ReconResult
 from app.recon.wallet import WalletState
+from app.runner import RunResult
 from tests.conftest import (
     TRAVEL_WALLET,
     VENDOR_STATEMENT,
     WORKINGS,
     write_finance_report,
 )
+from tests.eshop import orders, run_eshop
+from tests.eshop import report as build_report
 
 SOURCES = {"portal": WORKINGS, "vendor": VENDOR_STATEMENT}
 
 
-def _reconcile(*, wallet: bool) -> ReconResult:
-    rates = RateConfig(
-        standard_rate=settings.STANDARD_RATE,
-        promo_rate=settings.PROMO_RATE,
-        promo_cutoff=settings.PROMO_CUTOFF,
-        line_tolerance=settings.LINE_TOLERANCE,
-        order_tolerance=settings.ORDER_TOLERANCE,
-    )
-    return reconcile(
-        ReconRequest(
-            category="eshop",
-            portal=Upload("portal", WORKINGS.name, WORKINGS),
-            promo=Upload("promo", WORKINGS.name, WORKINGS),
-            vendor=Upload("vendor", VENDOR_STATEMENT.name, VENDOR_STATEMENT),
-            settlements=None,
-            rates=rates,
-            period_start=None,
-            period_end=None,
-            max_rows=1_000_000,
-            wallet=(
-                Upload("wallet", TRAVEL_WALLET.name, TRAVEL_WALLET) if wallet else None
-            ),
-        )
-    )
+def _reconcile(*, wallet: bool) -> RunResult:
+    return run_eshop(wallet=TRAVEL_WALLET) if wallet else run_eshop()
 
 
 @pytest.fixture(scope="module")
-def result() -> ReconResult:
+def result() -> RunResult:
     return _reconcile(wallet=True)
 
 
@@ -62,12 +40,12 @@ def _labels(sheet: Any, column: int = 1) -> dict[Any, int]:
     }
 
 
-def test_the_wallet_does_not_move_the_payable(result: ReconResult) -> None:
-    assert result.summary.net_payable == Decimal("13876.31")
+def test_the_wallet_does_not_move_the_payable(result: RunResult) -> None:
+    assert result.metrics["net_payable"] == Decimal("13876.31")
     assert _reconcile(wallet=False).wallet is None
 
 
-def test_an_order_is_found_in_the_wallet_by_its_number(result: ReconResult) -> None:
+def test_an_order_is_found_in_the_wallet_by_its_number(result: RunResult) -> None:
     """SG-SH-08986 is SG Order ID 8986: 241.99 from the wallet on 15 Aug."""
     wallet = result.wallet
     assert wallet is not None
@@ -84,10 +62,13 @@ def test_an_order_is_found_in_the_wallet_by_its_number(result: ReconResult) -> N
     assert [event.sg_order_id for event in wallet.unmatched_history] == ["8920"]
     codes = {exc.code for exc in result.exceptions}
     assert ExceptionCode.WALLET_HISTORY_UNMATCHED in codes
-    assert result.summary.exception_counts["WALLET_ENTRY_MISSING"] == wallet.missing
+    assert (
+        sum(1 for e in result.exceptions if str(e.code) == "WALLET_ENTRY_MISSING")
+        == wallet.missing
+    )
 
 
-def test_the_report_has_the_food_sheets(result: ReconResult, tmp_path: Path) -> None:
+def test_the_report_has_the_food_sheets(result: RunResult, tmp_path: Path) -> None:
     path = build_report(result, tmp_path / "eshop.xlsx", SOURCES)
     book = load_workbook(path, read_only=True)
     assert book.sheetnames == [
@@ -102,9 +83,7 @@ def test_the_report_has_the_food_sheets(result: ReconResult, tmp_path: Path) -> 
     book.close()
 
 
-def test_the_dashboard_carries_the_headline(
-    result: ReconResult, tmp_path: Path
-) -> None:
+def test_the_dashboard_carries_the_headline(result: RunResult, tmp_path: Path) -> None:
     path = build_report(result, tmp_path / "eshop.xlsx", SOURCES)
     book = load_workbook(path)
     dashboard = book["Dashboard"]
@@ -114,11 +93,12 @@ def test_the_dashboard_carries_the_headline(
         dashboard.cell(header, col).value: dashboard.cell(header + 1, col).value
         for col in range(3, 18)
     }
-    included = [order for order in result.orders if order.included_in_payable]
+    included = [o for o in orders(result) if o.values["included"]]
     assert values["Order"] == len(included) == 34
     assert Decimal(str(values["Net Payable"])) == Decimal("13876.31")
-    assert Decimal(str(values["Contract Commission"])) == (
-        result.summary.commission_earned
+    assert (
+        Decimal(str(values["Contract Commission"]))
+        == (result.metrics["commission_earned"])
     )
     shipping = labels["Shipping"]
     assert dashboard.cell(shipping + 1, 3).value == 510
@@ -127,8 +107,9 @@ def test_the_dashboard_carries_the_headline(
     total = breakdown + 1
     assert dashboard.cell(total, 1).value == "TOTAL"
     assert dashboard.cell(total, 2).value == 34
-    assert Decimal(str(dashboard.cell(total, 9).value)) == (
-        result.summary.commission_earned
+    assert (
+        Decimal(str(dashboard.cell(total, 9).value))
+        == (result.metrics["commission_earned"])
     )
     # Multi-brand orders count under each brand, so the rows outnumber orders.
     brands = range(total + 1, dashboard.max_row + 1)
@@ -137,7 +118,7 @@ def test_the_dashboard_carries_the_headline(
 
 
 def test_the_orders_sheet_carries_the_settlement_bridge(
-    result: ReconResult, tmp_path: Path
+    result: RunResult, tmp_path: Path
 ) -> None:
     path = build_report(result, tmp_path / "eshop.xlsx", SOURCES)
     book = load_workbook(path)
@@ -173,7 +154,7 @@ def test_the_orders_sheet_carries_the_settlement_bridge(
 
 
 def test_b2c_invoices_bill_sg_shipping_on_billed_orders(
-    result: ReconResult, tmp_path: Path
+    result: RunResult, tmp_path: Path
 ) -> None:
     path = build_report(result, tmp_path / "eshop.xlsx", SOURCES)
     book = load_workbook(path)
@@ -203,6 +184,27 @@ def test_b2c_invoices_bill_sg_shipping_on_billed_orders(
     book.close()
 
 
+def test_b2c_invoices_read_the_portal_copy_by_its_title(
+    result: RunResult, tmp_path: Path
+) -> None:
+    tabs = [
+        tab.model_copy(update={"title": "Portal upload"})
+        if tab.key == "portal_copy"
+        else tab
+        for tab in result.config.output.tabs
+    ]
+    config = result.config.model_copy(
+        update={"output": result.config.output.model_copy(update={"tabs": tabs})}
+    )
+    path = build_report(
+        replace(result, config=config), tmp_path / "eshop.xlsx", SOURCES
+    )
+    book = load_workbook(path)
+    assert "Portal upload" in book.sheetnames and "Portal" not in book.sheetnames
+    assert book["B2C Invoices ERP"]["G2"].value == "='Portal upload'!Y3/1.15"
+    book.close()
+
+
 def _formula(cell: Any) -> str:
     """openpyxl returns a dynamic-array formula as an object, not a string."""
     value = cell.value
@@ -211,7 +213,7 @@ def _formula(cell: Any) -> str:
 
 
 def test_a_finance_report_adds_cashback_lookups(
-    result: ReconResult, tmp_path: Path
+    result: RunResult, tmp_path: Path
 ) -> None:
     finance = write_finance_report(tmp_path / "finance.xlsx", [8986], "eshop")
     path = build_report(
@@ -254,7 +256,7 @@ def test_a_finance_report_adds_cashback_lookups(
     book.close()
 
 
-def test_exceptions_carry_the_order_status(result: ReconResult, tmp_path: Path) -> None:
+def test_exceptions_carry_the_order_status(result: RunResult, tmp_path: Path) -> None:
     path = build_report(result, tmp_path / "eshop.xlsx", SOURCES)
     book = load_workbook(path)
     sheet = book["Exceptions"]

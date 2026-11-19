@@ -23,7 +23,8 @@ from typing import Any
 
 import xlsxwriter
 
-from app.recon.categories.eshop.parser import LEDGER_SCHEMA
+from app.config_model.runtime import schema_of
+from app.config_model.seed_eshop import VENDOR
 from app.recon.xlsx import MONEY
 
 TEMPLATE_VERSION = "1.0"
@@ -54,6 +55,10 @@ SALES_RETURN = "Sales Return - فاتورة مردود بيع أجل"
 COMMISSION = "Commission - قيد عمولة"
 PAYMENT = "Payment Received - قيد سداد"
 DOC_TYPES = (SALES_INVOICE, SALES_RETURN, COMMISSION, PAYMENT)
+
+
+# The statement as version 1 of eShop's configuration reads it.
+LEDGER_SCHEMA = schema_of(VENDOR.sheets[0])
 
 
 def _schema_header(field: str) -> str:

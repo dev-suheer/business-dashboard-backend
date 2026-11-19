@@ -1,0 +1,4395 @@
+{
+  "schema_version": 1,
+  "category": "travel",
+  "engine": "generic",
+  "inputs": [
+    {
+      "role": "portal",
+      "title": "Portal export",
+      "caption": "Hotel and flight tabs",
+      "required": true,
+      "shown": true,
+      "sheets": [
+        {
+          "key": "portal",
+          "name": "travel portal export",
+          "columns": [
+            {
+              "field": "sg_order_id",
+              "headers": [
+                "SG Order ID"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "booking_id",
+              "headers": [
+                "Partner Order ID"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "vertical",
+              "headers": [
+                "Vertical"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "order_date",
+              "headers": [
+                "Order Date"
+              ],
+              "required": true,
+              "type": "date",
+              "skip_if_blank": false
+            },
+            {
+              "field": "order_time",
+              "headers": [
+                "Order Time"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "customer_ref",
+              "headers": [
+                "Customer"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "provider",
+              "headers": [
+                "Provider Name"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "transaction_id",
+              "headers": [
+                "Transaction ID"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "status",
+              "headers": [
+                "Order Status"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "payment_status",
+              "headers": [
+                "Payment Status"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "payment_method",
+              "headers": [
+                "Payment Method"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "sub_total",
+              "headers": [
+                "Sub Total"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "promocode",
+              "headers": [
+                "Promocode"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "discount",
+              "headers": [
+                "SG Discount/Promo Amount"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "vat",
+              "headers": [
+                "VAT"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "order_total",
+              "headers": [
+                "Order Total"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "total_amount",
+              "headers": [
+                "Total Amount"
+              ],
+              "required": false,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "stated_rate",
+              "headers": [
+                "SG Comission %",
+                "SG Commission %"
+              ],
+              "required": false,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "commission_amount",
+              "headers": [
+                "Commission Amount"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "partner_payout",
+              "headers": [
+                "Partner Payout"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "commission_charged",
+              "headers": [
+                "Commission Charged"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "wallet_amount",
+              "headers": [
+                "Wallet Amount"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "card_amount",
+              "headers": [
+                "Applepay/Card Amount"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "refund_amount",
+              "headers": [
+                "Refund Amount"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "compensation_amount",
+              "headers": [
+                "Compensation Amount"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "net_payable",
+              "headers": [
+                "Net Payable Amount to Partner"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            }
+          ],
+          "fingerprint": [
+            "SG Order ID",
+            "Partner Order ID",
+            "Vertical",
+            "Order Total",
+            "Wallet Amount",
+            "Applepay/Card Amount",
+            "Commission Charged",
+            "Net Payable Amount to Partner"
+          ],
+          "exclude": [
+            "Match ID's",
+            "Booking ID",
+            "Total Invoice Amount",
+            "shoppinggate_percentage",
+            "MATCH SKU's"
+          ],
+          "fields": [
+            {
+              "key": "booking_id",
+              "formula": "IF(ISBLANK(booking_id), BLANK(), COALESCE(REGEX(UPPER(booking_id), \"^([A-Za-z]\\d+)-\\d+$\", 1), UPPER(booking_id)))"
+            },
+            {
+              "key": "vertical",
+              "formula": "IFS(IN(vertical, \"hotel\", \"hotels\", \"h\"), \"hotel\", IN(vertical, \"flight\", \"flights\", \"a\"), \"flight\")"
+            },
+            {
+              "key": "status",
+              "formula": "IFS(SUBSTITUTE(status, \" \", \"\") = \"Processed\", \"Processed\", SUBSTITUTE(status, \" \", \"\") = \"Cancelled\", \"Cancelled\", SUBSTITUTE(status, \" \", \"\") = \"Expired\", \"Expired\", SUBSTITUTE(status, \" \", \"\") = \"Pending\", \"Pending\", TRUE, \"unknown\")"
+            },
+            {
+              "key": "payment_status",
+              "formula": "IFS(SUBSTITUTE(payment_status, \" \", \"\") = \"Paid\", \"Paid\", SUBSTITUTE(payment_status, \" \", \"\") = \"Completed\", \"Completed\", SUBSTITUTE(payment_status, \" \", \"\") = \"Pending\", \"Pending\", SUBSTITUTE(payment_status, \" \", \"\") = \"Failed\", \"Failed\", SUBSTITUTE(payment_status, \" \", \"\") = \"Refunded\", \"Refunded\", TRUE, \"unknown\")"
+            },
+            {
+              "key": "total_amount",
+              "formula": "IF(ISBLANK(total_amount), order_total, total_amount)"
+            },
+            {
+              "key": "locality",
+              "formula": "IF(vat > 0, \"local\", \"international\")"
+            },
+            {
+              "key": "reference",
+              "formula": "COALESCE(booking_id, vertical & \" order \" & COALESCE(sg_order_id, \"None\"))"
+            }
+          ],
+          "filter": "AND(NOT(ISBLANK(vertical)), NOT(ISBLANK(order_date)))",
+          "unique": null,
+          "rejects": [],
+          "set": null,
+          "optional": false,
+          "first_only": false,
+          "missing_hint": "",
+          "manifest_role": null,
+          "counted": "TRUE"
+        }
+      ],
+      "kind": "rows",
+      "empty_message": "{filename} holds no Hotel or Flights rows. A portal export for another category cannot be reconciled as travel."
+    },
+    {
+      "role": "vendor",
+      "title": "Vendor claim",
+      "caption": "The weekly claim workbook",
+      "required": true,
+      "shown": true,
+      "sheets": [
+        {
+          "key": "claim",
+          "name": "vendor claim report",
+          "columns": [
+            {
+              "field": "booking_ref",
+              "headers": [
+                "Booking ID",
+                "Booking Number",
+                "Booking No"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "customer_id",
+              "headers": [
+                "Customer ID"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "dom_int_label",
+              "headers": [
+                "DOM/INT"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "customer_name",
+              "headers": [
+                "Customer Name"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "invoice_no",
+              "headers": [
+                "Invoice Number"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "line_item",
+              "headers": [
+                "line Item"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "billing_type",
+              "headers": [
+                "Billing Type"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "issue_date",
+              "headers": [
+                "Issue Date"
+              ],
+              "required": false,
+              "type": "date",
+              "skip_if_blank": false
+            },
+            {
+              "field": "service_type",
+              "headers": [
+                "Service Type"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "service_provider",
+              "headers": [
+                "Service Provider"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "description",
+              "headers": [
+                "Description of Service"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "supplier",
+              "headers": [
+                "Supplier Name"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "pnr",
+              "headers": [
+                "PNR No"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "vendor_booking_date",
+              "headers": [
+                "Booking Date"
+              ],
+              "required": false,
+              "type": "date",
+              "skip_if_blank": false
+            },
+            {
+              "field": "check_in",
+              "headers": [
+                "Check In Date"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "check_out",
+              "headers": [
+                "Check Out Date"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "to_number",
+              "headers": [
+                "T/O Number"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "client_name",
+              "headers": [
+                "Client Name"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "route",
+              "headers": [
+                "Route"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "destination_city",
+              "headers": [
+                "Destination City"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "class_type",
+              "headers": [
+                "Class/Type"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "base_ex_vat",
+              "headers": [
+                "Total Price W.O VAT"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "vat_percent",
+              "headers": [
+                "VAT %"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "vat",
+              "headers": [
+                "VAT"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "airline_cancel_fee",
+              "headers": [
+                "Airline Can Fee"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "total_invoice",
+              "headers": [
+                "Total Invoice Amount"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "commission",
+              "headers": [
+                "commision amount",
+                "commission amount"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "net_payable",
+              "headers": [
+                "net payable amount"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "currency",
+              "headers": [
+                "Currency"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            }
+          ],
+          "fingerprint": [
+            "Invoice Number",
+            "line Item",
+            "Billing Type",
+            "Service Type",
+            "Total Price W.O VAT",
+            "VAT %",
+            "Airline Can Fee",
+            "Total Invoice Amount",
+            "commision amount",
+            "net payable amount"
+          ],
+          "exclude": [
+            "SG Order ID",
+            "Order Total",
+            "Match ID's"
+          ],
+          "fields": [
+            {
+              "key": "booking_ref",
+              "formula": "UPPER(booking_ref)"
+            },
+            {
+              "key": "booking_id",
+              "formula": "IF(ISBLANK(booking_ref), BLANK(), TEXTBEFORE(booking_ref & \"_\", \"_\"))"
+            },
+            {
+              "key": "reversal",
+              "formula": "NOT(ISBLANK(REGEX(booking_ref, \"_R\\d+$\")))"
+            },
+            {
+              "key": "kind",
+              "formula": "IFS(NOT(ISBLANK(booking_ref)), \"line\", AND(NOT(ISBLANK(customer_id)), ISBLANK(REGEX(customer_id, \"\\A\\d+\\Z\"))), \"adjustment\", NOT(ISBLANK(invoice_no)), \"skipped\", TRUE, \"spacer\")"
+            },
+            {
+              "key": "adjusts",
+              "formula": "IF(kind = \"adjustment\", REGEX(UPPER(customer_id), \"[AH]\\d{12,18}\"), BLANK())"
+            },
+            {
+              "key": "billing_type",
+              "formula": "IFS(billing_type = \"Invoice\", \"Invoice\", billing_type = \"Credit for Returns\", \"Credit for Returns\", CONTAINS(billing_type, \"credit\"), \"Credit for Returns\", TRUE, \"unknown\")"
+            },
+            {
+              "key": "credit",
+              "formula": "OR(billing_type = \"Credit for Returns\", reversal)"
+            },
+            {
+              "key": "line_vertical",
+              "formula": "COALESCE(IFS(REGEX(booking_id, \"^H\") = \"H\", \"hotel\", REGEX(booking_id, \"^A\") = \"A\", \"flight\"), IFS(IN(service_type, \"hotel\", \"hotels\", \"h\"), \"hotel\", IN(service_type, \"flight\", \"flights\", \"a\"), \"flight\"), \"flight\")"
+            },
+            {
+              "key": "line_locality",
+              "formula": "IF(OR(vat <> 0, vat_percent <> 0), \"local\", \"international\")"
+            },
+            {
+              "key": "line_rate",
+              "formula": "IF(line_locality = \"international\", IF(line_vertical = \"hotel\", param.hotel_rate, param.flight_rate) * (1 + param.vat_rate), IF(line_vertical = \"hotel\", param.hotel_rate, param.flight_rate))"
+            },
+            {
+              "key": "expected",
+              "formula": "total_invoice * line_rate"
+            },
+            {
+              "key": "change_fee",
+              "formula": "IF(CONTAINS(description, \"change fee\"), total_invoice, 0)"
+            },
+            {
+              "key": "id_date",
+              "formula": "DATEVALUE(REGEX(booking_id, \"^[AH](\\d{6})\", 1), \"%y%m%d\")"
+            },
+            {
+              "key": "vat_percent_text",
+              "formula": "IF(vat_percent = ROUND(vat_percent, 0), TEXT(ROUND(vat_percent, 0)), TEXT(vat_percent))"
+            }
+          ],
+          "filter": null,
+          "unique": {
+            "keys": [
+              "TEXT(invoice_no)",
+              "TEXT(line_item)",
+              "booking_ref",
+              "TEXT(MONEY(total_invoice))",
+              "TEXT(MONEY(commission))"
+            ],
+            "when": "kind = \"line\"",
+            "exception": {
+              "code": "DUPLICATE_VENDOR_LINE",
+              "detail": "\"invoice \" & COALESCE(invoice_no, \"None\") & \" line \" & COALESCE(line_item, \"None\") & \" appears twice in the upload\"",
+              "amount": "total_invoice",
+              "order_no": "booking_id"
+            }
+          },
+          "rejects": [],
+          "set": "claim",
+          "optional": false,
+          "first_only": false,
+          "missing_hint": "",
+          "manifest_role": null,
+          "counted": "kind = \"line\""
+        },
+        {
+          "key": "claim_periods",
+          "name": "claim period ledger",
+          "columns": [
+            {
+              "field": "claim_period",
+              "headers": [
+                "Claim period"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": true
+            },
+            {
+              "field": "total_claim",
+              "headers": [
+                "Total Claim",
+                "total Claim"
+              ],
+              "required": false,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "commission_amount",
+              "headers": [
+                "Commision Amount",
+                "Commision invoices Amount",
+                "Commission Amount"
+              ],
+              "required": false,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "total_payable",
+              "headers": [
+                "total Payable amount"
+              ],
+              "required": true,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "paid_amount",
+              "headers": [
+                "Paid Amount"
+              ],
+              "required": false,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "difference",
+              "headers": [
+                "DIFF in payment"
+              ],
+              "required": false,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "unprovided_commission",
+              "headers": [
+                "unprovided Commision invoices",
+                "unprovided Commission invoices"
+              ],
+              "required": false,
+              "type": "decimal",
+              "skip_if_blank": false
+            }
+          ],
+          "fingerprint": [
+            "Claim period",
+            "total Payable amount",
+            "DIFF in payment"
+          ],
+          "exclude": [],
+          "fields": [],
+          "filter": null,
+          "unique": null,
+          "rejects": [],
+          "set": "claim_periods",
+          "optional": true,
+          "first_only": true,
+          "missing_hint": "",
+          "manifest_role": "vendor-ledger",
+          "counted": "TRUE"
+        }
+      ],
+      "kind": "rows",
+      "empty_message": null
+    },
+    {
+      "role": "wallet",
+      "title": "Wallet history",
+      "caption": "Optional · proves the wallet share",
+      "required": false,
+      "shown": true,
+      "sheets": [
+        {
+          "key": "history",
+          "name": "wallet history",
+          "columns": [
+            {
+              "field": "event_id",
+              "headers": [
+                "ID"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "wallet_type",
+              "headers": [
+                "Wallet Type"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "sg_order_id",
+              "headers": [
+                "SG Order ID"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "amount",
+              "headers": [
+                "Amount"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "message",
+              "headers": [
+                "Message"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "event_date",
+              "headers": [
+                "Date"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "payment_type",
+              "headers": [
+                "Payment Type"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            }
+          ],
+          "fingerprint": [
+            "Wallet Type",
+            "SG Order ID",
+            "Amount",
+            "Message"
+          ],
+          "exclude": [
+            "Partner Order ID",
+            "Order Total"
+          ],
+          "fields": [],
+          "filter": null,
+          "unique": null,
+          "rejects": [],
+          "set": null,
+          "optional": false,
+          "first_only": false,
+          "missing_hint": "",
+          "manifest_role": null,
+          "counted": "TRUE"
+        }
+      ],
+      "kind": "wallet",
+      "empty_message": null
+    },
+    {
+      "role": "finance",
+      "title": "Finance report",
+      "caption": "Optional · cashback by SG Order ID",
+      "required": false,
+      "shown": true,
+      "sheets": [
+        {
+          "key": "report",
+          "name": "finance report",
+          "columns": [
+            {
+              "field": "order_id",
+              "headers": [
+                "Order ID"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "reward_amount",
+              "headers": [
+                "Reward Amount (SAR)"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "vertical_name",
+              "headers": [
+                "Vertical Name"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "reward_code",
+              "headers": [
+                "Reward Code"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "reward_type",
+              "headers": [
+                "Reward Type"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "outcome",
+              "headers": [
+                "Outcome"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            }
+          ],
+          "fingerprint": [
+            "Spin Event ID",
+            "Order ID",
+            "Reward Amount (SAR)",
+            "Reward Code",
+            "Reward Type",
+            "Outcome",
+            "Vertical Name"
+          ],
+          "exclude": [
+            "MATCH ID'S",
+            "Match ID's",
+            "Partner Order ID"
+          ],
+          "fields": [],
+          "filter": null,
+          "unique": null,
+          "rejects": [],
+          "set": null,
+          "optional": false,
+          "first_only": false,
+          "missing_hint": "",
+          "manifest_role": null,
+          "counted": "TRUE"
+        }
+      ],
+      "kind": "reference",
+      "empty_message": null
+    }
+  ],
+  "parameters": [
+    {
+      "key": "hotel_rate",
+      "label": "Hotel commission rate",
+      "kind": "rate",
+      "value": "0.05",
+      "overridable": true
+    },
+    {
+      "key": "flight_rate",
+      "label": "Flight commission rate",
+      "kind": "rate",
+      "value": "0.03",
+      "overridable": true
+    },
+    {
+      "key": "vat_rate",
+      "label": "VAT added on international bookings",
+      "kind": "rate",
+      "value": "0.15",
+      "overridable": true
+    },
+    {
+      "key": "base_tolerance",
+      "label": "Amount tolerance",
+      "kind": "tolerance",
+      "value": "0.05",
+      "overridable": false
+    },
+    {
+      "key": "commission_tolerance",
+      "label": "Commission tolerance",
+      "kind": "tolerance",
+      "value": "0.01",
+      "overridable": false
+    },
+    {
+      "key": "rate_tolerance",
+      "label": "Rate tolerance",
+      "kind": "tolerance",
+      "value": "0.0005",
+      "overridable": false
+    }
+  ],
+  "exceptions": [
+    {
+      "code": "PRIOR_PERIOD",
+      "severity": "info",
+      "about": "Belongs to an earlier period."
+    },
+    {
+      "code": "LATER_PERIOD",
+      "severity": "info",
+      "about": "Belongs to a later period."
+    },
+    {
+      "code": "BOOKING_MISSING_IN_VENDOR",
+      "severity": "high",
+      "about": "On the portal, not billed on the claim."
+    },
+    {
+      "code": "BOOKING_MISSING_IN_PORTAL",
+      "severity": "high",
+      "about": "Billed on the claim, missing from the portal."
+    },
+    {
+      "code": "BOOKING_BASE_MISMATCH",
+      "severity": "high",
+      "about": "Our base amount and the vendor's differ."
+    },
+    {
+      "code": "VENDOR_COMMISSION_OVERCHARGE",
+      "severity": "high",
+      "about": "The vendor billed more commission than the contract allows."
+    },
+    {
+      "code": "VENDOR_COMMISSION_UNDERCHARGE",
+      "severity": "medium",
+      "about": "The vendor billed less commission than the contract allows."
+    },
+    {
+      "code": "SG_COMMISSION_SHORT_OF_VENDOR_RATE",
+      "severity": "high",
+      "about": "Our commission fell short of the vendor's rate plus VAT."
+    },
+    {
+      "code": "SG_COMMISSION_RATE_UNEXPECTED",
+      "severity": "high",
+      "about": "Our commission doesn't match our own rate."
+    },
+    {
+      "code": "COMMISSION_NOT_REVERSED_ON_REFUND",
+      "severity": "high",
+      "about": "Commission kept on a refunded booking."
+    },
+    {
+      "code": "REFUND_WITHOUT_PORTAL_CANCELLATION",
+      "severity": "high",
+      "about": "Refunded on the claim, not cancelled on the portal."
+    },
+    {
+      "code": "CANCELLATION_WITHOUT_VENDOR_CREDIT",
+      "severity": "high",
+      "about": "Cancelled on the portal, with no credit on the claim."
+    },
+    {
+      "code": "PARTIAL_REFUND",
+      "severity": "info",
+      "about": "A refund where the vendor kept some fees."
+    },
+    {
+      "code": "PAYMENT_SPLIT_MISMATCH",
+      "severity": "high",
+      "about": "Wallet plus card doesn't make the order's total."
+    },
+    {
+      "code": "COMMISSION_ON_UNCOMPLETED_ORDER",
+      "severity": "medium",
+      "about": "Commission taken on a booking that wasn't completed."
+    },
+    {
+      "code": "VERTICAL_CONFLICT",
+      "severity": "high",
+      "about": "The sources disagree: hotel or flight."
+    },
+    {
+      "code": "VAT_BASIS_CONFLICT",
+      "severity": "medium",
+      "about": "The sources disagree about whether VAT applies."
+    },
+    {
+      "code": "REPEAT_BOOKING_ROW",
+      "severity": "info",
+      "about": "A booking repeated in the portal export."
+    },
+    {
+      "code": "MULTI_LEG_BOOKING",
+      "severity": "info",
+      "about": "A booking with several invoice lines."
+    },
+    {
+      "code": "ADJUSTMENT_APPLIED",
+      "severity": "info",
+      "about": "A claim adjustment applied to a booking."
+    },
+    {
+      "code": "ADJUSTMENT_UNLINKED",
+      "severity": "medium",
+      "about": "A claim adjustment with no booking to apply it to."
+    },
+    {
+      "code": "DUPLICATE_VENDOR_LINE",
+      "severity": "info",
+      "about": "A claim line uploaded twice; the copy is left out."
+    },
+    {
+      "code": "UNPARSEABLE_VENDOR_ROW",
+      "severity": "medium",
+      "about": "A claim row that couldn't be read."
+    },
+    {
+      "code": "WALLET_ENTRY_MISSING",
+      "severity": "high",
+      "about": "A wallet payment missing from the wallet history."
+    },
+    {
+      "code": "WALLET_AMOUNT_MISMATCH",
+      "severity": "high",
+      "about": "The wallet history's amount differs from the order's."
+    },
+    {
+      "code": "WALLET_OUT_OF_WINDOW",
+      "severity": "info",
+      "about": "The order falls outside the dates the wallet history covers."
+    },
+    {
+      "code": "WALLET_HISTORY_UNMATCHED",
+      "severity": "info",
+      "about": "A wallet movement with no order in this export."
+    },
+    {
+      "code": "WALLET_KEY_UNSTABLE",
+      "severity": "medium",
+      "about": "Few orders were found in the wallet history: its order IDs may have changed."
+    },
+    {
+      "code": "WALLET_ORDER_ID_MISSING",
+      "severity": "medium",
+      "about": "Wallet-paid orders with no SG Order ID, so they can't be checked."
+    }
+  ],
+  "labels": {
+    "unmatched_reason": {
+      "refunded": "Refunded",
+      "cancelled": "Cancelled",
+      "missing_in_vendor": "Missing from vendor claim",
+      "missing_in_portal": "Missing from portal",
+      "other": "Other"
+    }
+  },
+  "output": {
+    "tabs": [
+      {
+        "key": "dashboard",
+        "title": "Dashboard",
+        "kind": "dashboard",
+        "requires": null,
+        "source": null,
+        "sheet": null,
+        "header_format": null,
+        "hidden": [],
+        "header": "bands",
+        "columns": [],
+        "lookup_columns": [],
+        "sections": [],
+        "blocks": [
+          {
+            "label": "SG TRAVEL ORDER Amount",
+            "value_label": "Vendor TRAVEL ORDER Amount",
+            "headers": [
+              "Order",
+              "Booking Amount",
+              "Vendor Amount",
+              "Base Difference",
+              "SG Commission",
+              "Vendor Commission",
+              "Round of differ",
+              "Net Payable",
+              "Wallet Amount",
+              "Applepay/Card Amount",
+              "Total collection",
+              "Portal total",
+              "T. Order - Collection Dif",
+              "sg promo code disc",
+              "T. Remaining"
+            ],
+            "values": [
+              {
+                "metric": "bookings",
+                "kind": "int"
+              },
+              {
+                "metric": "portal_base",
+                "kind": "money"
+              },
+              {
+                "metric": "vendor_base",
+                "kind": "money"
+              },
+              {
+                "metric": "base_difference",
+                "kind": "money"
+              },
+              {
+                "metric": "portal_commission",
+                "kind": "money"
+              },
+              {
+                "metric": "vendor_commission",
+                "kind": "money"
+              },
+              {
+                "metric": "round_off",
+                "kind": "money"
+              },
+              {
+                "metric": "net_payable",
+                "kind": "money"
+              },
+              {
+                "metric": "wallet",
+                "kind": "money"
+              },
+              {
+                "metric": "card",
+                "kind": "money"
+              },
+              {
+                "metric": "collection",
+                "kind": "money"
+              },
+              {
+                "metric": "portal_total",
+                "kind": "money"
+              },
+              {
+                "metric": "collection_gap",
+                "kind": "money"
+              },
+              {
+                "metric": "promo",
+                "kind": "money"
+              },
+              {
+                "metric": "remaining",
+                "kind": "money"
+              }
+            ],
+            "tall": true
+          },
+          {
+            "label": "Cash",
+            "value_label": null,
+            "headers": [
+              "Total Order Amount",
+              "Wallets",
+              "Other Method",
+              "Collection",
+              "Order-Collection",
+              "Promo Discount",
+              "Net Difference"
+            ],
+            "values": [
+              {
+                "metric": "portal_total",
+                "kind": "money"
+              },
+              {
+                "metric": "wallet",
+                "kind": "money"
+              },
+              {
+                "metric": "card",
+                "kind": "money"
+              },
+              {
+                "metric": "collection",
+                "kind": "money"
+              },
+              {
+                "metric": "order_collection",
+                "kind": "money"
+              },
+              {
+                "metric": "promo",
+                "kind": "money"
+              },
+              {
+                "metric": "net_difference",
+                "kind": "money"
+              }
+            ],
+            "tall": true
+          },
+          {
+            "label": "Commission at the contract rate",
+            "value_label": null,
+            "headers": [
+              "Hotel",
+              "Flights",
+              "TOTAL",
+              "Excluding VAT",
+              "Average Per Order"
+            ],
+            "values": [
+              {
+                "metric": "hotel_commission",
+                "kind": "money"
+              },
+              {
+                "metric": "flight_commission",
+                "kind": "money"
+              },
+              {
+                "metric": "commission",
+                "kind": "money"
+              },
+              {
+                "metric": "commission_ex_vat",
+                "kind": "money"
+              },
+              {
+                "metric": "average_commission",
+                "kind": "money"
+              }
+            ],
+            "tall": true
+          },
+          {
+            "label": "Average Commission share",
+            "value_label": null,
+            "headers": [
+              "By Hotel",
+              "By Flights"
+            ],
+            "values": [
+              {
+                "metric": "hotel_share",
+                "kind": "pct"
+              },
+              {
+                "metric": "flight_share",
+                "kind": "pct"
+              }
+            ],
+            "tall": false
+          }
+        ],
+        "breakdown": {
+          "set": "matched",
+          "parts": "lines",
+          "name": "COALESCE(service_provider, \"Unknown\")",
+          "basis": "total_invoice",
+          "totals": [
+            {
+              "key": "line_commission",
+              "formula": "commission"
+            }
+          ],
+          "name_header": "Breakdown By Most Used",
+          "columns": [
+            {
+              "header": "Order Count",
+              "add": "count",
+              "value": null,
+              "when": "TRUE",
+              "kind": "int"
+            },
+            {
+              "header": "Discount Count",
+              "add": "count",
+              "value": null,
+              "when": "OR(portal.discount <> 0, NOT(ISBLANK(portal.promocode)))",
+              "kind": "int"
+            },
+            {
+              "header": "Revenue By Provider",
+              "add": "sum",
+              "value": "portal.discount * share",
+              "when": "TRUE",
+              "kind": "money"
+            },
+            {
+              "header": "Applepay",
+              "add": "sum",
+              "value": "portal.card_amount * share",
+              "when": "AND(CONTAINS(portal.payment_method, \"apple\"), NOT(CONTAINS(portal.payment_method, \"tamara\")))",
+              "kind": "money"
+            },
+            {
+              "header": "Tamara",
+              "add": "sum",
+              "value": "portal.card_amount * share",
+              "when": "CONTAINS(portal.payment_method, \"tamara\")",
+              "kind": "money"
+            },
+            {
+              "header": "Card",
+              "add": "sum",
+              "value": "portal.card_amount * share",
+              "when": "AND(CONTAINS(portal.payment_method, \"card\"), NOT(CONTAINS(portal.payment_method, \"tamara\")), NOT(CONTAINS(portal.payment_method, \"apple\")))",
+              "kind": "money"
+            },
+            {
+              "header": "Wallet",
+              "add": "sum",
+              "value": "portal.wallet_amount * share",
+              "when": "TRUE",
+              "kind": "money"
+            },
+            {
+              "header": "Commission",
+              "add": "sum",
+              "value": "line_commission",
+              "when": "TRUE",
+              "kind": "money"
+            },
+            {
+              "header": "Net Payable",
+              "add": "sum",
+              "value": "net_payable_as_vendor * share",
+              "when": "TRUE",
+              "kind": "money"
+            }
+          ],
+          "rank_by": 0,
+          "total": "whole"
+        },
+        "tolerances": {}
+      },
+      {
+        "key": "orders",
+        "title": "Orders",
+        "kind": "table",
+        "requires": null,
+        "source": null,
+        "sheet": null,
+        "header_format": null,
+        "hidden": [],
+        "header": "bands",
+        "columns": [
+          {
+            "key": "order_date",
+            "header": "Order Date",
+            "width": 14,
+            "group": "portal",
+            "kind": "date",
+            "value": "portal.order_date",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order_time",
+            "header": "Order Time",
+            "width": 12,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.order_time",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "sg_order_id",
+            "header": "SG Order ID",
+            "width": 14,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.sg_order_id",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "booking_id",
+            "header": "Partner Order ID",
+            "width": 20,
+            "group": "portal",
+            "kind": "text",
+            "value": "key",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "vertical",
+            "header": "Vertical",
+            "width": 10,
+            "group": "portal",
+            "kind": "text",
+            "value": "IF(ISBLANK(portal), BLANK(), IF(portal.vertical = \"hotel\", \"Hotel\", \"Flights\"))",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "provider",
+            "header": "Provider Name",
+            "width": 16,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.provider",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "transaction_id",
+            "header": "Transaction ID",
+            "width": 28,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.transaction_id",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order_status",
+            "header": "Order Status",
+            "width": 14,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.status",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "payment_status",
+            "header": "Payment Status",
+            "width": 14,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.payment_status",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "payment_method",
+            "header": "Payment Method",
+            "width": 20,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.payment_method",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "sub_total",
+            "header": "Sub Total",
+            "width": 12,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.sub_total",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "promocode",
+            "header": "Promocode",
+            "width": 12,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.promocode",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "discount",
+            "header": "SG Discount/Promo Amount",
+            "width": 16,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.discount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "vat",
+            "header": "VAT",
+            "width": 12,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.vat",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order_total",
+            "header": "Order Total",
+            "width": 12,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.order_total",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "total_amount",
+            "header": "Total Amount",
+            "width": 14,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.total_amount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "stated_rate",
+            "header": "SG Comission %",
+            "width": 14,
+            "group": "portal",
+            "kind": "rate",
+            "value": "portal.stated_rate",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "commission_amount",
+            "header": "Commission Amount",
+            "width": 16,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.commission_amount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "partner_payout",
+            "header": "Partner Payout",
+            "width": 14,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.partner_payout",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "commission_charged",
+            "header": "Commission Charged",
+            "width": 16,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.commission_charged",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "wallet_amount",
+            "header": "Wallet Amount",
+            "width": 14,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.wallet_amount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "card_amount",
+            "header": "Applepay/Card Amount",
+            "width": 18,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.card_amount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "refund_amount",
+            "header": "Refund Amount",
+            "width": 14,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.refund_amount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "compensation_amount",
+            "header": "Compensation Amount",
+            "width": 16,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.compensation_amount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "net_payable",
+            "header": "Net Payable Amount to Partner",
+            "width": 18,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.net_payable",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "match",
+            "header": "MATCH ID'S",
+            "width": 12,
+            "group": "check",
+            "kind": "text",
+            "value": "IF(both, \"TRUE\", \"FALSE\")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "sg_rate",
+            "header": "Com Rate Check",
+            "width": 12,
+            "group": "check",
+            "kind": "rate",
+            "value": "IF(both, sg_rate, BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "vendor_rate",
+            "header": "Vendor Rate Check",
+            "width": 12,
+            "group": "check",
+            "kind": "rate",
+            "value": "IF(both, vendor_rate, BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "rate_diff",
+            "header": "Difference",
+            "width": 12,
+            "group": "check",
+            "kind": "rate",
+            "value": "IF(both, sg_rate - vendor_rate, BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "contract_rate",
+            "header": "Contract Rate",
+            "width": 12,
+            "group": "check",
+            "kind": "rate",
+            "value": "IF(both, contract_rate, BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "as_vendor",
+            "header": "Actual As Vendor",
+            "width": 14,
+            "group": "check",
+            "kind": "money",
+            "value": "IF(both, commission_as_vendor, BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "net_as_vendor",
+            "header": "Net Payable",
+            "width": 14,
+            "group": "check",
+            "kind": "money",
+            "value": "IF(both, net_payable_as_vendor, BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "base_diff",
+            "header": "BASE DIFFERENCE",
+            "width": 14,
+            "group": "check",
+            "kind": "diff",
+            "value": "IF(both, base_diff, BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "net_diff",
+            "header": "NET PAYABLE DIFFERENCE",
+            "width": 16,
+            "group": "check",
+            "kind": "diff",
+            "value": "IF(both, net_payable_diff_as_vendor, BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "uplift",
+            "header": "VAT UPLIFT NOT CHARGED",
+            "width": 16,
+            "group": "check",
+            "kind": "money",
+            "value": "IF(both, vat_uplift_shortfall, BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "dom_int",
+            "header": "DOM/INT",
+            "width": 10,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", dom_int_label, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "invoice",
+            "header": "Invoice Number",
+            "width": 16,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", invoice_no, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "lines",
+            "header": "Claim Lines",
+            "width": 10,
+            "group": "vendor",
+            "kind": "text",
+            "value": "IF(n_lines > 0, n_lines, BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "billing",
+            "header": "Billing Type",
+            "width": 14,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", billing_type, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "issued",
+            "header": "Issue Date",
+            "width": 12,
+            "group": "vendor",
+            "kind": "date",
+            "value": "FIRSTX(\"lines\", issue_date)",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "service",
+            "header": "Service Type",
+            "width": 10,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", service_type, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "service_provider",
+            "header": "Service Provider",
+            "width": 18,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", service_provider, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "description",
+            "header": "Description of Service",
+            "width": 22,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", description, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "supplier",
+            "header": "Supplier Name",
+            "width": 16,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", supplier, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "pnr",
+            "header": "PNR No",
+            "width": 12,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", pnr, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "booked",
+            "header": "Booking Date",
+            "width": 12,
+            "group": "vendor",
+            "kind": "date",
+            "value": "FIRSTX(\"lines\", vendor_booking_date)",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "check_in",
+            "header": "Check In Date",
+            "width": 12,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", check_in, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "check_out",
+            "header": "Check Out Date",
+            "width": 12,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", check_out, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "to_number",
+            "header": "T/O Number",
+            "width": 14,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", to_number, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "client",
+            "header": "Client Name",
+            "width": 24,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", client_name, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "route",
+            "header": "Route",
+            "width": 18,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", route, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "city",
+            "header": "Destination City",
+            "width": 16,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", destination_city, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "class_type",
+            "header": "Class/Type",
+            "width": 20,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", class_type, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "base_ex_vat",
+            "header": "Total Price W.O VAT",
+            "width": 16,
+            "group": "vendor",
+            "kind": "money",
+            "value": "IF(n_lines > 0, MONEY(SUMX(\"lines\", base_ex_vat)), BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "vat_percent",
+            "header": "VAT %",
+            "width": 8,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", vat_percent_text, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "line_vat",
+            "header": "VAT",
+            "width": 12,
+            "group": "vendor",
+            "kind": "money",
+            "value": "IF(n_lines > 0, MONEY(SUMX(\"lines\", vat)), BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "cancel_fee",
+            "header": "Airline Can Fee",
+            "width": 14,
+            "group": "vendor",
+            "kind": "money",
+            "value": "IF(n_lines > 0, vendor_cancel_fee, BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "total_invoice",
+            "header": "Total Invoice Amount",
+            "width": 16,
+            "group": "vendor",
+            "kind": "money",
+            "value": "IF(n_lines > 0, vendor_base, BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "v_commission",
+            "header": "commision amount",
+            "width": 16,
+            "group": "vendor",
+            "kind": "money",
+            "value": "IF(n_lines > 0, vendor_commission, BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "v_net",
+            "header": "net payable amount",
+            "width": 16,
+            "group": "vendor",
+            "kind": "money",
+            "value": "IF(n_lines > 0, vendor_net_payable, BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "currency",
+            "header": "Currency",
+            "width": 10,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", currency, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "booking_ref",
+            "header": "Booking ID",
+            "width": 26,
+            "group": "vendor",
+            "kind": "text",
+            "value": "JOINX(\"lines\", booking_ref, \", \")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "verdict",
+            "header": "Verdict",
+            "width": 24,
+            "group": "meta",
+            "kind": "text",
+            "value": "IF(verdict <> \"matched\", LABEL(\"unmatched_reason\", verdict), IFS(AND(ABS(base_diff) > param.base_tolerance, ABS(vendor_commission - vendor_expected_commission) > param.commission_tolerance), \"Base & commission differ\", ABS(base_diff) > param.base_tolerance, \"Base differs\", ABS(vendor_commission - vendor_expected_commission) > param.commission_tolerance, \"Commission differs\", TRUE, \"Matched\"))",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          }
+        ],
+        "lookup_columns": [
+          {
+            "key": "cashback_reward",
+            "header": "Cash Back Reward",
+            "width": 18,
+            "group": "cashback",
+            "kind": "money",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": {
+              "sheet": "finance_copy",
+              "match": "order_id",
+              "value": "reward_amount",
+              "key_column": "sg_order_id",
+              "key_value": null
+            }
+          },
+          {
+            "key": "vertical_name",
+            "header": "Vertical Name",
+            "width": 18,
+            "group": "cashback",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": {
+              "sheet": "finance_copy",
+              "match": "order_id",
+              "value": "vertical_name",
+              "key_column": "sg_order_id",
+              "key_value": null
+            }
+          },
+          {
+            "key": "reward_code",
+            "header": "Reward Code",
+            "width": 16,
+            "group": "cashback",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": {
+              "sheet": "finance_copy",
+              "match": "order_id",
+              "value": "reward_code",
+              "key_column": "sg_order_id",
+              "key_value": null
+            }
+          },
+          {
+            "key": "reward_type",
+            "header": "Reward Type",
+            "width": 14,
+            "group": "cashback",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": {
+              "sheet": "finance_copy",
+              "match": "order_id",
+              "value": "reward_type",
+              "key_column": "sg_order_id",
+              "key_value": null
+            }
+          },
+          {
+            "key": "outcome",
+            "header": "Outcome",
+            "width": 12,
+            "group": "cashback",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": {
+              "sheet": "finance_copy",
+              "match": "order_id",
+              "value": "outcome",
+              "key_column": "sg_order_id",
+              "key_value": null
+            }
+          }
+        ],
+        "sections": [
+          {
+            "kind": "rows",
+            "gap": 0,
+            "when": null,
+            "set": "matched",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": true,
+            "lookups": true,
+            "autofilter": true,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {},
+            "styles": {}
+          },
+          {
+            "kind": "totals",
+            "gap": 0,
+            "when": "matched",
+            "set": "matched",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": true,
+            "lookups": false,
+            "autofilter": false,
+            "label": "Total, {count} matched",
+            "formats": {},
+            "rows": [],
+            "values": {},
+            "styles": {}
+          },
+          {
+            "kind": "block",
+            "gap": 1,
+            "when": "matched",
+            "set": null,
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": true,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": 2,
+                    "text": "Matched bookings",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 3,
+                    "to_col": null,
+                    "text": "SHOPPINGGATE",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "header"
+                  },
+                  {
+                    "col": 4,
+                    "to_col": null,
+                    "text": "{vendor_upper}",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "header"
+                  },
+                  {
+                    "col": 5,
+                    "to_col": null,
+                    "text": "DIFFERENCE",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "header"
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": 2,
+                    "text": "Base Amount",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 3,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:order_total}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 4,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:total_invoice}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 5,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "=D{row}-E{row}",
+                    "value": null,
+                    "format": "yellow"
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": 2,
+                    "text": "Commission at the contract rate",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 3,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:as_vendor}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 4,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:v_commission}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 5,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "=D{row}-E{row}",
+                    "value": null,
+                    "format": "yellow"
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": 2,
+                    "text": "Net Payable at the contract rate",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 3,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:net_as_vendor}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 4,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:v_net}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 5,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "=D{row}-E{row}",
+                    "value": null,
+                    "format": "yellow"
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": 2,
+                    "text": "VAT uplift never charged",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 3,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:uplift}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": 2,
+                    "text": "Commission by vertical",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 3,
+                    "to_col": null,
+                    "text": "Including VAT",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "header"
+                  },
+                  {
+                    "col": 4,
+                    "to_col": null,
+                    "text": "Excluding VAT",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "header"
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": 2,
+                    "text": "Hotel",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 3,
+                    "to_col": null,
+                    "text": null,
+                    "metric": "hotel_commission",
+                    "formula": null,
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 4,
+                    "to_col": null,
+                    "text": null,
+                    "metric": "hotel_commission_ex_vat",
+                    "formula": null,
+                    "value": null,
+                    "format": "money"
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": 2,
+                    "text": "Flights",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 3,
+                    "to_col": null,
+                    "text": null,
+                    "metric": "flight_commission",
+                    "formula": null,
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 4,
+                    "to_col": null,
+                    "text": null,
+                    "metric": "flight_commission_ex_vat",
+                    "formula": null,
+                    "value": null,
+                    "format": "money"
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Rates applied: hotel {hotel_rate}, flights {flight_rate}, plus {vat_rate} VAT on the commission of an international booking. Local or international is decided by the VAT on the claim, never by its DOM/INT label.",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "info"
+                  }
+                ],
+                "height": null
+              }
+            ],
+            "values": {},
+            "styles": {}
+          },
+          {
+            "kind": "rows",
+            "gap": 1,
+            "when": null,
+            "set": "unmatched",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": "Bookings not in the totals, with the reason they did not match",
+            "tolerances": true,
+            "lookups": true,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {},
+            "styles": {}
+          }
+        ],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {
+          "base_diff": "param.base_tolerance",
+          "net_diff": "param.base_tolerance"
+        }
+      },
+      {
+        "key": "exceptions",
+        "title": "Exceptions",
+        "kind": "table",
+        "requires": null,
+        "source": null,
+        "sheet": null,
+        "header_format": null,
+        "hidden": [],
+        "header": "plain",
+        "columns": [
+          {
+            "key": "severity",
+            "header": "Severity",
+            "width": 12,
+            "group": "meta",
+            "kind": "text",
+            "value": "TEXT(severity)",
+            "excel": null,
+            "color": null,
+            "style": "IF(severity = \"high\", \"high\", \"info\")",
+            "lookup": null
+          },
+          {
+            "key": "code",
+            "header": "Code",
+            "width": 32,
+            "group": "meta",
+            "kind": "text",
+            "value": "TEXT(code)",
+            "excel": null,
+            "color": null,
+            "style": "IF(severity = \"high\", \"high\", \"info\")",
+            "lookup": null
+          },
+          {
+            "key": "order_no",
+            "header": "Order",
+            "width": 18,
+            "group": "meta",
+            "kind": "text",
+            "value": "order_no",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "status",
+            "header": "Status",
+            "width": 36,
+            "group": "meta",
+            "kind": "text",
+            "value": "TEXT(order.portal_status)",
+            "excel": null,
+            "color": null,
+            "style": "IF(severity = \"high\", \"high\", \"info\")",
+            "lookup": null
+          },
+          {
+            "key": "amount",
+            "header": "Amount",
+            "width": 16,
+            "group": "meta",
+            "kind": "money",
+            "value": "amount",
+            "excel": null,
+            "color": null,
+            "style": "\"money\"",
+            "lookup": null
+          },
+          {
+            "key": "detail",
+            "header": "Detail",
+            "width": 88,
+            "group": "meta",
+            "kind": "text",
+            "value": "detail",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          }
+        ],
+        "lookup_columns": [],
+        "sections": [
+          {
+            "kind": "rows",
+            "gap": 0,
+            "when": null,
+            "set": "exceptions",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": false,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {},
+            "styles": {}
+          }
+        ],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      },
+      {
+        "key": "wallet",
+        "title": "Wallet",
+        "kind": "table",
+        "requires": "wallet",
+        "source": null,
+        "sheet": null,
+        "header_format": null,
+        "hidden": [],
+        "header": "plain",
+        "columns": [
+          {
+            "key": "vertical",
+            "header": "Vertical",
+            "width": 10,
+            "group": "meta",
+            "kind": "string",
+            "value": "vertical",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "sg_order_id",
+            "header": "SG Order ID",
+            "width": 12,
+            "group": "meta",
+            "kind": "string",
+            "value": "sg_order_id",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order",
+            "header": "Order",
+            "width": 22,
+            "group": "meta",
+            "kind": "text",
+            "value": "booking_id",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order_date",
+            "header": "Order Date",
+            "width": 12,
+            "group": "meta",
+            "kind": "date",
+            "value": "order_date",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "portal_wallet",
+            "header": "Portal Wallet",
+            "width": 14,
+            "group": "meta",
+            "kind": "money",
+            "value": "portal_wallet_amount",
+            "excel": null,
+            "color": null,
+            "style": "\"money\"",
+            "lookup": null
+          },
+          {
+            "key": "history_paid",
+            "header": "History Paid",
+            "width": 14,
+            "group": "meta",
+            "kind": "money",
+            "value": "history_paid",
+            "excel": null,
+            "color": null,
+            "style": "\"money\"",
+            "lookup": null
+          },
+          {
+            "key": "history_refunded",
+            "header": "History Refunded",
+            "width": 16,
+            "group": "meta",
+            "kind": "money",
+            "value": "history_refunded",
+            "excel": null,
+            "color": null,
+            "style": "\"money\"",
+            "lookup": null
+          },
+          {
+            "key": "movements",
+            "header": "Movements",
+            "width": 11,
+            "group": "meta",
+            "kind": "text",
+            "value": "events",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "state",
+            "header": "State",
+            "width": 16,
+            "group": "meta",
+            "kind": "string",
+            "value": "TEXT(state)",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "difference",
+            "header": "Difference",
+            "width": 13,
+            "group": "meta",
+            "kind": "money",
+            "value": "diff",
+            "excel": null,
+            "color": null,
+            "style": "IF(state = \"amount_mismatch\", \"money_bad\", \"money\")",
+            "lookup": null
+          }
+        ],
+        "lookup_columns": [],
+        "sections": [
+          {
+            "kind": "rows",
+            "gap": 0,
+            "when": null,
+            "set": "wallet_checks",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": false,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {},
+            "styles": {}
+          },
+          {
+            "kind": "block",
+            "gap": 1,
+            "when": null,
+            "set": null,
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": true,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Wallet movements with no portal row",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "title"
+                  }
+                ],
+                "height": null
+              }
+            ],
+            "values": {},
+            "styles": {}
+          },
+          {
+            "kind": "rows",
+            "gap": 0,
+            "when": null,
+            "set": "wallet_unmatched",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": false,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {
+              "vertical": "vertical",
+              "sg_order_id": "sg_order_id",
+              "order_date": "event_date",
+              "portal_wallet": "amount",
+              "state": "IF(ISBLANK(message), BLANK(), message)"
+            },
+            "styles": {
+              "portal_wallet": "\"money\""
+            }
+          },
+          {
+            "kind": "block",
+            "gap": 1,
+            "when": null,
+            "set": null,
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": true,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Wallet history",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "title"
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "History covers",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "IF(AND(NOT(ISBLANK(wallet_check.window_start)), NOT(ISBLANK(wallet_check.window_end))), TEXT(wallet_check.window_start) & \" to \" & TEXT(wallet_check.window_end), \"no dated movements\")",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Wallet-paid rows checked",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.rows_checked",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Found, same amount",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.matched",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Found, amount disagreed",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.amount_mismatch",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Outside the history's window",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.out_of_window",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Missing from the history",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.missing",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Wallet-paid rows with no SG Order ID, not checked",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.unkeyed",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "History movements with no portal row",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "COUNTX(\"wallet_unmatched\")",
+                    "format": null
+                  }
+                ],
+                "height": null
+              }
+            ],
+            "values": {},
+            "styles": {}
+          }
+        ],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      },
+      {
+        "key": "b2c_invoices",
+        "title": "B2C Invoices ERP",
+        "kind": "table",
+        "requires": null,
+        "source": null,
+        "sheet": null,
+        "header_format": null,
+        "hidden": [],
+        "header": "plain",
+        "columns": [
+          {
+            "key": "partner",
+            "header": "Partner",
+            "width": 16,
+            "group": "meta",
+            "kind": "text",
+            "value": "TEXT(TRIM(TEXT(portal.provider)))",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order_id",
+            "header": "Invoice Partner Display Name",
+            "width": 28,
+            "group": "meta",
+            "kind": "id",
+            "value": "TEXT(key)",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "contact",
+            "header": "Contact Name",
+            "width": 24,
+            "group": "meta",
+            "kind": "text",
+            "value": "TEXT(COALESCE(contact, BLANK()))",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "bill_date",
+            "header": "Invoice/Bill Date",
+            "width": 18,
+            "group": "meta",
+            "kind": "datetime",
+            "value": "portal.order_date",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "product",
+            "header": "Invoice lines/Product",
+            "width": 18,
+            "group": "meta",
+            "kind": "string",
+            "value": "TEXT(IF(portal.vertical = \"hotel\", \"Hotel Booking\", \"Flight Booking\"))",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "quantity",
+            "header": "Invoice lines/Quantity",
+            "width": 22,
+            "group": "meta",
+            "kind": "text",
+            "value": "1",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "unit_price",
+            "header": "Invoice lines/Unit Price",
+            "width": 24,
+            "group": "meta",
+            "kind": "money",
+            "value": null,
+            "excel": "={cell:orders.commission_charged}/1.15",
+            "color": null,
+            "style": "\"money\"",
+            "lookup": null
+          },
+          {
+            "key": "taxes",
+            "header": "Invoice lines/Taxes",
+            "width": 26,
+            "group": "meta",
+            "kind": "string",
+            "value": "\"Domestic Sales (15%)\"",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          }
+        ],
+        "lookup_columns": [],
+        "sections": [
+          {
+            "kind": "rows",
+            "gap": 0,
+            "when": null,
+            "set": "matched",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": {
+              "upload": "portal",
+              "key": null,
+              "match": null,
+              "row": "portal"
+            },
+            "title": null,
+            "tolerances": false,
+            "lookups": false,
+            "autofilter": true,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {},
+            "styles": {}
+          }
+        ],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      },
+      {
+        "key": "portal_copy",
+        "title": "Portal",
+        "kind": "table",
+        "requires": null,
+        "source": "portal",
+        "sheet": "portal",
+        "header_format": "portal_header",
+        "hidden": [],
+        "header": "bands",
+        "columns": [],
+        "lookup_columns": [],
+        "sections": [],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      },
+      {
+        "key": "vendor_copy",
+        "title": "Vendor",
+        "kind": "table",
+        "requires": null,
+        "source": "vendor",
+        "sheet": "claim",
+        "header_format": "vendor_header",
+        "hidden": [],
+        "header": "bands",
+        "columns": [],
+        "lookup_columns": [],
+        "sections": [],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      },
+      {
+        "key": "finance_copy",
+        "title": "Finance Report",
+        "kind": "table",
+        "requires": "finance",
+        "source": "finance",
+        "sheet": "report",
+        "header_format": "cashback_header",
+        "hidden": [],
+        "header": "bands",
+        "columns": [],
+        "lookup_columns": [],
+        "sections": [],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      }
+    ],
+    "texts": [
+      {
+        "key": "vendor_upper",
+        "formula": "UPPER(COALESCE(vendor_name, \"Vendor\"))"
+      },
+      {
+        "key": "hotel_rate",
+        "formula": "PERCENT(param.hotel_rate, 2)"
+      },
+      {
+        "key": "flight_rate",
+        "formula": "PERCENT(param.flight_rate, 2)"
+      },
+      {
+        "key": "vat_rate",
+        "formula": "PERCENT(param.vat_rate, 2)"
+      }
+    ]
+  },
+  "model": {
+    "builder": "group",
+    "lookups": [],
+    "row_fields": [],
+    "sides": [],
+    "members": [
+      {
+        "set": "lines",
+        "key": "booking_id",
+        "name": "lines",
+        "primary": [],
+        "repeats": null
+      },
+      {
+        "set": "booked",
+        "key": "booking_id",
+        "name": "portal",
+        "primary": [
+          "order_date",
+          "N(INTEGER(sg_order_id))",
+          "row"
+        ],
+        "repeats": "repeats"
+      },
+      {
+        "set": "adjustments",
+        "key": "adjusts",
+        "name": "adjustments",
+        "primary": [],
+        "repeats": null
+      }
+    ],
+    "groups": [],
+    "fields": [
+      {
+        "key": "n_lines",
+        "formula": "COUNTX(\"lines\")"
+      },
+      {
+        "key": "n_repeats",
+        "formula": "COUNTX(\"repeats\")"
+      },
+      {
+        "key": "v_base",
+        "formula": "SUMX(\"lines\", total_invoice)"
+      },
+      {
+        "key": "v_commission",
+        "formula": "SUMX(\"lines\", commission)"
+      },
+      {
+        "key": "v_expected",
+        "formula": "SUMX(\"lines\", expected)"
+      },
+      {
+        "key": "v_net",
+        "formula": "SUMX(\"lines\", net_payable)"
+      },
+      {
+        "key": "v_cancel",
+        "formula": "SUMX(\"lines\", airline_cancel_fee)"
+      },
+      {
+        "key": "v_change",
+        "formula": "SUMX(\"lines\", change_fee)"
+      },
+      {
+        "key": "local_base",
+        "formula": "SUMX(\"lines\", IF(line_locality = \"local\", total_invoice, 0))"
+      },
+      {
+        "key": "intl_base",
+        "formula": "SUMX(\"lines\", IF(line_locality = \"international\", total_invoice, 0))"
+      },
+      {
+        "key": "has_invoice",
+        "formula": "COUNTX(\"lines\", NOT(credit)) > 0"
+      },
+      {
+        "key": "has_credit",
+        "formula": "COUNTX(\"lines\", credit) > 0"
+      },
+      {
+        "key": "first_issue",
+        "formula": "MINX(\"lines\", issue_date)"
+      },
+      {
+        "key": "adjustment",
+        "formula": "SUMX(\"adjustments\", commission)"
+      },
+      {
+        "key": "id_vertical",
+        "formula": "IFS(REGEX(key, \"^H\") = \"H\", \"hotel\", REGEX(key, \"^A\") = \"A\", \"flight\")"
+      },
+      {
+        "key": "vertical",
+        "formula": "COALESCE(portal.vertical, id_vertical, FIRSTX(\"lines\", line_vertical), \"flight\")"
+      },
+      {
+        "key": "n_localities",
+        "formula": "DISTINCTX(\"lines\", line_locality)"
+      },
+      {
+        "key": "locality",
+        "formula": "IF(n_lines = 0, IF(ISBLANK(portal), \"international\", portal.locality), IF(n_localities = 1, FIRSTX(\"lines\", line_locality), IF(ABS(local_base) >= ABS(intl_base), \"local\", \"international\")))"
+      },
+      {
+        "key": "match_state",
+        "formula": "IFS(AND(NOT(ISBLANK(portal)), n_lines > 0), \"matched\", NOT(ISBLANK(portal)), \"portal_only\", TRUE, \"vendor_only\")"
+      },
+      {
+        "key": "refund",
+        "formula": "IFS(NOT(has_credit), \"none\", v_cancel + v_change > param.base_tolerance, \"partial\", AND(has_invoice, v_base > param.base_tolerance), \"partial\", TRUE, \"full\")"
+      },
+      {
+        "key": "booking_date",
+        "formula": "COALESCE(DATEVALUE(REGEX(key, \"^[AH](\\d{6})\", 1), \"%y%m%d\"), IF(ISBLANK(portal), first_issue, portal.order_date))"
+      },
+      {
+        "key": "order_date",
+        "formula": "portal.order_date"
+      },
+      {
+        "key": "portal_rows",
+        "formula": "IF(ISBLANK(portal), 0, 1) + n_repeats"
+      },
+      {
+        "key": "portal_status",
+        "formula": "portal.status"
+      },
+      {
+        "key": "portal_payment_status",
+        "formula": "portal.payment_status"
+      },
+      {
+        "key": "payment_method",
+        "formula": "portal.payment_method"
+      },
+      {
+        "key": "p_base",
+        "formula": "N(portal.order_total)"
+      },
+      {
+        "key": "p_commission",
+        "formula": "N(portal.commission_charged)"
+      },
+      {
+        "key": "p_net",
+        "formula": "N(portal.net_payable)"
+      },
+      {
+        "key": "base_rate",
+        "formula": "IF(vertical = \"hotel\", param.hotel_rate, param.flight_rate)"
+      },
+      {
+        "key": "contract_rate",
+        "formula": "IF(locality = \"international\", base_rate * (1 + param.vat_rate), base_rate)"
+      },
+      {
+        "key": "sg_expected",
+        "formula": "p_base * base_rate"
+      },
+      {
+        "key": "as_vendor",
+        "formula": "p_base * contract_rate"
+      },
+      {
+        "key": "portal_base",
+        "formula": "MONEY(p_base)"
+      },
+      {
+        "key": "portal_commission",
+        "formula": "MONEY(p_commission)"
+      },
+      {
+        "key": "portal_net_payable",
+        "formula": "MONEY(p_net)"
+      },
+      {
+        "key": "wallet_amount",
+        "formula": "MONEY(N(portal.wallet_amount))"
+      },
+      {
+        "key": "card_amount",
+        "formula": "MONEY(N(portal.card_amount))"
+      },
+      {
+        "key": "vendor_base",
+        "formula": "MONEY(v_base)"
+      },
+      {
+        "key": "vendor_commission",
+        "formula": "MONEY(v_commission)"
+      },
+      {
+        "key": "vendor_net_payable",
+        "formula": "MONEY(v_net)"
+      },
+      {
+        "key": "vendor_cancel_fee",
+        "formula": "MONEY(v_cancel)"
+      },
+      {
+        "key": "vendor_change_fee",
+        "formula": "MONEY(v_change)"
+      },
+      {
+        "key": "vendor_adjustment",
+        "formula": "MONEY(adjustment)"
+      },
+      {
+        "key": "sg_rate",
+        "formula": "IF(p_base = 0, BLANK(), p_commission / p_base)"
+      },
+      {
+        "key": "vendor_rate",
+        "formula": "IF(v_base = 0, BLANK(), v_commission / v_base)"
+      },
+      {
+        "key": "sg_expected_commission",
+        "formula": "MONEY(sg_expected)"
+      },
+      {
+        "key": "vendor_expected_commission",
+        "formula": "MONEY(v_expected)"
+      },
+      {
+        "key": "base_diff",
+        "formula": "MONEY(p_base - v_base)"
+      },
+      {
+        "key": "commission_diff",
+        "formula": "MONEY(p_commission - v_commission)"
+      },
+      {
+        "key": "net_payable_diff",
+        "formula": "MONEY(p_net - v_net)"
+      },
+      {
+        "key": "commission_as_vendor",
+        "formula": "MONEY(as_vendor)"
+      },
+      {
+        "key": "net_payable_as_vendor",
+        "formula": "MONEY(p_base - as_vendor)"
+      },
+      {
+        "key": "commission_diff_as_vendor",
+        "formula": "MONEY(IF(n_lines > 0, as_vendor - v_commission, 0))"
+      },
+      {
+        "key": "net_payable_diff_as_vendor",
+        "formula": "MONEY(IF(n_lines > 0, (p_base - as_vendor) - v_net, 0))"
+      },
+      {
+        "key": "vat_uplift_shortfall",
+        "formula": "MONEY(as_vendor - sg_expected)"
+      },
+      {
+        "key": "both",
+        "formula": "AND(NOT(ISBLANK(portal)), n_lines > 0)"
+      }
+    ],
+    "context": [
+      {
+        "key": "export_start",
+        "formula": "MINX(\"portal\", order_date)"
+      },
+      {
+        "key": "export_end",
+        "formula": "MAXX(\"portal\", order_date)"
+      },
+      {
+        "key": "claim_start",
+        "formula": "MINX(\"billed_lines\", id_date)"
+      },
+      {
+        "key": "claim_end",
+        "formula": "MAXX(\"billed_lines\", id_date)"
+      },
+      {
+        "key": "has_claim",
+        "formula": "NOT(ISBLANK(claim_start))"
+      }
+    ],
+    "stops": [
+      {
+        "when": "OR(ISBLANK(export_start), ISBLANK(export_end))",
+        "message": "\"The portal export carried no dated travel rows\"",
+        "about": "The portal export has no dated travel bookings."
+      }
+    ],
+    "row_rules": [
+      {
+        "code": "UNPARSEABLE_VENDOR_ROW",
+        "detail": "QUOTE(sheet) & \" row \" & row & \": invoiced row carries no booking id\" & \" (\" & invoice_no & \")\"",
+        "amount": null,
+        "order_no": null,
+        "over": "skipped",
+        "when": "TRUE",
+        "about": "An invoiced claim row with no booking ID."
+      },
+      {
+        "code": "PAYMENT_SPLIT_MISMATCH",
+        "detail": "COALESCE(payment_method, \"no method\") & \": wallet \" & MONEY(wallet_amount) & \" + card \" & MONEY(card_amount) & \" does not make the order total \" & MONEY(order_total)",
+        "amount": "MONEY(order_total - (wallet_amount + card_amount))",
+        "order_no": "reference",
+        "over": "portal",
+        "when": "ABS(wallet_amount + card_amount - order_total) > param.base_tolerance",
+        "about": "A portal booking whose wallet and card amounts don't add up to its total."
+      },
+      {
+        "code": "COMMISSION_ON_UNCOMPLETED_ORDER",
+        "detail": "\"paid for (\" & payment_status & \") but \" & status & \", and commission was still taken\"",
+        "amount": "MONEY(commission_charged)",
+        "order_no": "reference",
+        "over": "portal",
+        "when": "AND(IN(status, \"Expired\", \"Pending\"), IN(payment_status, \"Paid\", \"Completed\", \"Refunded\"), commission_charged > param.commission_tolerance)",
+        "about": "An expired or pending booking that was paid, with commission still taken."
+      },
+      {
+        "code": "ADJUSTMENT_UNLINKED",
+        "detail": "\"no booking id in \" & QUOTE(customer_id)",
+        "amount": "commission",
+        "order_no": null,
+        "over": "adjustments",
+        "when": "ISBLANK(adjusts)",
+        "about": "A claim adjustment with no booking ID to link it to."
+      },
+      {
+        "code": "ADJUSTMENT_APPLIED",
+        "detail": "customer_id",
+        "amount": "commission",
+        "order_no": "adjusts",
+        "over": "adjustments",
+        "when": "NOT(ISBLANK(adjusts))",
+        "about": "A claim adjustment applied to a booking."
+      }
+    ],
+    "rules": [
+      {
+        "when": "refund <> \"none\"",
+        "verdict": "refunded",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": "refund & \" refund credited on the claim\" & IF(vendor_cancel_fee + vendor_change_fee <> 0, \"; \" & (vendor_cancel_fee + vendor_change_fee) & \" in fees retained\", \"\") & IF(vendor_commission <> 0, \"; vendor commission \" & vendor_commission & \" still billed\", \"\") & IF(portal_rows > 0, \"; the portal shows \" & COALESCE(portal_status, \"unknown\"), \"; no portal row\" & IF(ISBLANK(booking_date), \"; booking date unknown\", \"; booked \" & booking_date & IFS(booking_date < export_start, \", before \" & \"the portal export (\" & export_start & \" to \" & export_end & \")\" & \"\", booking_date > export_end, \", after \" & \"the portal export (\" & export_start & \" to \" & export_end & \")\" & \"\", TRUE, \", inside \" & \"the portal export (\" & export_start & \" to \" & export_end & \")\")))",
+        "about": "Refunded on the claim, in full or in part."
+      },
+      {
+        "when": "portal_status = \"Cancelled\"",
+        "verdict": "cancelled",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": "IF(match_state = \"matched\", \"cancelled on the portal, but the claim bills it with no credit note\", \"cancelled on the portal; not on the claim\")",
+        "about": "Cancelled on the portal."
+      },
+      {
+        "when": "AND(match_state = \"portal_only\", portal_status <> \"Processed\")",
+        "verdict": "other",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": "COALESCE(portal_status, \"unknown\") & \" on the portal; not on the claim\"",
+        "about": "Only on the portal, and not processed there."
+      },
+      {
+        "when": "AND(match_state = \"portal_only\", NOT(has_claim))",
+        "verdict": "missing_in_vendor",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": "\"not billed on the claim\"",
+        "about": "Only on the portal, and there is no claim to compare with."
+      },
+      {
+        "when": "match_state = \"portal_only\"",
+        "verdict": "missing_in_vendor",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": "\"not billed on the claim\" & IF(ISBLANK(booking_date), \"; booking date unknown\", \"; booked \" & booking_date & IFS(booking_date < claim_start, \", before \" & \"this claim's week (\" & claim_start & \" to \" & claim_end & \")\" & \", so expected on another claim\", booking_date > claim_end, \", after \" & \"this claim's week (\" & claim_start & \" to \" & claim_end & \")\" & \", so expected on another claim\", TRUE, \", inside \" & \"this claim's week (\" & claim_start & \" to \" & claim_end & \")\"))",
+        "about": "Only on the portal: not billed on the claim."
+      },
+      {
+        "when": "match_state = \"vendor_only\"",
+        "verdict": "missing_in_portal",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": "IF(n_lines > 0, \"billed on the claim\", \"adjusted by \" & vendor_adjustment & \" on the claim\") & \", no portal row\" & IF(ISBLANK(booking_date), \"; booking date unknown\", \"; booked \" & booking_date & IFS(booking_date < export_start, \", before \" & \"the portal export (\" & export_start & \" to \" & export_end & \")\" & \"\", booking_date > export_end, \", after \" & \"the portal export (\" & export_start & \" to \" & export_end & \")\" & \"\", TRUE, \", inside \" & \"the portal export (\" & export_start & \" to \" & export_end & \")\"))",
+        "about": "Only on the claim: no portal booking."
+      },
+      {
+        "when": "portal_status <> \"Processed\"",
+        "verdict": "other",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": "\"billed on the claim while the portal shows \" & COALESCE(portal_status, \"unknown\")",
+        "about": "Billed on the claim while the portal shows a status other than Processed."
+      },
+      {
+        "when": "TRUE",
+        "verdict": "matched",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": "\"\"",
+        "about": "Everything else: the booking matches."
+      }
+    ],
+    "checks": [],
+    "findings": [
+      {
+        "code": "PRIOR_PERIOD",
+        "detail": "COALESCE(portal_status, \"booked\") & \" on the portal, not billed on this claim (booked \" & booking_date & \", outside its week)\"",
+        "amount": "portal_base",
+        "order_no": null,
+        "when": "AND(match_state = \"portal_only\", has_claim, booking_date < claim_start)",
+        "about": "On the portal but not on this claim, booked before the claim's week.",
+        "each": null
+      },
+      {
+        "code": "LATER_PERIOD",
+        "detail": "COALESCE(portal_status, \"booked\") & \" on the portal, not billed on this claim (booked \" & booking_date & \", outside its week)\"",
+        "amount": "portal_base",
+        "order_no": null,
+        "when": "AND(match_state = \"portal_only\", has_claim, booking_date > claim_end)",
+        "about": "On the portal but not on this claim, booked after the claim's week.",
+        "each": null
+      },
+      {
+        "code": "BOOKING_MISSING_IN_VENDOR",
+        "detail": "COALESCE(portal_status, \"booked\") & \" on the portal, not billed on this claim\"",
+        "amount": "portal_base",
+        "order_no": null,
+        "when": "AND(match_state = \"portal_only\", NOT(AND(has_claim, OR(booking_date < claim_start, booking_date > claim_end))))",
+        "about": "On the portal but not billed on the claim.",
+        "each": null
+      },
+      {
+        "code": "PRIOR_PERIOD",
+        "detail": "\"billed on the claim, no portal row (booked \" & COALESCE(booking_date, \"unknown\") & \")\"",
+        "amount": "vendor_base",
+        "order_no": null,
+        "when": "AND(match_state = \"vendor_only\", booking_date < export_start)",
+        "about": "Billed on the claim with no portal booking, booked before the portal export's dates.",
+        "each": null
+      },
+      {
+        "code": "LATER_PERIOD",
+        "detail": "\"billed on the claim, no portal row (booked \" & COALESCE(booking_date, \"unknown\") & \")\"",
+        "amount": "vendor_base",
+        "order_no": null,
+        "when": "AND(match_state = \"vendor_only\", booking_date > export_end)",
+        "about": "Billed on the claim with no portal booking, booked after the portal export's dates.",
+        "each": null
+      },
+      {
+        "code": "BOOKING_MISSING_IN_PORTAL",
+        "detail": "\"billed on the claim, no portal row (booked \" & COALESCE(booking_date, \"unknown\") & \")\"",
+        "amount": "vendor_base",
+        "order_no": null,
+        "when": "AND(match_state = \"vendor_only\", NOT(OR(booking_date < export_start, booking_date > export_end)))",
+        "about": "Billed on the claim but missing from the portal.",
+        "each": null
+      },
+      {
+        "code": "BOOKING_BASE_MISMATCH",
+        "detail": "\"we booked \" & portal_base & \", they billed \" & vendor_base",
+        "amount": "base_diff",
+        "order_no": null,
+        "when": "AND(match_state = \"matched\", refund = \"none\", ABS(base_diff) > param.base_tolerance)",
+        "about": "Matched, but our base amount and the vendor's differ by more than the tolerance.",
+        "each": null
+      },
+      {
+        "code": "PARTIAL_REFUND",
+        "detail": "\"refunded with \" & MONEY(v_cancel) & \" cancellation fee and \" & MONEY(v_change) & \" change fee retained\"",
+        "amount": "MONEY(v_cancel + v_change)",
+        "order_no": null,
+        "when": "refund = \"partial\"",
+        "about": "A partial refund: the vendor kept a cancellation or change fee.",
+        "each": null
+      },
+      {
+        "code": "REFUND_WITHOUT_PORTAL_CANCELLATION",
+        "detail": "\"credited on the claim while the portal still says Processed\"",
+        "amount": "vendor_base",
+        "order_no": null,
+        "when": "AND(refund <> \"none\", portal_status = \"Processed\")",
+        "about": "Credited on the claim while the portal still shows the booking as Processed.",
+        "each": null
+      },
+      {
+        "code": "COMMISSION_NOT_REVERSED_ON_REFUND",
+        "detail": "\"the credit note leaves the vendor's commission standing\"",
+        "amount": "vendor_commission",
+        "order_no": null,
+        "when": "AND(refund <> \"none\", has_invoice, has_credit, ABS(v_commission) > param.commission_tolerance)",
+        "about": "Refunded, but the credit note leaves the vendor's commission standing.",
+        "each": null
+      },
+      {
+        "code": "COMMISSION_NOT_REVERSED_ON_REFUND",
+        "detail": "\"the portal still retains its commission on a refunded booking\"",
+        "amount": "portal_commission",
+        "order_no": null,
+        "when": "AND(refund <> \"none\", portal_commission > param.commission_tolerance)",
+        "about": "Refunded, but the portal still keeps its commission.",
+        "each": null
+      },
+      {
+        "code": "CANCELLATION_WITHOUT_VENDOR_CREDIT",
+        "detail": "\"cancelled on the portal with no credit note on the claim\"",
+        "amount": "portal_base",
+        "order_no": null,
+        "when": "AND(refund = \"none\", portal_status = \"Cancelled\", OR(NOT(has_claim), AND(NOT(ISBLANK(booking_date)), booking_date >= claim_start, booking_date <= claim_end)))",
+        "about": "Cancelled on the portal with no credit note on the claim.",
+        "each": null
+      },
+      {
+        "code": "VENDOR_COMMISSION_OVERCHARGE",
+        "detail": "\"billed \" & vendor_commission & \" where \" & vendor_expected_commission & \" is contractual (\" & COALESCE(PERCENT(vendor_rate, 4), \"—\") & \" against \" & COALESCE(PERCENT(contract_rate, 4), \"—\") & \")\"",
+        "amount": "MONEY(v_commission - v_expected)",
+        "order_no": null,
+        "when": "AND(refund = \"none\", n_lines > 0, v_commission - v_expected > param.commission_tolerance)",
+        "about": "The vendor billed more commission than the contract allows.",
+        "each": null
+      },
+      {
+        "code": "VENDOR_COMMISSION_UNDERCHARGE",
+        "detail": "\"billed \" & vendor_commission & \" where \" & vendor_expected_commission & \" is contractual\"",
+        "amount": "MONEY(v_commission - v_expected)",
+        "order_no": null,
+        "when": "AND(refund = \"none\", n_lines > 0, v_commission - v_expected < -param.commission_tolerance)",
+        "about": "The vendor billed less commission than the contract allows.",
+        "each": null
+      },
+      {
+        "code": "SG_COMMISSION_RATE_UNEXPECTED",
+        "detail": "\"we charged \" & portal_commission & \" where our own \" & COALESCE(PERCENT(base_rate, 4), \"—\") & \" rate makes \" & sg_expected_commission",
+        "amount": "MONEY(portal_commission - sg_expected_commission)",
+        "order_no": null,
+        "when": "AND(refund = \"none\", portal_base <> 0, ABS(portal_commission - sg_expected_commission) > param.commission_tolerance)",
+        "about": "Our commission doesn't match our own rate.",
+        "each": null
+      },
+      {
+        "code": "MULTI_LEG_BOOKING",
+        "detail": "n_lines & \" invoice lines compared as one booking\"",
+        "amount": "vendor_base",
+        "order_no": null,
+        "when": "n_lines > 1",
+        "about": "A booking with several invoice lines, compared as one.",
+        "each": null
+      },
+      {
+        "code": "REPEAT_BOOKING_ROW",
+        "detail": "\"portal row \" & row & \" of \" & QUOTE(sheet) & \" repeats this booking; excluded from the totals\"",
+        "amount": "MONEY(order_total)",
+        "order_no": null,
+        "when": "TRUE",
+        "about": "The same booking appears again in the portal export; the extra row is left out of the totals.",
+        "each": "repeats"
+      },
+      {
+        "code": "VERTICAL_CONFLICT",
+        "detail": "\"the booking id, the portal and the claim disagree: flight, hotel\"",
+        "amount": null,
+        "order_no": null,
+        "when": "AND(OR(COUNTX(\"lines\", line_vertical = \"hotel\") > 0, portal.vertical = \"hotel\", id_vertical = \"hotel\"), OR(COUNTX(\"lines\", line_vertical = \"flight\") > 0, portal.vertical = \"flight\", id_vertical = \"flight\"))",
+        "about": "The booking ID, the portal and the claim disagree: hotel or flight.",
+        "each": null
+      },
+      {
+        "code": "VAT_BASIS_CONFLICT",
+        "detail": "\"the claim's own lines disagree about whether VAT applies\"",
+        "amount": null,
+        "order_no": null,
+        "when": "AND(AND(NOT(ISBLANK(portal)), n_lines > 0), n_localities > 1)",
+        "about": "The claim's own lines disagree about whether VAT applies.",
+        "each": null
+      },
+      {
+        "code": "VAT_BASIS_CONFLICT",
+        "detail": "\"the portal reads \" & portal.locality & \" and the claim \" & locality",
+        "amount": null,
+        "order_no": null,
+        "when": "AND(AND(NOT(ISBLANK(portal)), n_lines > 0), n_localities <= 1, portal.locality <> locality)",
+        "about": "The portal and the claim disagree about whether VAT applies.",
+        "each": null
+      }
+    ],
+    "run_rules": [
+      {
+        "code": "SG_COMMISSION_SHORT_OF_VENDOR_RATE",
+        "detail": "COUNTX(\"short\") & \" international booking(s) were charged our local rate while the vendor bills that rate plus VAT; the difference is commission we never collected from the customer\"",
+        "amount": "MONEY(SUMX(\"short\", vat_uplift_shortfall))",
+        "order_no": null,
+        "when": "COUNTX(\"short\") > 0",
+        "about": "International bookings were charged our local rate while the vendor bills that rate plus VAT."
+      }
+    ],
+    "sort": [
+      "booking_date",
+      "key"
+    ],
+    "wallet": {
+      "rows": "booked",
+      "excluded": "unbooked",
+      "vertical": "vertical",
+      "wallet_types": {
+        "hotel": "hotel",
+        "hotels": "hotel",
+        "h": "hotel",
+        "flight": "flight",
+        "flights": "flight",
+        "a": "flight"
+      },
+      "strip": "",
+      "sg_order_id": "sg_order_id",
+      "reference": "booking_id",
+      "order_date": "order_date",
+      "amount": "wallet_amount",
+      "tolerance": "param.commission_tolerance"
+    },
+    "sets": [
+      {
+        "key": "lines",
+        "over": "claim",
+        "where": "kind = \"line\"",
+        "about": "The claim's invoice lines."
+      },
+      {
+        "key": "adjustments",
+        "over": "claim",
+        "where": "kind = \"adjustment\"",
+        "about": "The claim's adjustments."
+      },
+      {
+        "key": "skipped",
+        "over": "claim",
+        "where": "kind = \"skipped\"",
+        "about": "Claim rows read as neither a line nor an adjustment."
+      },
+      {
+        "key": "billed_lines",
+        "over": "lines",
+        "where": "AND(NOT(credit), NOT(ISBLANK(id_date)))",
+        "about": "Invoice lines with a date, credit notes left out."
+      },
+      {
+        "key": "booked",
+        "over": "portal",
+        "where": "NOT(ISBLANK(booking_id))",
+        "about": "Portal rows with a booking ID."
+      },
+      {
+        "key": "unbooked",
+        "over": "portal",
+        "where": "ISBLANK(booking_id)",
+        "about": "Portal rows without a booking ID."
+      },
+      {
+        "key": "matched",
+        "over": "entities",
+        "where": "verdict = \"matched\"",
+        "about": "Bookings that match."
+      },
+      {
+        "key": "unmatched",
+        "over": "entities",
+        "where": "verdict <> \"matched\"",
+        "about": "Bookings that don't match."
+      },
+      {
+        "key": "short",
+        "over": "matched",
+        "where": "AND(locality = \"international\", vat_uplift_shortfall > 0)",
+        "about": "Matched international bookings charged below the vendor's rate plus VAT."
+      }
+    ],
+    "metrics": [
+      {
+        "key": "portal_rows",
+        "formula": "COUNTX(\"portal\")"
+      },
+      {
+        "key": "portal_bookings",
+        "formula": "COUNTX(\"entities\", portal_rows > 0)"
+      },
+      {
+        "key": "vendor_lines",
+        "formula": "COUNTX(\"lines\")"
+      },
+      {
+        "key": "vendor_bookings",
+        "formula": "COUNTX(\"entities\", n_lines > 0)"
+      },
+      {
+        "key": "bookings_matched",
+        "formula": "COUNTX(\"matched\")"
+      },
+      {
+        "key": "bookings_unmatched",
+        "formula": "COUNTX(\"unmatched\")"
+      },
+      {
+        "key": "bookings_portal_only",
+        "formula": "COUNTX(\"entities\", match_state = \"portal_only\")"
+      },
+      {
+        "key": "bookings_vendor_only",
+        "formula": "COUNTX(\"entities\", match_state = \"vendor_only\")"
+      },
+      {
+        "key": "repeat_rows",
+        "formula": "SUMX(\"entities\", n_repeats)"
+      },
+      {
+        "key": "portal_rows_without_booking_id",
+        "formula": "COUNTX(\"unbooked\")"
+      },
+      {
+        "key": "vendor_rows_without_booking_id",
+        "formula": "COUNTX(\"skipped\")"
+      },
+      {
+        "key": "claim_base",
+        "formula": "MONEY(SUMX(\"entities\", v_base))"
+      },
+      {
+        "key": "claim_commission",
+        "formula": "MONEY(SUMX(\"entities\", v_commission))"
+      },
+      {
+        "key": "claim_net_payable",
+        "formula": "MONEY(SUMX(\"entities\", v_net))"
+      },
+      {
+        "key": "portal_base",
+        "formula": "MONEY(SUMX(\"matched\", p_base))"
+      },
+      {
+        "key": "vendor_base",
+        "formula": "MONEY(SUMX(\"matched\", v_base))"
+      },
+      {
+        "key": "base_difference",
+        "formula": "MONEY(SUMX(\"matched\", base_diff))"
+      },
+      {
+        "key": "portal_commission",
+        "formula": "MONEY(SUMX(\"matched\", p_commission))"
+      },
+      {
+        "key": "vendor_commission",
+        "formula": "MONEY(SUMX(\"matched\", v_commission))"
+      },
+      {
+        "key": "commission_difference",
+        "formula": "MONEY(SUMX(\"matched\", commission_diff))"
+      },
+      {
+        "key": "portal_net_payable",
+        "formula": "MONEY(SUMX(\"matched\", p_net))"
+      },
+      {
+        "key": "vendor_net_payable",
+        "formula": "MONEY(SUMX(\"matched\", v_net))"
+      },
+      {
+        "key": "net_payable_difference",
+        "formula": "MONEY(SUMX(\"matched\", net_payable_diff))"
+      },
+      {
+        "key": "commission_as_vendor",
+        "formula": "MONEY(SUMX(\"matched\", commission_as_vendor))"
+      },
+      {
+        "key": "net_payable_as_vendor",
+        "formula": "MONEY(SUMX(\"matched\", net_payable_as_vendor))"
+      },
+      {
+        "key": "commission_difference_at_contract",
+        "formula": "MONEY(SUMX(\"matched\", as_vendor - v_commission))"
+      },
+      {
+        "key": "net_payable_difference_at_contract",
+        "formula": "MONEY(SUMX(\"matched\", (p_base - as_vendor) - v_net))"
+      },
+      {
+        "key": "vat_uplift_shortfall",
+        "formula": "MONEY(SUMX(\"matched\", vat_uplift_shortfall))"
+      },
+      {
+        "key": "vendor_overcharge",
+        "formula": "MONEY(SUMX(\"entities\", IF(AND(refund = \"none\", v_commission - v_expected > 0), v_commission - v_expected, 0)))"
+      },
+      {
+        "key": "vendor_adjustments",
+        "formula": "MONEY(SUMX(\"entities\", adjustment))"
+      },
+      {
+        "key": "retained_fees",
+        "formula": "MONEY(SUMX(\"entities\", v_cancel + v_change))"
+      },
+      {
+        "key": "commission_retained_on_refunds",
+        "formula": "MONEY(SUMX(\"entities\", IF(AND(refund <> \"none\", has_invoice), v_commission, 0)))"
+      },
+      {
+        "key": "hotel_total",
+        "formula": "SUMX(\"matched\", IF(vertical = \"hotel\", commission_as_vendor, 0))"
+      },
+      {
+        "key": "flight_total",
+        "formula": "SUMX(\"matched\", IF(vertical = \"flight\", commission_as_vendor, 0))"
+      },
+      {
+        "key": "hotel_commission",
+        "formula": "MONEY(hotel_total)"
+      },
+      {
+        "key": "flight_commission",
+        "formula": "MONEY(flight_total)"
+      },
+      {
+        "key": "hotel_commission_ex_vat",
+        "formula": "MONEY(hotel_total / (1 + param.vat_rate))"
+      },
+      {
+        "key": "flight_commission_ex_vat",
+        "formula": "MONEY(flight_total / (1 + param.vat_rate))"
+      },
+      {
+        "key": "wallet_rows_checked",
+        "formula": "N(wallet_check.rows_checked)"
+      },
+      {
+        "key": "wallet_matched",
+        "formula": "N(wallet_check.matched)"
+      },
+      {
+        "key": "vendor_name",
+        "formula": "COALESCEX(\"portal\", provider)"
+      },
+      {
+        "key": "bookings",
+        "formula": "COUNTX(\"matched\")"
+      },
+      {
+        "key": "round_off",
+        "formula": "vendor_commission - portal_commission"
+      },
+      {
+        "key": "net_payable",
+        "formula": "net_payable_as_vendor"
+      },
+      {
+        "key": "wallet",
+        "formula": "MONEY(SUMX(\"matched\", wallet_amount))"
+      },
+      {
+        "key": "card",
+        "formula": "MONEY(SUMX(\"matched\", card_amount))"
+      },
+      {
+        "key": "portal_total",
+        "formula": "MONEY(SUMX(\"matched\", portal.total_amount))"
+      },
+      {
+        "key": "promo",
+        "formula": "MONEY(SUMX(\"matched\", portal.discount))"
+      },
+      {
+        "key": "collection",
+        "formula": "wallet + card"
+      },
+      {
+        "key": "collection_gap",
+        "formula": "collection - portal_total"
+      },
+      {
+        "key": "remaining",
+        "formula": "promo + collection - portal_total"
+      },
+      {
+        "key": "order_collection",
+        "formula": "portal_total - collection"
+      },
+      {
+        "key": "net_difference",
+        "formula": "portal_total - collection - promo"
+      },
+      {
+        "key": "commission",
+        "formula": "hotel_commission + flight_commission"
+      },
+      {
+        "key": "commission_ex_vat",
+        "formula": "hotel_commission_ex_vat + flight_commission_ex_vat"
+      },
+      {
+        "key": "average_commission",
+        "formula": "IF(bookings = 0, 0, commission / bookings)"
+      },
+      {
+        "key": "hotel_share",
+        "formula": "IF(commission = 0, 0, hotel_commission / commission)"
+      },
+      {
+        "key": "flight_share",
+        "formula": "IF(commission = 0, 0, flight_commission / commission)"
+      }
+    ],
+    "history": {
+      "counted": "bookings_matched",
+      "total": "COUNTX(\"entities\")",
+      "unit": "\"bookings\"",
+      "net_payable": "net_payable_as_vendor",
+      "vendor": "vendor_name",
+      "period_start": "export_start",
+      "period_end": "export_end",
+      "report_name": "\"reconciliation-travel-\" & export_start & \"-to-\" & export_end & \".xlsx\""
+    }
+  }
+}

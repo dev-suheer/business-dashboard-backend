@@ -7,6 +7,7 @@ from typing import Annotated, Any, Literal, Self
 from pydantic import (
     BeforeValidator,
     HttpUrl,
+    PositiveInt,
     computed_field,
     model_validator,
 )
@@ -57,17 +58,13 @@ class Settings(BaseSettings):
     CORS_ORIGINS: CorsOrigins = ["http://localhost:5173"]
 
     # --- Session cookie -------------------------------------------------------
-    # One hour, as required. The cookie's Max-Age and the JWT's exp are both
+    # Six hours, as required. The cookie's Max-Age and the JWT's exp are both
     # derived from this single value so they can never drift apart.
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 360
     SESSION_COOKIE_NAME: str = "access_token"
     COOKIE_SECURE: bool = True
     COOKIE_SAMESITE: Literal["lax", "strict", "none"] = "lax"
     COOKIE_PATH: str = "/"
-
-    # --- The single login account --------------------------------------------
-    # Relative paths resolve against ./backend/, so the default sits beside pyproject.toml.
-    CREDENTIALS_FILE: Path = Path("credentials.json")
 
     # --- Frontend --------------------------------------------------------------
     # The React build, served at "/" by the API process itself. The default
@@ -108,6 +105,23 @@ class Settings(BaseSettings):
     # it is fully resident.
     MAX_UPLOAD_BYTES: int = 200 * 1024 * 1024
     MAX_ROWS_PER_SHEET: int = 1_000_000
+
+    # --- Persistence ------------------------------------------------------------
+    # Run history and category configuration live in Postgres. Uploaded files,
+    # reports and templates live on disk under RUN_STORAGE_DIR instead: a workbook
+    # can be 200 MB, which does not belong in a table.
+    DATABASE_URL: str = "postgresql+psycopg://recon@127.0.0.1:5432/recon"
+    # The test suite's own database, so a test run never touches real history.
+    TEST_DATABASE_URL: str | None = None
+    RUN_STORAGE_DIR: Path = Path("../data")
+    # How long a run is kept, in days: its History row, uploads and report. Unset
+    # keeps every run. Nothing is removed on its own even when it is set; only
+    # app/prune_runs.py removes runs, and only when given --apply.
+    RUN_RETENTION_DAYS: PositiveInt | None = None
+
+    @property
+    def run_storage_dir(self) -> Path:
+        return backend_path(self.RUN_STORAGE_DIR)
 
     @computed_field  # type: ignore[prop-decorator]
     @property

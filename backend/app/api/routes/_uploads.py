@@ -1,18 +1,18 @@
-"""Upload plumbing shared by the reconciliation endpoints.
+"""Upload plumbing shared by the endpoints that take workbooks: runs, and a
+file read for its sheets.
 
 Uploads are streamed to temporary files rather than read into memory: openpyxl
 needs a seekable file, and the whole point of streaming is that a workbook is
-never fully resident. Every category's endpoint needs the same spooling, the
-same size guard and the same hand-off of temp files to a FileResponse, so it
-lives here once.
+never fully resident. Both endpoints need the same spooling and the same size
+guard, so it lives here once.
 """
 
-import shutil
 from pathlib import Path
 
-from fastapi import HTTPException, UploadFile, status
-from fastapi.responses import FileResponse
-from starlette.background import BackgroundTask
+from fastapi import HTTPException, status
+
+# Starlette's, which FastAPI's subclasses: /runs reads its files from the raw form.
+from starlette.datastructures import UploadFile
 
 from app.core.config import settings
 from app.recon.inputs import Upload
@@ -62,23 +62,3 @@ async def spool(file: UploadFile, role: str, into: Path) -> Upload:
             detail=f"{role!r} is empty",
         )
     return Upload(role=role, filename=filename, path=path)
-
-
-def cleanup(workdir: Path, report: Path | None) -> None:
-    shutil.rmtree(workdir, ignore_errors=True)
-    if report is not None:
-        report.unlink(missing_ok=True)
-
-
-def xlsx_response(report: Path, filename: str, workdir: Path) -> FileResponse:
-    """Hand the report and its temp files to the response that will send them.
-
-    The files outlive the request handler, so ownership passes to the response
-    and they are removed once it has actually gone out.
-    """
-    return FileResponse(
-        report,
-        media_type=XLSX_MEDIA_TYPE,
-        filename=filename,
-        background=BackgroundTask(cleanup, workdir, report),
-    )

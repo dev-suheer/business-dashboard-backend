@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.api.deps import CurrentUser
+from app.api.deps import CurrentUser, SessionDep
 from app.core import security
 from app.core.config import settings
 from app.core.credentials import authenticate
@@ -17,21 +17,24 @@ router = APIRouter(tags=["login"])
 def login_access_token(
     response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    session: SessionDep,
 ) -> UserPublic:
     """
-    Log in the single account and set the session cookie.
+    Log in an account and set the session cookie.
 
     The token is returned only as an HttpOnly cookie, never in the body.
     """
-    credential = authenticate(username=form_data.username, password=form_data.password)
-    if not credential:
+    account = authenticate(
+        session, username=form_data.username, password=form_data.password
+    )
+    if not account:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     token = security.create_access_token(
-        credential.username,
+        account.username,
         expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
     )
     security.set_session_cookie(response, token)
-    return UserPublic(username=credential.username)
+    return UserPublic(username=account.username)
 
 
 @router.post("/logout")

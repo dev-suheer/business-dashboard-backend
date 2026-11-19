@@ -1,18 +1,15 @@
 """The Orders sheet matches the client recon layout and its summary block."""
 
-from datetime import date
 from decimal import Decimal
 from pathlib import Path
 
 from openpyxl import Workbook, load_workbook
 
-from app.recon.categories.food.export import build_report
-from app.recon.categories.food.models import FoodPortalRow, FoodResult, FoodVendorRow
-from app.recon.categories.food.pipeline import FoodRequest, run
-from app.recon.categories.food.rules import reconcile, summarise
 from app.recon.exceptions import ExceptionCode
-from app.recon.inputs import Upload
+from app.runner import Row
 from tests.conftest import FOOD_PORTAL, FOOD_VENDOR, TRAVEL_WALLET
+from tests.food import portal_row, reconcile_food, run_food, vendor_row
+from tests.food import report as build_report
 
 
 def _formula(cell: object) -> str:
@@ -27,13 +24,7 @@ def _cents(value: object) -> Decimal:
 
 
 def test_the_orders_sheet_has_the_client_totals_and_summary(tmp_path: Path) -> None:
-    result = run(
-        FoodRequest(
-            portal=Upload("portal", FOOD_PORTAL.name, FOOD_PORTAL),
-            vendor=Upload("vendor", FOOD_VENDOR.name, FOOD_VENDOR),
-            max_rows=10_000,
-        )
-    )
+    result = run_food(portal=FOOD_PORTAL, vendor=FOOD_VENDOR)
     path = tmp_path / "food.xlsx"
     build_report(
         result,
@@ -230,44 +221,18 @@ def test_the_orders_sheet_has_the_client_totals_and_summary(tmp_path: Path) -> N
     book.close()
 
 
-def _portal(order_id: str, status: str) -> FoodPortalRow:
-    return FoodPortalRow(
-        source="portal.xlsx",
-        sheet="PORTAL REPORT",
-        row=2,
-        order_id=order_id,
-        order_date=date(2026, 9, 2),
-        vertical="Food",
-        order_status=status,
-        total_amount=Decimal(41),
-        commission_charged=Decimal("1.95"),
-    )
+def _portal(order_id: str, status: str) -> Row:
+    return portal_row(order_id, order_status=status)
 
 
-def _vendor(order_id: str, status: str) -> FoodVendorRow:
-    return FoodVendorRow(
-        source="vendor.xlsx",
-        sheet="VENDOR REPORT",
-        row=2,
-        order_id=order_id,
-        order_status=status,
-        total=Decimal(41),
-        shoppinggate_fees=Decimal("1.95"),
-        original_delivery_fee=Decimal(17),
-        sg_delivery_charge=Decimal("6.90"),
-        chef_delivery_charge=Decimal("8.10"),
-    )
+def _vendor(order_id: str, status: str) -> Row:
+    return vendor_row(order_id, order_status=status)
 
 
 def test_exception_status_names_each_side_when_they_differ(tmp_path: Path) -> None:
     portal_rows = [_portal("mixed", "Delivered"), _portal("cancelled", "Cancelled")]
     vendor_rows = [_vendor("mixed", "Cancelled"), _vendor("cancelled", "Cancelled")]
-    orders, exceptions = reconcile(portal_rows, vendor_rows)
-    result = FoodResult(
-        orders=orders,
-        exceptions=exceptions,
-        summary=summarise(portal_rows, vendor_rows, orders, exceptions),
-    )
+    result = reconcile_food(portal_rows, vendor_rows)
     path = tmp_path / "status.xlsx"
     build_report(result, path)
 
@@ -286,17 +251,10 @@ def test_exception_status_names_each_side_when_they_differ(tmp_path: Path) -> No
 
 def test_a_wallet_history_adds_the_wallet_sheet(tmp_path: Path) -> None:
     """The food sample leaves SG Order ID blank, so nothing can be looked up."""
-    result = run(
-        FoodRequest(
-            portal=Upload("portal", FOOD_PORTAL.name, FOOD_PORTAL),
-            vendor=Upload("vendor", FOOD_VENDOR.name, FOOD_VENDOR),
-            max_rows=10_000,
-            wallet=Upload("wallet", TRAVEL_WALLET.name, TRAVEL_WALLET),
-        )
-    )
+    result = run_food(portal=FOOD_PORTAL, vendor=FOOD_VENDOR, wallet=TRAVEL_WALLET)
     # The settled figures do not move.
-    assert result.summary.settled_orders == 297
-    assert result.summary.settled_due == Decimal("20748.07")
+    assert result.metrics["settled_orders"] == 297
+    assert result.metrics["settled_due"] == Decimal("20748.07")
     wallet = result.wallet
     assert wallet is not None
     assert wallet.rows_checked == 0
@@ -365,13 +323,7 @@ def _finance_report(path: Path, order_id: int) -> None:
 
 
 def test_a_finance_report_adds_cashback_lookups(tmp_path: Path) -> None:
-    result = run(
-        FoodRequest(
-            portal=Upload("portal", FOOD_PORTAL.name, FOOD_PORTAL),
-            vendor=Upload("vendor", FOOD_VENDOR.name, FOOD_VENDOR),
-            max_rows=10_000,
-        )
-    )
+    result = run_food(portal=FOOD_PORTAL, vendor=FOOD_VENDOR)
     finance = tmp_path / "finance.xlsx"
     _finance_report(finance, 59709)
     path = tmp_path / "food.xlsx"

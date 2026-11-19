@@ -17,20 +17,26 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    env_file: .env
+    env_file:  /root/Naila-Arts/.env.recon
     environment:
-      # Read by the app at startup; points at the mounted secret below.
-      CREDENTIALS_FILE: /run/secrets/credentials
-    secrets:
-      - credentials
+      # Postgres runs outside this project (the shared 'postgres' container on
+      # the host's :5432), so the container reaches it through the host.
+      DATABASE_URL: ${DOCKER_DATABASE_URL:?set DOCKER_DATABASE_URL in .env}
+      # Uploaded files, reports and templates, on the volume below.
+      RUN_STORAGE_DIR: /data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # Migrate before serving, so a new image never runs against an old schema.
     command: >-
-      fastapi run app/main.py --host 0.0.0.0 --port 6050 --workers ${BACKEND_WORKERS:-4}
+      sh -c "alembic upgrade head &&
+      fastapi run app/main.py --host 0.0.0.0 --port 6050 --workers ${BACKEND_WORKERS:-4}"
     ports:
       - "${APP_PORT:-6050}:6050"
     volumes:
       # Served at "/". The app looks for ../frontend/dist relative to
       # /app/backend, which is exactly where this lands.
       - ./frontend/dist:/app/frontend/dist:ro
+      - recon-data:/data
     healthcheck:
       test:
         - CMD
@@ -43,10 +49,7 @@ services:
       start_period: 20s
     restart: unless-stopped
 
-secrets:
-  # The single login account. Created on the host with:
-  #   cd backend && uv run python app/create_credentials.py
-  # Mounted read-only; compose refuses to start if the file is missing, rather
-  # than silently creating an empty directory in its place.
-  credentials:
-    file: ${CREDENTIALS_PATH:-./backend/credentials.json}
+volumes:
+  # Run inputs and reports. Back this up together with the 'recon' database.
+  recon-data:
+

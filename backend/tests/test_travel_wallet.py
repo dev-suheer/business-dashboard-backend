@@ -1,17 +1,19 @@
-"""Wallet reconciliation: aggregation, coverage, and an unstable key."""
+"""Wallet reconciliation: aggregation, coverage, and an unstable key.
+
+The check is shared by every category; these are travel's cases.
+"""
 
 from datetime import date
 from decimal import Decimal
 
-from app.recon.categories.travel.models import (
-    BookingStatus,
-    TravelPortalRow,
-    Vertical,
-    WalletEvent,
-    WalletState,
-)
-from app.recon.categories.travel.wallet import WalletHistory, reconcile_wallet
 from app.recon.exceptions import ExceptionCode
+from app.recon.wallet import (
+    WalletEvent,
+    WalletHistory,
+    WalletPayment,
+    WalletState,
+    reconcile_wallet,
+)
 
 TOLERANCE = Decimal("0.01")
 
@@ -20,24 +22,19 @@ def event(amount: str, *, order: str = "97", day: int = 9) -> WalletEvent:
     return WalletEvent(
         source="wallet.xlsx",
         row=1,
-        vertical=Vertical.HOTEL,
+        vertical="hotel",
         sg_order_id=order,
         amount=Decimal(amount),
         event_date=date(2026, 8, day),
     )
 
 
-def row(wallet: str, *, order: str = "97", day: int = 9) -> TravelPortalRow:
-    return TravelPortalRow(
-        source="portal.xlsx",
-        sheet="Hotel",
-        row=1,
+def row(wallet: str, *, order: str = "97", day: int = 9) -> WalletPayment:
+    return WalletPayment(
+        vertical="hotel",
         sg_order_id=order,
-        booking_id=None,
-        vertical=Vertical.HOTEL,
+        reference=None,
         order_date=date(2026, 8, day),
-        status=BookingStatus.PROCESSED,
-        order_total=Decimal(wallet),
         wallet_amount=Decimal(wallet),
     )
 
@@ -128,6 +125,18 @@ def test_a_movement_with_no_portal_row_is_reported() -> None:
     )
     assert len(found.unmatched_history) == 1
     assert ExceptionCode.WALLET_HISTORY_UNMATCHED in {e.code for e in exceptions}
+
+
+def test_a_movement_of_a_row_left_out_is_not_reported_as_portal_less() -> None:
+    """Rows with no booking id are not checked, but they are not missing either."""
+    found, exceptions = reconcile_wallet(
+        [],
+        history(event("-10.00", order="1", day=9)),
+        tolerance=TOLERANCE,
+        excluded=[row("10.00", order="1", day=9)],
+    )
+    assert found.unmatched_history == []
+    assert ExceptionCode.WALLET_HISTORY_UNMATCHED not in {e.code for e in exceptions}
 
 
 def test_two_exports_of_different_generations_are_called_out() -> None:

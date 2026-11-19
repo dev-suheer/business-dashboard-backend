@@ -4,7 +4,7 @@
 constraints as [plan.md](./plan.md).
 **Status:** rules below were checked against `Food 01 TO 06 2026.xlsx` (portal tab, vendor tab,
 and the hand-built `ANALYSIS & RECON` sheet). `Final Summary` is out of scope.
-**Implemented** in `backend/app/recon/categories/food/` and `POST /api/v1/reconcile/food`.
+**Implemented** as version 1 of food's configuration (`backend/app/config_model/seed_food.py`), run by the generic runner; the pipeline this plan describes was retired in v2 Phase 4.
 
 ---
 

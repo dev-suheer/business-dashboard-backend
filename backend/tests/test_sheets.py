@@ -5,9 +5,8 @@ from pathlib import Path
 import xlsxwriter
 from openpyxl import Workbook, load_workbook
 
-from app.recon.categories.food import parser
-from app.recon.models import SheetManifest
-from app.recon.sheets import letter, portal_records, report_formats, source_sheets
+from app.recon.sheets import letter, portal_records, report_formats, write_copy
+from tests.food import portal_schema
 
 PORTAL_HEADERS = (
     "SG Order ID",
@@ -45,16 +44,14 @@ def test_uploaded_text_is_copied_as_text_never_as_a_formula(tmp_path: Path) -> N
     )
     report = tmp_path / "report.xlsx"
     book = xlsxwriter.Workbook(str(report))
-    source_sheets(
+    write_copy(
         book,
         report_formats(book),
-        [
-            SheetManifest(
-                role="portal", filename="portal.xlsx", sheets=["Sheet"], rows=1
-            )
-        ],
-        {"portal": upload},
-        (("portal", "Portal", parser.PORTAL_SCHEMA, "portal_header"),),
+        "Portal",
+        upload,
+        ["Sheet"],
+        portal_schema(),
+        "portal_header",
     )
     book.close()
 
@@ -74,10 +71,14 @@ def test_stacked_sheets_are_numbered_the_way_the_copy_writes_them(
             "Flight": [(2, "A1", "Food", 10, 3, 1, 9, "Delivered", 10, "b")],
         },
     )
-    records = list(portal_records(upload, ["Hotel", "Flight"], parser.PORTAL_SCHEMA))
+    records = list(portal_records(upload, ["Hotel", "Flight"], portal_schema()))
     assert [(r.sheet, r.ordinal, r.excel_row) for r in records] == [
         ("Hotel", 1, 3),
         ("Flight", 1, 7),
     ]
-    assert records[1].cell("sgdeliveryexpense") == "Portal!E7"
+    assert records[1].cell("sgdeliveryexpense", "Portal") == "Portal!E7"
+    # A copy whose tab is not a plain name is quoted, as Excel needs.
+    assert records[1].cell("sgdeliveryexpense", "Portal copy") == "'Portal copy'!E7"
+    assert records[1].cell("sgdeliveryexpense", "Mike's") == "'Mike''s'!E7"
+    assert records[1].cell("sgdeliveryexpense", "AB12") == "'AB12'!E7"
     assert letter(0) == "A" and letter(25) == "Z" and letter(26) == "AA"

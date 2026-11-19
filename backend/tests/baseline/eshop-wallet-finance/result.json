@@ -1,0 +1,3000 @@
+{
+ "category": "eshop",
+ "detected": [
+  {
+   "filename": "workings.xlsx",
+   "role": "promo",
+   "rows": 100,
+   "sheets": [
+    "Discount Base Sheet"
+   ]
+  },
+  {
+   "filename": "workings.xlsx",
+   "role": "portal",
+   "rows": 75,
+   "sheets": [
+    "E-SHop 1 Vendor "
+   ]
+  },
+  {
+   "filename": "vendor_statement.xlsx",
+   "role": "vendor",
+   "rows": 64,
+   "sheets": [
+    "Table004 (Page 2)",
+    "Table002 (Page 1)",
+    "Sheet1",
+    "Sheet1 (2)"
+   ]
+  },
+  {
+   "filename": "wallet_history.xlsx",
+   "role": "wallet",
+   "rows": 3,
+   "sheets": [
+    "Sheet1"
+   ]
+  }
+ ],
+ "exceptions": [
+  {
+   "amount": "222.00",
+   "code": "CLAWBACK_UNRESOLVED",
+   "detail": "RTO excluded from payable. No prior settlement is recorded, so any earlier overpayment cannot be clawed back automatically",
+   "order_no": "SG-SH-05422",
+   "severity": "high"
+  },
+  {
+   "amount": "168.00",
+   "code": "CLAWBACK_UNRESOLVED",
+   "detail": "RTO excluded from payable. No prior settlement is recorded, so any earlier overpayment cannot be clawed back automatically",
+   "order_no": "SG-SH-06118",
+   "severity": "high"
+  },
+  {
+   "amount": "15.00",
+   "code": "COMMISSION_OVERCHARGE",
+   "detail": "Charged 45.00 against a contractual 30.00; the excess is owed back to the vendor",
+   "order_no": "SG-SH-05290",
+   "severity": "high"
+  },
+  {
+   "amount": "11.75",
+   "code": "COMMISSION_OVERCHARGE",
+   "detail": "Charged 35.25 against a contractual 23.50; the excess is owed back to the vendor",
+   "order_no": "SG-SH-05356",
+   "severity": "high"
+  },
+  {
+   "amount": "11.10",
+   "code": "COMMISSION_OVERCHARGE",
+   "detail": "Charged 33.30 against a contractual 22.20; the excess is owed back to the vendor",
+   "order_no": "SG-SH-05422",
+   "severity": "high"
+  },
+  {
+   "amount": "39.20",
+   "code": "COMMISSION_OVERCHARGE",
+   "detail": "Charged 592.35 against a contractual 553.15; the excess is owed back to the vendor",
+   "order_no": "SG-SH-05488",
+   "severity": "high"
+  },
+  {
+   "amount": "9.95",
+   "code": "COMMISSION_OVERCHARGE",
+   "detail": "Charged 29.85 against a contractual 19.90; the excess is owed back to the vendor",
+   "order_no": "SG-SH-05554",
+   "severity": "high"
+  },
+  {
+   "amount": "21.25",
+   "code": "COMMISSION_OVERCHARGE",
+   "detail": "Charged 63.75 against a contractual 42.50; the excess is owed back to the vendor",
+   "order_no": "SG-SH-05785",
+   "severity": "high"
+  },
+  {
+   "amount": "9.25",
+   "code": "COMMISSION_OVERCHARGE",
+   "detail": "Charged 27.75 against a contractual 18.50; the excess is owed back to the vendor",
+   "order_no": "SG-SH-05950",
+   "severity": "high"
+  },
+  {
+   "amount": "8.40",
+   "code": "COMMISSION_OVERCHARGE",
+   "detail": "Charged 25.20 against a contractual 16.80; the excess is owed back to the vendor",
+   "order_no": "SG-SH-06118",
+   "severity": "high"
+  },
+  {
+   "amount": "21.25",
+   "code": "COMMISSION_OVERCHARGE",
+   "detail": "Charged 63.75 against a contractual 42.50; the excess is owed back to the vendor",
+   "order_no": "SG-SH-06874",
+   "severity": "high"
+  },
+  {
+   "amount": "68.01",
+   "code": "COMMISSION_OVERCHARGE",
+   "detail": "Charged 334.02 against a contractual 266.02; the excess is owed back to the vendor",
+   "order_no": "SG-SH-07568",
+   "severity": "high"
+  },
+  {
+   "amount": "8.24",
+   "code": "COMMISSION_OVERCHARGE",
+   "detail": "Charged 24.73 against a contractual 16.49; the excess is owed back to the vendor",
+   "order_no": "SG-SH-07798",
+   "severity": "high"
+  },
+  {
+   "amount": "13.99",
+   "code": "COMMISSION_OVERCHARGE",
+   "detail": "Charged 77.96 against a contractual 63.98; the excess is owed back to the vendor",
+   "order_no": "SG-SH-08029",
+   "severity": "high"
+  },
+  {
+   "amount": "5.74",
+   "code": "COMMISSION_OVERCHARGE",
+   "detail": "Charged 70.13 against a contractual 64.40; the excess is owed back to the vendor",
+   "order_no": "SG-SH-08194",
+   "severity": "high"
+  },
+  {
+   "amount": "108.00",
+   "code": "RTO_WITHOUT_CREDIT_NOTE",
+   "detail": "Status Return with no reversing credit note in the statement",
+   "order_no": "SG-SH-07435",
+   "severity": "high"
+  },
+  {
+   "amount": "2.00",
+   "code": "WALLET_ENTRY_MISSING",
+   "detail": "2.00 taken from the wallet on 2026-08-02, with no movement in the history",
+   "order_no": "SG-SH-06247",
+   "severity": "high"
+  },
+  {
+   "amount": "467.60",
+   "code": "WALLET_ENTRY_MISSING",
+   "detail": "467.60 taken from the wallet on 2026-08-09, with no movement in the history",
+   "order_no": "SG-SH-08194",
+   "severity": "high"
+  },
+  {
+   "amount": "88.80",
+   "code": "WALLET_ENTRY_MISSING",
+   "detail": "88.80 taken from the wallet on 2026-08-10, with no movement in the history",
+   "order_no": "SG-SH-08260",
+   "severity": "high"
+  },
+  {
+   "amount": "133.80",
+   "code": "WALLET_ENTRY_MISSING",
+   "detail": "133.80 taken from the wallet on 2026-08-10, with no movement in the history",
+   "order_no": "SG-SH-08293",
+   "severity": "high"
+  },
+  {
+   "amount": "364.80",
+   "code": "WALLET_ENTRY_MISSING",
+   "detail": "364.80 taken from the wallet on 2026-08-10, with no movement in the history",
+   "order_no": "SG-SH-08392",
+   "severity": "high"
+  },
+  {
+   "amount": "468.70",
+   "code": "WALLET_ENTRY_MISSING",
+   "detail": "468.70 taken from the wallet on 2026-08-11, with no movement in the history",
+   "order_no": "SG-SH-08458",
+   "severity": "high"
+  },
+  {
+   "amount": "977.97",
+   "code": "WALLET_ENTRY_MISSING",
+   "detail": "977.97 taken from the wallet on 2026-08-11, with no movement in the history",
+   "order_no": "SG-SH-08624",
+   "severity": "high"
+  },
+  {
+   "amount": null,
+   "code": "WALLET_KEY_UNSTABLE",
+   "detail": "only 1 of 8 in-window wallet rows were found at all. SG Order ID is a per-export sequence; re-export the wallet history and the portal together",
+   "order_no": null,
+   "severity": "medium"
+  },
+  {
+   "amount": "198.00",
+   "code": "LATER_PERIOD",
+   "detail": "Invoiced 2026-09-03, after the period closed on 2026-08-25",
+   "order_no": "SG-SH-12154",
+   "severity": "info"
+  },
+  {
+   "amount": "467.99",
+   "code": "LATER_PERIOD",
+   "detail": "Invoiced 2026-09-03, after the period closed on 2026-08-25",
+   "order_no": "SG-SH-12195",
+   "severity": "info"
+  },
+  {
+   "amount": "434.99",
+   "code": "LATER_PERIOD",
+   "detail": "Invoiced 2026-09-03, after the period closed on 2026-08-25",
+   "order_no": "SG-SH-12196",
+   "severity": "info"
+  },
+  {
+   "amount": "242.01",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-05-18, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-01363",
+   "severity": "info"
+  },
+  {
+   "amount": "82.00",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-05-18, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-01397",
+   "severity": "info"
+  },
+  {
+   "amount": "265.01",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-06-03, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-01694",
+   "severity": "info"
+  },
+  {
+   "amount": "431.00",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-06-13, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-01990",
+   "severity": "info"
+  },
+  {
+   "amount": "696.00",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-06-20, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-02023",
+   "severity": "info"
+  },
+  {
+   "amount": "332.01",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-06-20, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-02122",
+   "severity": "info"
+  },
+  {
+   "amount": "99.00",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-06-27, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-02650",
+   "severity": "info"
+  },
+  {
+   "amount": "472.01",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-06-27, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-02683",
+   "severity": "info"
+  },
+  {
+   "amount": "65.00",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-07-04, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-03112",
+   "severity": "info"
+  },
+  {
+   "amount": "114.00",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-07-06, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-03872",
+   "severity": "info"
+  },
+  {
+   "amount": "158.00",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-07-08, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-03970",
+   "severity": "info"
+  },
+  {
+   "amount": "240.01",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-07-07, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-04104",
+   "severity": "info"
+  },
+  {
+   "amount": "1885.00",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-07-07, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-04106",
+   "severity": "info"
+  },
+  {
+   "amount": "168.00",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-07-13, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-04267",
+   "severity": "info"
+  },
+  {
+   "amount": "240.01",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-07-09, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-04465",
+   "severity": "info"
+  },
+  {
+   "amount": "565.00",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-07-09, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-04498",
+   "severity": "info"
+  },
+  {
+   "amount": "683.00",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-07-13, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-04828",
+   "severity": "info"
+  },
+  {
+   "amount": "952.00",
+   "code": "PRIOR_PERIOD",
+   "detail": "Invoiced 2026-07-13, before the period opened on 2026-07-22",
+   "order_no": "SG-SH-04993",
+   "severity": "info"
+  },
+  {
+   "amount": "110.00",
+   "code": "WALLET_HISTORY_UNMATCHED",
+   "detail": "wallet movement with no portal row in this export",
+   "order_no": "eshop order 8920",
+   "severity": "info"
+  },
+  {
+   "amount": "224.80",
+   "code": "WALLET_OUT_OF_WINDOW",
+   "detail": "ordered 2026-07-03; the history covers 2026-08-01 to 2026-08-15",
+   "order_no": "SG-SH-03344",
+   "severity": "info"
+  },
+  {
+   "amount": "51.99",
+   "code": "WALLET_OUT_OF_WINDOW",
+   "detail": "ordered 2026-07-22; the history covers 2026-08-01 to 2026-08-15",
+   "order_no": "SG-SH-05257",
+   "severity": "info"
+  },
+  {
+   "amount": "93.85",
+   "code": "WALLET_OUT_OF_WINDOW",
+   "detail": "ordered 2026-07-22; the history covers 2026-08-01 to 2026-08-15",
+   "order_no": "SG-SH-05290",
+   "severity": "info"
+  },
+  {
+   "amount": "5.51",
+   "code": "WALLET_OUT_OF_WINDOW",
+   "detail": "ordered 2026-07-23; the history covers 2026-08-01 to 2026-08-15",
+   "order_no": "SG-SH-05356",
+   "severity": "info"
+  },
+  {
+   "amount": "186.00",
+   "code": "WALLET_OUT_OF_WINDOW",
+   "detail": "ordered 2026-07-27; the history covers 2026-08-01 to 2026-08-15",
+   "order_no": "SG-SH-05752",
+   "severity": "info"
+  },
+  {
+   "amount": "2.00",
+   "code": "WALLET_OUT_OF_WINDOW",
+   "detail": "ordered 2026-07-28; the history covers 2026-08-01 to 2026-08-15",
+   "order_no": "SG-SH-05950",
+   "severity": "info"
+  },
+  {
+   "amount": "178.00",
+   "code": "WALLET_OUT_OF_WINDOW",
+   "detail": "ordered 2026-07-30; the history covers 2026-08-01 to 2026-08-15",
+   "order_no": "SG-SH-06118",
+   "severity": "info"
+  },
+  {
+   "amount": "241.99",
+   "code": "WALLET_OUT_OF_WINDOW",
+   "detail": "ordered 2026-08-22; the history covers 2026-08-01 to 2026-08-15",
+   "order_no": "SG-SH-10144",
+   "severity": "info"
+  }
+ ],
+ "line_variances": [
+  {
+   "actual_commission": "45.00",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "30.00",
+   "gmv": "300.00",
+   "item_title": "Giorgio Armani Emporio Stronger With You Intensely for Men - 100ml - Eau de Parfum / عطر جورجيو أرماني إمبريو سترونجر ويذ يو إنتنسلي للرجال - 100 مل - أو دي بارفيوم",
+   "order_date": "2026-07-22",
+   "order_no": "SG-SH-05290",
+   "rate": "0.10",
+   "sku": "SG2073168OL2XD33E",
+   "status": "Delivered",
+   "variance": "15.00",
+   "variance_class": "overcharge"
+  },
+  {
+   "actual_commission": "35.25",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "23.50",
+   "gmv": "235.00",
+   "item_title": "Narciso Rodriguez Cristal Perfume - Eau de Parfum - 90ml / عطر نرسيسو رودريغز كريستال- او دي بارفيوم- 90مل",
+   "order_date": "2026-07-23",
+   "order_no": "SG-SH-05356",
+   "rate": "0.10",
+   "sku": "SG2073168120K07D0",
+   "status": "Delivered",
+   "variance": "11.75",
+   "variance_class": "overcharge"
+  },
+  {
+   "actual_commission": "33.30",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "22.20",
+   "gmv": "222.00",
+   "item_title": "Narciso Poudre perfume for women - 90 ml - Eau de Parfum / عطر نرسيسو بودر للنساء - 90 مل - أو دي بارفيوم",
+   "order_date": "2026-07-23",
+   "order_no": "SG-SH-05422",
+   "rate": "0.10",
+   "sku": "SG207316811Z0ABA7",
+   "status": "RTO",
+   "variance": "11.10",
+   "variance_class": "overcharge"
+  },
+  {
+   "actual_commission": "57.75",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "38.50",
+   "gmv": "385.00",
+   "item_title": "Yves Saint Laurent My Self - Le Parfum - 100ml / عطر ايف سان لوران ماي سلف- لي بارفيوم -100 مل",
+   "order_date": "2026-07-23",
+   "order_no": "SG-SH-05488",
+   "rate": "0.10",
+   "sku": "SG2073175OKQZ3993",
+   "status": "Delivered",
+   "variance": "19.25",
+   "variance_class": "overcharge"
+  },
+  {
+   "actual_commission": "59.85",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "39.90",
+   "gmv": "399.00",
+   "item_title": "Yves Saint Laurent My Self Eau de Parfum 100ml / عطر ايف سان لوران ماي سيلف او دو بارفيوم 100مل",
+   "order_date": "2026-07-23",
+   "order_no": "SG-SH-05488",
+   "rate": "0.10",
+   "sku": "SG2073168OL0QD4CD",
+   "status": "Delivered",
+   "variance": "19.95",
+   "variance_class": "overcharge"
+  },
+  {
+   "actual_commission": "29.85",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "19.90",
+   "gmv": "199.00",
+   "item_title": "Chopard Cedar Malaki Perfume – Eau de Parfum – 80ml / عطر شوبارد سيدار ملكي – أو دو بارفيوم – 80 مل",
+   "order_date": "2026-07-24",
+   "order_no": "SG-SH-05554",
+   "rate": "0.10",
+   "sku": "SG2073168D6DD4102",
+   "status": "Delivered",
+   "variance": "9.95",
+   "variance_class": "overcharge"
+  },
+  {
+   "actual_commission": "63.75",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "42.50",
+   "gmv": "425.00",
+   "item_title": "Guerlain L'Instant Magic Perfume for Women - 75ml - Eau de Parfum / عطر جيرلان لينستانت ماجيك للنساء - 75 مل - أو دي بارفيوم",
+   "order_date": "2026-07-27",
+   "order_no": "SG-SH-05785",
+   "rate": "0.10",
+   "sku": "SG207316811XYBCD1",
+   "status": "Delivered",
+   "variance": "21.25",
+   "variance_class": "overcharge"
+  },
+  {
+   "actual_commission": "27.75",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "18.50",
+   "gmv": "185.00",
+   "item_title": "Chopard Oud Malaki for Men - 80ml - Eau de Parfum / عطر شوبارد عود ملكي للرجال - 80 مل - أو دي بارفيوم",
+   "order_date": "2026-07-28",
+   "order_no": "SG-SH-05950",
+   "rate": "0.10",
+   "sku": "SG2073168OKO92EBE",
+   "status": "Delivered",
+   "variance": "9.25",
+   "variance_class": "overcharge"
+  },
+  {
+   "actual_commission": "25.20",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "16.80",
+   "gmv": "168.00",
+   "item_title": "Hugo Boss The Scent for Men - 100ml - Eau de Toilette / عطر هوجو بوس ذا سنت للرجال - 100 مل - أو دي تواليت",
+   "order_date": "2026-07-30",
+   "order_no": "SG-SH-06118",
+   "rate": "0.10",
+   "sku": "SG2073169OL2H5124",
+   "status": "RTO",
+   "variance": "8.40",
+   "variance_class": "overcharge"
+  },
+  {
+   "actual_commission": "63.75",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "42.50",
+   "gmv": "425.00",
+   "item_title": "Guerlain L'Instant Magic Perfume for Women - 75ml - Eau de Parfum / عطر جيرلان لينستانت ماجيك للنساء - 75 مل - أو دي بارفيوم",
+   "order_date": "2026-08-04",
+   "order_no": "SG-SH-06874",
+   "rate": "0.10",
+   "sku": "SG207316811XYBCD1",
+   "status": "Delivered",
+   "variance": "21.25",
+   "variance_class": "overcharge"
+  },
+  {
+   "actual_commission": "74.67",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "49.78",
+   "gmv": "497.80",
+   "item_title": "Valentino Uomo Toilette for Men 100ml - Eau de Toilette / عطر فالنتينو أومو تواليت للرجال 100 مل - أو دي تواليت",
+   "order_date": "2026-08-05",
+   "order_no": "SG-SH-07568",
+   "rate": "0.10",
+   "sku": "SG2073169OKP8B111",
+   "status": "Delivered",
+   "variance": "24.89",
+   "variance_class": "overcharge"
+  },
+  {
+   "actual_commission": "59.67",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "39.78",
+   "gmv": "397.80",
+   "item_title": "Chopard Cedar Malaki Perfume – Eau de Parfum – 80ml / عطر شوبارد سيدار ملكي – أو دو بارفيوم – 80 مل",
+   "order_date": "2026-08-05",
+   "order_no": "SG-SH-07568",
+   "rate": "0.10",
+   "sku": "SG2073168D6DD4102",
+   "status": "Delivered",
+   "variance": "19.89",
+   "variance_class": "overcharge"
+  },
+  {
+   "actual_commission": "41.98",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "27.99",
+   "gmv": "279.90",
+   "item_title": "Gucci Gulti Absolute for Men - 90ml - Eau de Parfum / عطر قوتشي جولتي ابسولوت للرجال - 90 مل - أو دي بارفيوم",
+   "order_date": "2026-08-05",
+   "order_no": "SG-SH-07568",
+   "rate": "0.10",
+   "sku": "SG2073168OL39AF21",
+   "status": "Delivered",
+   "variance": "13.99",
+   "variance_class": "overcharge"
+  },
+  {
+   "actual_commission": "27.73",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "18.49",
+   "gmv": "184.90",
+   "item_title": "Chopard Oud Malaki for Men - 80ml - Eau de Parfum / عطر شوبارد عود ملكي للرجال - 80 مل - أو دي بارفيوم",
+   "order_date": "2026-08-05",
+   "order_no": "SG-SH-07568",
+   "rate": "0.10",
+   "sku": "SG2073168OKO92EBE",
+   "status": "Delivered",
+   "variance": "9.24",
+   "variance_class": "overcharge"
+  },
+  {
+   "actual_commission": "24.73",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "16.49",
+   "gmv": "164.90",
+   "item_title": "Givenchy Pi for Men - 100ml - Eau de Toilette / عطر جيفنشي باي للرجال -100 مل - أو دي تواليت",
+   "order_date": "2026-08-07",
+   "order_no": "SG-SH-07798",
+   "rate": "0.10",
+   "sku": "SG2073169OKZVEBA3",
+   "status": "Delivered",
+   "variance": "8.24",
+   "variance_class": "overcharge"
+  },
+  {
+   "actual_commission": "41.98",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "27.99",
+   "gmv": "279.90",
+   "item_title": "Dolce & Gabbana Power Femme Perfume for Women - 100ml - Eau de Parfum / عطر دولسي جابانا باور فيمي للنساء - 100 مل - أو دي بارفيوم",
+   "order_date": "2026-08-09",
+   "order_no": "SG-SH-08029",
+   "rate": "0.10",
+   "sku": "SG207316811V0636E",
+   "status": "Delivered",
+   "variance": "13.99",
+   "variance_class": "overcharge"
+  },
+  {
+   "actual_commission": "17.23",
+   "coupon_name": null,
+   "coupon_value": "0.00",
+   "expected_commission": "11.49",
+   "gmv": "114.90",
+   "item_title": "Roberto Cavalli Nero Assoluto Women's Perfume - 75ml - Eau de Parfum / عطر روبورتو كفالي نيرو أسولوتو للنساء - 75 مل - أو دي بارفيوم",
+   "order_date": "2026-08-09",
+   "order_no": "SG-SH-08194",
+   "rate": "0.10",
+   "sku": "SG207316811KD4925",
+   "status": "Delivered",
+   "variance": "5.74",
+   "variance_class": "overcharge"
+  }
+ ],
+ "merchant_id": "34",
+ "orders": [
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "42.15",
+   "adjustments": "-238.85",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Mancera",
+     "coupon_value": "56.20",
+     "expected_commission": "42.15",
+     "gmv": "281.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "56.20",
+   "expected_commission": "42.15",
+   "flags": [
+    "CLAWBACK"
+   ],
+   "included_in_payable": false,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "-238.85",
+   "non_wallet_amount": "0.00",
+   "order_date": "2026-07-03",
+   "order_no": "SG-SH-03344",
+   "payable": "0.00",
+   "payment_type": "Wallet",
+   "portal_gmv": "281.00",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "0.00",
+   "statuses": [
+    "RTO"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "281.00",
+   "vendor_credit": "281.00",
+   "vendor_date": "2026-07-04",
+   "wallet_amount": "224.80"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "46.80",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Guerlain",
+     "coupon_value": "0.00",
+     "expected_commission": "46.80",
+     "gmv": "312.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "46.80",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "265.20",
+   "non_wallet_amount": "260.01",
+   "order_date": "2026-07-22",
+   "order_no": "SG-SH-05257",
+   "payable": "265.20",
+   "payment_type": "Apple Pay + Wallet",
+   "portal_gmv": "312.00",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "312.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "312.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-07-23",
+   "wallet_amount": "51.99"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "45.00",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Giorgio Armani",
+     "coupon_value": "0.00",
+     "expected_commission": "30.00",
+     "gmv": "300.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "15.00",
+   "coupon_value": "0.00",
+   "expected_commission": "30.00",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "270.00",
+   "non_wallet_amount": "206.15",
+   "order_date": "2026-07-22",
+   "order_no": "SG-SH-05290",
+   "payable": "270.00",
+   "payment_type": "Card + Wallet",
+   "portal_gmv": "300.00",
+   "promo_base": "300.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "0.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "overcharge",
+   "vendor_amount": "300.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-07-23",
+   "wallet_amount": "93.85"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "35.25",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Narciso Rodriguez",
+     "coupon_value": "0.00",
+     "expected_commission": "23.50",
+     "gmv": "235.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "11.75",
+   "coupon_value": "0.00",
+   "expected_commission": "23.50",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "211.50",
+   "non_wallet_amount": "229.49",
+   "order_date": "2026-07-23",
+   "order_no": "SG-SH-05356",
+   "payable": "211.50",
+   "payment_type": "Tamara + Wallet",
+   "portal_gmv": "235.00",
+   "promo_base": "235.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "0.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "overcharge",
+   "vendor_amount": "235.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-07-23",
+   "wallet_amount": "5.51"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "33.30",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Narciso Rodriguez",
+     "coupon_value": "0.00",
+     "expected_commission": "22.20",
+     "gmv": "222.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "11.10",
+   "coupon_value": "0.00",
+   "expected_commission": "22.20",
+   "flags": [
+    "RTO_EXCLUDED"
+   ],
+   "included_in_payable": false,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "0.00",
+   "non_wallet_amount": "222.00",
+   "order_date": "2026-07-23",
+   "order_no": "SG-SH-05422",
+   "payable": "0.00",
+   "payment_type": "Apple Pay",
+   "portal_gmv": "222.00",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "0.00",
+   "statuses": [
+    "RTO"
+   ],
+   "variance_class": "overcharge",
+   "vendor_amount": "222.00",
+   "vendor_credit": "222.00",
+   "vendor_date": "2026-07-25",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "38.25",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Versace",
+     "coupon_value": "0.00",
+     "expected_commission": "38.25",
+     "gmv": "255.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "38.25",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "216.75",
+   "non_wallet_amount": "255.00",
+   "order_date": "2026-07-23",
+   "order_no": "SG-SH-05455",
+   "payable": "216.75",
+   "payment_type": "Apple Pay",
+   "portal_gmv": "255.00",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "255.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "255.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-07-28",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "592.35",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Creed",
+     "coupon_value": "0.00",
+     "expected_commission": "193.05",
+     "gmv": "1287.00",
+     "lines": 1
+    },
+    {
+     "brand": "Dior",
+     "coupon_value": "0.00",
+     "expected_commission": "84.75",
+     "gmv": "565.00",
+     "lines": 1
+    },
+    {
+     "brand": "Yves Saint Laurent",
+     "coupon_value": "0.00",
+     "expected_commission": "78.40",
+     "gmv": "784.00",
+     "lines": 2
+    },
+    {
+     "brand": "Chanel",
+     "coupon_value": "0.00",
+     "expected_commission": "196.95",
+     "gmv": "1313.00",
+     "lines": 2
+    }
+   ],
+   "commission_variance": "39.20",
+   "coupon_value": "0.00",
+   "expected_commission": "553.15",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 6,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "3395.85",
+   "non_wallet_amount": "3949.00",
+   "order_date": "2026-07-23",
+   "order_no": "SG-SH-05488",
+   "payable": "3395.85",
+   "payment_type": "Apple Pay",
+   "portal_gmv": "3949.00",
+   "promo_base": "784.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "3165.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "overcharge",
+   "vendor_amount": "3949.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-07-25",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "23.70",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Benetton",
+     "coupon_value": "0.00",
+     "expected_commission": "10.50",
+     "gmv": "70.00",
+     "lines": 2
+    },
+    {
+     "brand": "Jaguar",
+     "coupon_value": "0.00",
+     "expected_commission": "7.95",
+     "gmv": "53.00",
+     "lines": 1
+    },
+    {
+     "brand": "Brut",
+     "coupon_value": "0.00",
+     "expected_commission": "5.25",
+     "gmv": "35.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "23.70",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 4,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "134.30",
+   "non_wallet_amount": "158.00",
+   "order_date": "2026-07-24",
+   "order_no": "SG-SH-05521",
+   "payable": "134.30",
+   "payment_type": "Apple Pay",
+   "portal_gmv": "158.00",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "158.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "158.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-07-25",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "29.85",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Chopard",
+     "coupon_value": "0.00",
+     "expected_commission": "19.90",
+     "gmv": "199.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "9.95",
+   "coupon_value": "0.00",
+   "expected_commission": "19.90",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "179.10",
+   "non_wallet_amount": "199.00",
+   "order_date": "2026-07-24",
+   "order_no": "SG-SH-05554",
+   "payable": "179.10",
+   "payment_type": "Apple Pay",
+   "portal_gmv": "199.00",
+   "promo_base": "199.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "0.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "overcharge",
+   "vendor_amount": "199.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-23",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "15.00",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Calvin Klein",
+     "coupon_value": "0.00",
+     "expected_commission": "15.00",
+     "gmv": "100.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "15.00",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "85.00",
+   "non_wallet_amount": "112.00",
+   "order_date": "2026-07-25",
+   "order_no": "SG-SH-05587",
+   "payable": "85.00",
+   "payment_type": "Apple Pay",
+   "portal_gmv": "100.00",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "100.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "100.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-07-26",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "57.90",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Carolina Herrera",
+     "coupon_value": "0.00",
+     "expected_commission": "57.90",
+     "gmv": "386.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "57.90",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "328.10",
+   "non_wallet_amount": "386.00",
+   "order_date": "2026-07-26",
+   "order_no": "SG-SH-05653",
+   "payable": "328.10",
+   "payment_type": "Apple Pay",
+   "portal_gmv": "386.00",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "386.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "386.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-07-27",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "34.05",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Calvin Klein",
+     "coupon_value": "0.00",
+     "expected_commission": "34.05",
+     "gmv": "227.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "34.05",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "192.95",
+   "non_wallet_amount": "227.00",
+   "order_date": "2026-07-26",
+   "order_no": "SG-SH-05686",
+   "payable": "192.95",
+   "payment_type": "Tamara",
+   "portal_gmv": "227.00",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "227.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "227.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-07-27",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "27.90",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Davidoff",
+     "coupon_value": "0.00",
+     "expected_commission": "10.80",
+     "gmv": "72.00",
+     "lines": 1
+    },
+    {
+     "brand": "Calvin Klein",
+     "coupon_value": "0.00",
+     "expected_commission": "17.10",
+     "gmv": "114.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "27.90",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 2,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "158.10",
+   "non_wallet_amount": "0.00",
+   "order_date": "2026-07-27",
+   "order_no": "SG-SH-05752",
+   "payable": "158.10",
+   "payment_type": "Wallet",
+   "portal_gmv": "186.00",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "186.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "186.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-07-27",
+   "wallet_amount": "186.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "63.75",
+   "adjustments": "0.00",
+   "amount_diff": "-0.01",
+   "brands": [
+    {
+     "brand": "Guerlain",
+     "coupon_value": "0.00",
+     "expected_commission": "42.50",
+     "gmv": "425.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "21.25",
+   "coupon_value": "0.00",
+   "expected_commission": "42.50",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "382.50",
+   "non_wallet_amount": "425.00",
+   "order_date": "2026-07-27",
+   "order_no": "SG-SH-05785",
+   "payable": "382.50",
+   "payment_type": "Apple Pay",
+   "portal_gmv": "425.00",
+   "promo_base": "425.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "0.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "overcharge",
+   "vendor_amount": "425.01",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-03",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "27.75",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Chopard",
+     "coupon_value": "0.00",
+     "expected_commission": "18.50",
+     "gmv": "185.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "9.25",
+   "coupon_value": "0.00",
+   "expected_commission": "18.50",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "166.50",
+   "non_wallet_amount": "183.00",
+   "order_date": "2026-07-28",
+   "order_no": "SG-SH-05950",
+   "payable": "166.50",
+   "payment_type": "Apple Pay + Wallet",
+   "portal_gmv": "185.00",
+   "promo_base": "185.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "0.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "overcharge",
+   "vendor_amount": "185.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-07-29",
+   "wallet_amount": "2.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "16.20",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Armaf",
+     "coupon_value": "0.00",
+     "expected_commission": "16.20",
+     "gmv": "108.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "16.20",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "91.80",
+   "non_wallet_amount": "108.00",
+   "order_date": "2026-07-30",
+   "order_no": "SG-SH-06115",
+   "payable": "91.80",
+   "payment_type": "Card",
+   "portal_gmv": "108.00",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "108.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "108.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-23",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "25.20",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Hugo Boss",
+     "coupon_value": "0.00",
+     "expected_commission": "16.80",
+     "gmv": "168.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "8.40",
+   "coupon_value": "0.00",
+   "expected_commission": "16.80",
+   "flags": [
+    "RTO_EXCLUDED"
+   ],
+   "included_in_payable": false,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "0.00",
+   "non_wallet_amount": "0.00",
+   "order_date": "2026-07-30",
+   "order_no": "SG-SH-06118",
+   "payable": "0.00",
+   "payment_type": "Wallet",
+   "portal_gmv": "168.00",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "0.00",
+   "statuses": [
+    "RTO"
+   ],
+   "variance_class": "overcharge",
+   "vendor_amount": "168.00",
+   "vendor_credit": "168.00",
+   "vendor_date": "2026-08-01",
+   "wallet_amount": "178.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "49.35",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Davidoff",
+     "coupon_value": "0.00",
+     "expected_commission": "13.95",
+     "gmv": "93.00",
+     "lines": 1
+    },
+    {
+     "brand": "Hermes",
+     "coupon_value": "0.00",
+     "expected_commission": "35.40",
+     "gmv": "236.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "49.35",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 2,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "279.65",
+   "non_wallet_amount": "327.00",
+   "order_date": "2026-08-02",
+   "order_no": "SG-SH-06247",
+   "payable": "279.65",
+   "payment_type": "Tamara + Wallet",
+   "portal_gmv": "329.00",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "329.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "329.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-03",
+   "wallet_amount": "2.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "63.75",
+   "adjustments": "0.00",
+   "amount_diff": "-0.01",
+   "brands": [
+    {
+     "brand": "Guerlain",
+     "coupon_value": "0.00",
+     "expected_commission": "42.50",
+     "gmv": "425.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "21.25",
+   "coupon_value": "0.00",
+   "expected_commission": "42.50",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "382.50",
+   "non_wallet_amount": "425.00",
+   "order_date": "2026-08-04",
+   "order_no": "SG-SH-06874",
+   "payable": "382.50",
+   "payment_type": "Apple Pay",
+   "portal_gmv": "425.00",
+   "promo_base": "425.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "0.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "overcharge",
+   "vendor_amount": "425.01",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-05",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "29.70",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Versace",
+     "coupon_value": "0.00",
+     "expected_commission": "29.70",
+     "gmv": "198.00",
+     "lines": 2
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "29.70",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 2,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "168.30",
+   "non_wallet_amount": "198.00",
+   "order_date": "2026-08-04",
+   "order_no": "SG-SH-07105",
+   "payable": "168.30",
+   "payment_type": "Tamara",
+   "portal_gmv": "198.00",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "198.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "198.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-05",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "43.95",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Ralph Lauren",
+     "coupon_value": "0.00",
+     "expected_commission": "43.95",
+     "gmv": "293.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "43.95",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "249.05",
+   "non_wallet_amount": "293.00",
+   "order_date": "2026-08-04",
+   "order_no": "SG-SH-07173",
+   "payable": "249.05",
+   "payment_type": "Card",
+   "portal_gmv": "293.00",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "293.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "293.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-05",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "16.20",
+   "adjustments": "-108.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Armaf",
+     "coupon_value": "0.00",
+     "expected_commission": "16.20",
+     "gmv": "108.00",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "16.20",
+   "flags": [
+    "RETURN_ADJUSTED"
+   ],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "-16.20",
+   "non_wallet_amount": "108.00",
+   "order_date": "2026-08-05",
+   "order_no": "SG-SH-07435",
+   "payable": "91.80",
+   "payment_type": "Tamara",
+   "portal_gmv": "108.00",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "108.00",
+   "statuses": [
+    "Return"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "108.00",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-05",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "334.02",
+   "adjustments": "0.00",
+   "amount_diff": "-0.01",
+   "brands": [
+    {
+     "brand": "Valentino",
+     "coupon_value": "0.00",
+     "expected_commission": "49.780",
+     "gmv": "497.80",
+     "lines": 1
+    },
+    {
+     "brand": "Chopard",
+     "coupon_value": "0.00",
+     "expected_commission": "58.270",
+     "gmv": "582.70",
+     "lines": 2
+    },
+    {
+     "brand": "Laura Mars",
+     "coupon_value": "0.00",
+     "expected_commission": "10.035",
+     "gmv": "66.90",
+     "lines": 1
+    },
+    {
+     "brand": "Gucci",
+     "coupon_value": "0.00",
+     "expected_commission": "27.990",
+     "gmv": "279.90",
+     "lines": 1
+    },
+    {
+     "brand": "Karl Lagerafeld",
+     "coupon_value": "0.00",
+     "expected_commission": "27.435",
+     "gmv": "182.90",
+     "lines": 1
+    },
+    {
+     "brand": "Roberto Cavalli",
+     "coupon_value": "0.00",
+     "expected_commission": "21.435",
+     "gmv": "142.90",
+     "lines": 1
+    },
+    {
+     "brand": "Guerlain",
+     "coupon_value": "0.00",
+     "expected_commission": "57.285",
+     "gmv": "381.90",
+     "lines": 1
+    },
+    {
+     "brand": "Lalique",
+     "coupon_value": "0.00",
+     "expected_commission": "13.785",
+     "gmv": "91.90",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "68.01",
+   "coupon_value": "0.00",
+   "expected_commission": "266.02",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 9,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "1960.89",
+   "non_wallet_amount": "2226.90",
+   "order_date": "2026-08-05",
+   "order_no": "SG-SH-07568",
+   "payable": "1960.89",
+   "payment_type": "Tamara",
+   "portal_gmv": "2226.90",
+   "promo_base": "1360.40",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "866.50",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "overcharge",
+   "vendor_amount": "2226.91",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-06",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "24.73",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Givenchy",
+     "coupon_value": "0.00",
+     "expected_commission": "16.490",
+     "gmv": "164.90",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "8.24",
+   "coupon_value": "0.00",
+   "expected_commission": "16.49",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "148.41",
+   "non_wallet_amount": "164.90",
+   "order_date": "2026-08-07",
+   "order_no": "SG-SH-07798",
+   "payable": "148.41",
+   "payment_type": "Apple Pay",
+   "portal_gmv": "164.90",
+   "promo_base": "164.90",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "0.00",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "overcharge",
+   "vendor_amount": "164.90",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-08",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "77.96",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Dolce & Gabbana",
+     "coupon_value": "0.00",
+     "expected_commission": "27.990",
+     "gmv": "279.90",
+     "lines": 1
+    },
+    {
+     "brand": "Narciso Rodriguez",
+     "coupon_value": "0.00",
+     "expected_commission": "35.985",
+     "gmv": "239.90",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "13.99",
+   "coupon_value": "0.00",
+   "expected_commission": "63.98",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 2,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "455.83",
+   "non_wallet_amount": "519.80",
+   "order_date": "2026-08-09",
+   "order_no": "SG-SH-08029",
+   "payable": "455.83",
+   "payment_type": "Tamara",
+   "portal_gmv": "519.80",
+   "promo_base": "279.90",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "239.90",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "overcharge",
+   "vendor_amount": "519.80",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-09",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "20.23",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Bentley",
+     "coupon_value": "0.00",
+     "expected_commission": "20.235",
+     "gmv": "134.90",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "-0.01",
+   "coupon_value": "0.00",
+   "expected_commission": "20.24",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "114.67",
+   "non_wallet_amount": "134.90",
+   "order_date": "2026-08-09",
+   "order_no": "SG-SH-08062",
+   "payable": "114.67",
+   "payment_type": "Apple Pay",
+   "portal_gmv": "134.90",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "134.90",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "134.90",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-09",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "70.13",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Roberto Cavalli",
+     "coupon_value": "0.00",
+     "expected_commission": "64.395",
+     "gmv": "467.60",
+     "lines": 3
+    }
+   ],
+   "commission_variance": "5.74",
+   "coupon_value": "0.00",
+   "expected_commission": "64.40",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 3,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "403.21",
+   "non_wallet_amount": "0.00",
+   "order_date": "2026-08-09",
+   "order_no": "SG-SH-08194",
+   "payable": "403.21",
+   "payment_type": "Wallet",
+   "portal_gmv": "467.60",
+   "promo_base": "114.90",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "352.70",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "overcharge",
+   "vendor_amount": "467.60",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-13",
+   "wallet_amount": "467.60"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "11.51",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Benetton",
+     "coupon_value": "0.00",
+     "expected_commission": "11.520",
+     "gmv": "76.80",
+     "lines": 2
+    }
+   ],
+   "commission_variance": "-0.01",
+   "coupon_value": "0.00",
+   "expected_commission": "11.52",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 2,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "65.28",
+   "non_wallet_amount": "0.00",
+   "order_date": "2026-08-10",
+   "order_no": "SG-SH-08260",
+   "payable": "65.28",
+   "payment_type": "Wallet",
+   "portal_gmv": "76.80",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "76.80",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "76.80",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-11",
+   "wallet_amount": "88.80"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "20.07",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Gemina B.",
+     "coupon_value": "0.00",
+     "expected_commission": "20.070",
+     "gmv": "133.80",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "20.07",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "113.73",
+   "non_wallet_amount": "0.00",
+   "order_date": "2026-08-10",
+   "order_no": "SG-SH-08293",
+   "payable": "113.73",
+   "payment_type": "Wallet",
+   "portal_gmv": "133.80",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "133.80",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "133.80",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-11",
+   "wallet_amount": "133.80"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "54.71",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Bentley",
+     "coupon_value": "0.00",
+     "expected_commission": "20.235",
+     "gmv": "134.90",
+     "lines": 1
+    },
+    {
+     "brand": "Dolce & Gabbana",
+     "coupon_value": "0.00",
+     "expected_commission": "34.485",
+     "gmv": "229.90",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "-0.01",
+   "coupon_value": "0.00",
+   "expected_commission": "54.72",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 2,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "310.08",
+   "non_wallet_amount": "0.00",
+   "order_date": "2026-08-10",
+   "order_no": "SG-SH-08392",
+   "payable": "310.08",
+   "payment_type": "Wallet",
+   "portal_gmv": "364.80",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "364.80",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "364.80",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-11",
+   "wallet_amount": "364.80"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "70.31",
+   "adjustments": "0.00",
+   "amount_diff": "-0.01",
+   "brands": [
+    {
+     "brand": "La Perla",
+     "coupon_value": "0.00",
+     "expected_commission": "14.535",
+     "gmv": "96.90",
+     "lines": 1
+    },
+    {
+     "brand": "Escada",
+     "coupon_value": "0.00",
+     "expected_commission": "19.035",
+     "gmv": "126.90",
+     "lines": 1
+    },
+    {
+     "brand": "Narciso Rodriguez",
+     "coupon_value": "0.00",
+     "expected_commission": "36.735",
+     "gmv": "244.90",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.01",
+   "coupon_value": "0.00",
+   "expected_commission": "70.31",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 3,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "398.40",
+   "non_wallet_amount": "0.00",
+   "order_date": "2026-08-11",
+   "order_no": "SG-SH-08458",
+   "payable": "398.40",
+   "payment_type": "Wallet",
+   "portal_gmv": "468.70",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "468.70",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "468.71",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-11",
+   "wallet_amount": "468.70"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "143.69",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Armaf",
+     "coupon_value": "0.00",
+     "expected_commission": "16.185",
+     "gmv": "107.90",
+     "lines": 1
+    },
+    {
+     "brand": "Laura Mars",
+     "coupon_value": "0.00",
+     "expected_commission": "18.570",
+     "gmv": "123.80",
+     "lines": 2
+    },
+    {
+     "brand": "Johan B",
+     "coupon_value": "0.00",
+     "expected_commission": "11.085",
+     "gmv": "73.90",
+     "lines": 1
+    },
+    {
+     "brand": "Jennifer Lopez",
+     "coupon_value": "0.00",
+     "expected_commission": "13.785",
+     "gmv": "91.90",
+     "lines": 1
+    },
+    {
+     "brand": "Hugo Boss",
+     "coupon_value": "0.00",
+     "expected_commission": "19.035",
+     "gmv": "126.90",
+     "lines": 1
+    },
+    {
+     "brand": "Guess",
+     "coupon_value": "0.00",
+     "expected_commission": "14.385",
+     "gmv": "95.90",
+     "lines": 1
+    },
+    {
+     "brand": "Geparlys",
+     "coupon_value": "0.00",
+     "expected_commission": "22.770",
+     "gmv": "151.80",
+     "lines": 1
+    },
+    {
+     "brand": "Calvin Klein",
+     "coupon_value": "0.00",
+     "expected_commission": "27.870",
+     "gmv": "185.80",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.01",
+   "coupon_value": "0.00",
+   "expected_commission": "143.69",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 9,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "814.22",
+   "non_wallet_amount": "957.90",
+   "order_date": "2026-08-11",
+   "order_no": "SG-SH-08491",
+   "payable": "814.22",
+   "payment_type": "Tamara",
+   "portal_gmv": "957.90",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "957.90",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "957.90",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-12",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "146.70",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Givenchy",
+     "coupon_value": "0.00",
+     "expected_commission": "123.5970",
+     "gmv": "823.98",
+     "lines": 2
+    },
+    {
+     "brand": "Narciso Rodriguez",
+     "coupon_value": "0.00",
+     "expected_commission": "23.0985",
+     "gmv": "153.99",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "146.70",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 3,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "831.27",
+   "non_wallet_amount": "0.00",
+   "order_date": "2026-08-11",
+   "order_no": "SG-SH-08624",
+   "payable": "831.27",
+   "payment_type": "Wallet",
+   "portal_gmv": "977.97",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "977.97",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "977.97",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-09-03",
+   "wallet_amount": "977.97"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "73.35",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Mont Blanc",
+     "coupon_value": "0.00",
+     "expected_commission": "73.3470",
+     "gmv": "488.98",
+     "lines": 2
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "73.35",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 2,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "415.63",
+   "non_wallet_amount": "585.98",
+   "order_date": "2026-08-14",
+   "order_no": "SG-SH-08854",
+   "payable": "415.63",
+   "payment_type": "Apple Pay",
+   "portal_gmv": "488.98",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "488.98",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "488.98",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-15",
+   "wallet_amount": "0.00"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "36.30",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Dolce & Gabbana",
+     "coupon_value": "0.00",
+     "expected_commission": "36.2985",
+     "gmv": "241.99",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "36.30",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "205.69",
+   "non_wallet_amount": "0.00",
+   "order_date": "2026-08-15",
+   "order_no": "SG-SH-08986",
+   "payable": "205.69",
+   "payment_type": "Wallet",
+   "portal_gmv": "241.99",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "241.99",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "241.99",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-16",
+   "wallet_amount": "241.99"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "36.30",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Dolce & Gabbana",
+     "coupon_value": "0.00",
+     "expected_commission": "36.2985",
+     "gmv": "241.99",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "36.30",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 1,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "205.69",
+   "non_wallet_amount": "0.00",
+   "order_date": "2026-08-22",
+   "order_no": "SG-SH-10144",
+   "payable": "205.69",
+   "payment_type": "Wallet",
+   "portal_gmv": "241.99",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "241.99",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "241.99",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-23",
+   "wallet_amount": "241.99"
+  },
+  {
+   "absorbed_commission": "0.00",
+   "actual_commission": "93.75",
+   "adjustments": "0.00",
+   "amount_diff": "0.00",
+   "brands": [
+    {
+     "brand": "Calvin Klein",
+     "coupon_value": "0.00",
+     "expected_commission": "15.7485",
+     "gmv": "104.99",
+     "lines": 1
+    },
+    {
+     "brand": "Giorgio Armani",
+     "coupon_value": "0.00",
+     "expected_commission": "77.9985",
+     "gmv": "519.99",
+     "lines": 1
+    }
+   ],
+   "commission_variance": "0.00",
+   "coupon_value": "0.00",
+   "expected_commission": "93.75",
+   "flags": [],
+   "included_in_payable": true,
+   "line_count": 2,
+   "match_state": "matched",
+   "merchant_id": "34",
+   "net_payable": "531.23",
+   "non_wallet_amount": "624.98",
+   "order_date": "2026-08-25",
+   "order_no": "SG-SH-10702",
+   "payable": "531.23",
+   "payment_type": "Apple Pay",
+   "portal_gmv": "624.98",
+   "promo_base": "0.00",
+   "sg_shipping": "15.00",
+   "shipping_cost": "15.00",
+   "standard_base": "624.98",
+   "statuses": [
+    "Delivered"
+   ],
+   "variance_class": "clean",
+   "vendor_amount": "624.98",
+   "vendor_credit": "0.00",
+   "vendor_date": "2026-08-25",
+   "wallet_amount": "0.00"
+  }
+ ],
+ "period_end": "2026-08-25",
+ "period_start": "2026-07-22",
+ "rates": {
+  "line_tolerance": "0.01",
+  "order_tolerance": "0.05",
+  "promo_cutoff": "2026-08-09",
+  "promo_rate": "0.10",
+  "standard_rate": "0.15"
+ },
+ "summary": {
+  "adjustments": "-346.85",
+  "commission_earned": "2246.85",
+  "exception_counts": {
+   "CLAWBACK_UNRESOLVED": 2,
+   "COMMISSION_OVERCHARGE": 13,
+   "LATER_PERIOD": 3,
+   "PRIOR_PERIOD": 18,
+   "RTO_WITHOUT_CREDIT_NOTE": 1,
+   "WALLET_ENTRY_MISSING": 7,
+   "WALLET_HISTORY_UNMATCHED": 1,
+   "WALLET_KEY_UNSTABLE": 1,
+   "WALLET_OUT_OF_WINDOW": 8
+  },
+  "gross_sales": "17141.01",
+  "ledger_entries": 64,
+  "net_payable": "13876.31",
+  "orders": 37,
+  "orders_exact": 33,
+  "orders_matched": 37,
+  "overcharged_commission": "243.13",
+  "payable_before_adjustments": "14223.16",
+  "portal_lines": 75,
+  "promo_base": "4473.10",
+  "promotional_absorption": "0.00",
+  "standard_base": "11996.91",
+  "unexplained_difference": "3548.44",
+  "vendor_closing_balance": "17424.75"
+ },
+ "unmatched_ledger": [
+  {
+   "balance": "15543.80",
+   "credit": null,
+   "debit": "198.00",
+   "doc_date": "2026-09-03",
+   "doc_no": "781883",
+   "doc_type": "sales_invoice",
+   "match_state": "later_period",
+   "order_no": "SG-SH-12154",
+   "raw_desc": "SG-SH-12154# طلب",
+   "raw_ref": "SG-SH-1215",
+   "sheet": "Table004 (Page 2)"
+  },
+  {
+   "balance": "16011.79",
+   "credit": null,
+   "debit": "467.99",
+   "doc_date": "2026-09-03",
+   "doc_no": "781887",
+   "doc_type": "sales_invoice",
+   "match_state": "later_period",
+   "order_no": "SG-SH-12195",
+   "raw_desc": "SG-SH-12195# طلب",
+   "raw_ref": "SG-SH-1219",
+   "sheet": "Table004 (Page 2)"
+  },
+  {
+   "balance": "16446.78",
+   "credit": null,
+   "debit": "434.99",
+   "doc_date": "2026-09-03",
+   "doc_no": "781890",
+   "doc_type": "sales_invoice",
+   "match_state": "later_period",
+   "order_no": "SG-SH-12196",
+   "raw_desc": "SG-SH-12196# طلب",
+   "raw_ref": "SG-SH-1219",
+   "sheet": "Table004 (Page 2)"
+  },
+  {
+   "balance": "82.00",
+   "credit": null,
+   "debit": "82.00",
+   "doc_date": "2026-05-18",
+   "doc_no": "692870",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-01397",
+   "raw_desc": "-SG-SH-01397# طلب",
+   "raw_ref": "SG-SH-0139",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "324.00",
+   "credit": null,
+   "debit": "242.01",
+   "doc_date": "2026-05-18",
+   "doc_no": "692871",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-01363",
+   "raw_desc": "SG-SH-01363# طلب",
+   "raw_ref": "SG-SH-0136",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "589.01",
+   "credit": null,
+   "debit": "265.01",
+   "doc_date": "2026-06-03",
+   "doc_no": "706679",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-01694",
+   "raw_desc": "-SG-SH-01694",
+   "raw_ref": "SG-SH-0169",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "507.01",
+   "credit": "82.00",
+   "debit": null,
+   "doc_date": "2026-06-03",
+   "doc_no": "33919",
+   "doc_type": "sales_return",
+   "match_state": "unmatched",
+   "order_no": null,
+   "raw_desc": "العميل لم يتم استلام طلب",
+   "raw_ref": "SG-SH-0139",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "938.01",
+   "credit": null,
+   "debit": "431.00",
+   "doc_date": "2026-06-13",
+   "doc_no": "714761",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-01990",
+   "raw_desc": "Turki Aldhry- SG-SH-01990",
+   "raw_ref": "SG-SH-0199",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "1634.01",
+   "credit": null,
+   "debit": "696.00",
+   "doc_date": "2026-06-20",
+   "doc_no": "720111",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-02023",
+   "raw_desc": "SG-SH-02023# طلب",
+   "raw_ref": "SG-SH-0202",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "1966.02",
+   "credit": null,
+   "debit": "332.01",
+   "doc_date": "2026-06-20",
+   "doc_no": "720112",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-02122",
+   "raw_desc": "SG-SH-02122# طلب",
+   "raw_ref": "SG-SH-0212",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "2065.02",
+   "credit": null,
+   "debit": "99.00",
+   "doc_date": "2026-06-27",
+   "doc_no": "725320",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-02650",
+   "raw_desc": "SG-SH-02650# طلب",
+   "raw_ref": "SG-SH-0265",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "2537.03",
+   "credit": null,
+   "debit": "472.01",
+   "doc_date": "2026-06-27",
+   "doc_no": "725321",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-02683",
+   "raw_desc": "SG-SH-02683# طلب",
+   "raw_ref": "SG-SH-0268",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "2883.03",
+   "credit": null,
+   "debit": "65.00",
+   "doc_date": "2026-07-04",
+   "doc_no": "732030",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-03112",
+   "raw_desc": "SG-SH-03112# طلب",
+   "raw_ref": "SG-SH-0311",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "2997.03",
+   "credit": null,
+   "debit": "114.00",
+   "doc_date": "2026-07-06",
+   "doc_no": "733856",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-03872",
+   "raw_desc": "SG-SH-03872# طلب",
+   "raw_ref": "SG-SH-0387",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "3237.03",
+   "credit": null,
+   "debit": "240.01",
+   "doc_date": "2026-07-07",
+   "doc_no": "734733",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-04104",
+   "raw_desc": "-SG-SH-04104# طلب",
+   "raw_ref": "SG-SH-0410",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "5122.03",
+   "credit": null,
+   "debit": "1885.00",
+   "doc_date": "2026-07-07",
+   "doc_no": "734734",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-04106",
+   "raw_desc": "SG-SH-04106# طلب",
+   "raw_ref": "SG-SH-0410",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "5280.03",
+   "credit": null,
+   "debit": "158.00",
+   "doc_date": "2026-07-08",
+   "doc_no": "735612",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-03970",
+   "raw_desc": "SG-SH-03970# طلب",
+   "raw_ref": "SG-SH-0397",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "5520.03",
+   "credit": null,
+   "debit": "240.01",
+   "doc_date": "2026-07-09",
+   "doc_no": "736536",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-04465",
+   "raw_desc": "SG-SH-04465# طلب",
+   "raw_ref": "SG-SH-0446",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "6085.03",
+   "credit": null,
+   "debit": "565.00",
+   "doc_date": "2026-07-09",
+   "doc_no": "736538",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-04498",
+   "raw_desc": "SG-SH-04498# طلب",
+   "raw_ref": "SG-SH-0449",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "6253.03",
+   "credit": null,
+   "debit": "168.00",
+   "doc_date": "2026-07-13",
+   "doc_no": "739919",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-04267",
+   "raw_desc": "SG-SH-04267# طلب",
+   "raw_ref": "SG-SH-0426",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "6936.03",
+   "credit": null,
+   "debit": "683.00",
+   "doc_date": "2026-07-13",
+   "doc_no": "739920",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-04828",
+   "raw_desc": "SG-SH-04828# طلب",
+   "raw_ref": "SG-SH-0482",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "7888.03",
+   "credit": null,
+   "debit": "952.00",
+   "doc_date": "2026-07-13",
+   "doc_no": "739921",
+   "doc_type": "sales_invoice",
+   "match_state": "prior_period",
+   "order_no": "SG-SH-04993",
+   "raw_desc": "SG-SH-04993# طلب",
+   "raw_ref": "SG-SH-0499",
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "6558.60",
+   "credit": "1048.43",
+   "debit": null,
+   "doc_date": "2026-07-21",
+   "doc_no": "9930",
+   "doc_type": "journal_entry",
+   "match_state": "unmatched",
+   "order_no": null,
+   "raw_desc": "عمولة قطون- مرشنست",
+   "raw_ref": null,
+   "sheet": "Table002 (Page 1)"
+  },
+  {
+   "balance": "-146.25",
+   "credit": "6704.85",
+   "debit": null,
+   "doc_date": "2026-07-21",
+   "doc_no": "9930",
+   "doc_type": "journal_entry",
+   "match_state": "unmatched",
+   "order_no": null,
+   "raw_desc": "CO الفرع٤٦٢٢٣حوالات فورية واردة١٤٤٨-",
+   "raw_ref": null,
+   "sheet": "Table002 (Page 1)"
+  }
+ ],
+ "wallet": {
+  "amount_mismatch": 0,
+  "checks": [
+   {
+    "booking_id": "SG-SH-03344",
+    "diff": null,
+    "events": 0,
+    "history_paid": null,
+    "history_refunded": null,
+    "order_date": "2026-07-03",
+    "portal_wallet_amount": "224.80",
+    "sg_order_id": "3344",
+    "state": "out_of_window",
+    "vertical": "eshop"
+   },
+   {
+    "booking_id": "SG-SH-05257",
+    "diff": null,
+    "events": 0,
+    "history_paid": null,
+    "history_refunded": null,
+    "order_date": "2026-07-22",
+    "portal_wallet_amount": "51.99",
+    "sg_order_id": "5257",
+    "state": "out_of_window",
+    "vertical": "eshop"
+   },
+   {
+    "booking_id": "SG-SH-05290",
+    "diff": null,
+    "events": 0,
+    "history_paid": null,
+    "history_refunded": null,
+    "order_date": "2026-07-22",
+    "portal_wallet_amount": "93.85",
+    "sg_order_id": "5290",
+    "state": "out_of_window",
+    "vertical": "eshop"
+   },
+   {
+    "booking_id": "SG-SH-05356",
+    "diff": null,
+    "events": 0,
+    "history_paid": null,
+    "history_refunded": null,
+    "order_date": "2026-07-23",
+    "portal_wallet_amount": "5.51",
+    "sg_order_id": "5356",
+    "state": "out_of_window",
+    "vertical": "eshop"
+   },
+   {
+    "booking_id": "SG-SH-05752",
+    "diff": null,
+    "events": 0,
+    "history_paid": null,
+    "history_refunded": null,
+    "order_date": "2026-07-27",
+    "portal_wallet_amount": "186.00",
+    "sg_order_id": "5752",
+    "state": "out_of_window",
+    "vertical": "eshop"
+   },
+   {
+    "booking_id": "SG-SH-05950",
+    "diff": null,
+    "events": 0,
+    "history_paid": null,
+    "history_refunded": null,
+    "order_date": "2026-07-28",
+    "portal_wallet_amount": "2.00",
+    "sg_order_id": "5950",
+    "state": "out_of_window",
+    "vertical": "eshop"
+   },
+   {
+    "booking_id": "SG-SH-06118",
+    "diff": null,
+    "events": 0,
+    "history_paid": null,
+    "history_refunded": null,
+    "order_date": "2026-07-30",
+    "portal_wallet_amount": "178.00",
+    "sg_order_id": "6118",
+    "state": "out_of_window",
+    "vertical": "eshop"
+   },
+   {
+    "booking_id": "SG-SH-06247",
+    "diff": null,
+    "events": 0,
+    "history_paid": null,
+    "history_refunded": null,
+    "order_date": "2026-08-02",
+    "portal_wallet_amount": "2.00",
+    "sg_order_id": "6247",
+    "state": "missing",
+    "vertical": "eshop"
+   },
+   {
+    "booking_id": "SG-SH-08194",
+    "diff": null,
+    "events": 0,
+    "history_paid": null,
+    "history_refunded": null,
+    "order_date": "2026-08-09",
+    "portal_wallet_amount": "467.60",
+    "sg_order_id": "8194",
+    "state": "missing",
+    "vertical": "eshop"
+   },
+   {
+    "booking_id": "SG-SH-08260",
+    "diff": null,
+    "events": 0,
+    "history_paid": null,
+    "history_refunded": null,
+    "order_date": "2026-08-10",
+    "portal_wallet_amount": "88.80",
+    "sg_order_id": "8260",
+    "state": "missing",
+    "vertical": "eshop"
+   },
+   {
+    "booking_id": "SG-SH-08293",
+    "diff": null,
+    "events": 0,
+    "history_paid": null,
+    "history_refunded": null,
+    "order_date": "2026-08-10",
+    "portal_wallet_amount": "133.80",
+    "sg_order_id": "8293",
+    "state": "missing",
+    "vertical": "eshop"
+   },
+   {
+    "booking_id": "SG-SH-08392",
+    "diff": null,
+    "events": 0,
+    "history_paid": null,
+    "history_refunded": null,
+    "order_date": "2026-08-10",
+    "portal_wallet_amount": "364.80",
+    "sg_order_id": "8392",
+    "state": "missing",
+    "vertical": "eshop"
+   },
+   {
+    "booking_id": "SG-SH-08458",
+    "diff": null,
+    "events": 0,
+    "history_paid": null,
+    "history_refunded": null,
+    "order_date": "2026-08-11",
+    "portal_wallet_amount": "468.70",
+    "sg_order_id": "8458",
+    "state": "missing",
+    "vertical": "eshop"
+   },
+   {
+    "booking_id": "SG-SH-08624",
+    "diff": null,
+    "events": 0,
+    "history_paid": null,
+    "history_refunded": null,
+    "order_date": "2026-08-11",
+    "portal_wallet_amount": "977.97",
+    "sg_order_id": "8624",
+    "state": "missing",
+    "vertical": "eshop"
+   },
+   {
+    "booking_id": "SG-SH-08986",
+    "diff": "0.00",
+    "events": 1,
+    "history_paid": "241.99",
+    "history_refunded": "0.00",
+    "order_date": "2026-08-15",
+    "portal_wallet_amount": "241.99",
+    "sg_order_id": "8986",
+    "state": "matched",
+    "vertical": "eshop"
+   },
+   {
+    "booking_id": "SG-SH-10144",
+    "diff": null,
+    "events": 0,
+    "history_paid": null,
+    "history_refunded": null,
+    "order_date": "2026-08-22",
+    "portal_wallet_amount": "241.99",
+    "sg_order_id": "10144",
+    "state": "out_of_window",
+    "vertical": "eshop"
+   }
+  ],
+  "matched": 1,
+  "missing": 7,
+  "out_of_window": 8,
+  "rows_checked": 16,
+  "unkeyed": 0,
+  "unmatched_history": [
+   {
+    "amount": "110",
+    "event_date": "2026-08-15",
+    "event_id": "69564",
+    "message": "Eshop order refund SAR 110.00",
+    "payment_type": "Wallet",
+    "row": 21,
+    "sg_order_id": "8920",
+    "source": "wallet_history.xlsx",
+    "vertical": "eshop"
+   }
+  ],
+  "window_end": "2026-08-15",
+  "window_start": "2026-08-01"
+ }
+}

@@ -15,20 +15,14 @@ import pytest
 from openpyxl import load_workbook
 
 from app.recon.categories.eshop import template
-from app.recon.categories.eshop.parser import (
-    LEDGER_SCHEMA,
-    classify_doc_type,
-    read_ledger,
-)
-from app.recon.engine import ReconRequest, Upload, reconcile
 from app.recon.excel import HEADER_SCAN_LIMIT, detect_sheets, find_header, open_workbook
 from app.recon.exceptions import ExceptionCode
-from app.recon.matcher import resolve_credit_notes
-from app.recon.models import LedgerDocType, LedgerEntry, RateConfig, ReconResult
-from tests.conftest import VENDOR_STATEMENT, WORKINGS
+from app.runner import Row, RunResult
+from tests.conftest import VENDOR_STATEMENT
+from tests.eshop import orders, read, run_eshop, schema, statement_row
 
 D = Decimal
-MAX_ROWS = 1_000_000
+LEDGER_SCHEMA = schema("vendor", "ledger")
 
 
 @pytest.fixture
@@ -55,29 +49,12 @@ def _fill(blank: Path, rows: list[tuple[Any, ...]], into: Path) -> Path:
     return into
 
 
-def _read(path: Path) -> list[LedgerEntry]:
-    with open_workbook(path) as workbook:
-        return list(
-            read_ledger(
-                workbook, detect_sheets(workbook, LEDGER_SCHEMA), max_rows=MAX_ROWS
-            )
-        )
+def _read(path: Path) -> list[Row]:
+    return read("vendor", path)["statement"]
 
 
-def _reconcile(vendor: Path, rates: RateConfig) -> ReconResult:
-    return reconcile(
-        ReconRequest(
-            category="eshop",
-            portal=Upload("portal", WORKINGS.name, WORKINGS),
-            promo=Upload("promo", WORKINGS.name, WORKINGS),
-            vendor=Upload("vendor", vendor.name, vendor),
-            settlements=None,
-            rates=rates,
-            period_start=None,
-            period_end=None,
-            max_rows=MAX_ROWS,
-        )
-    )
+def _reconcile(vendor: Path) -> RunResult:
+    return run_eshop(vendor=vendor)
 
 
 # --- shape ------------------------------------------------------------------
@@ -112,11 +89,13 @@ def test_a_blank_template_holds_no_transactions(blank: Path) -> None:
 
 
 def test_every_dropdown_value_types_its_row() -> None:
-    assert [classify_doc_type(value) for value in template.DOC_TYPES] == [
-        LedgerDocType.SALES_INVOICE,
-        LedgerDocType.SALES_RETURN,
-        LedgerDocType.JOURNAL_ENTRY,
-        LedgerDocType.JOURNAL_ENTRY,
+    assert [
+        statement_row(doc_type=value)["doc_type"] for value in template.DOC_TYPES
+    ] == [
+        "sales_invoice",
+        "sales_return",
+        "journal_entry",
+        "journal_entry",
     ]
 
 
@@ -143,22 +122,24 @@ def test_filled_rows_take_their_order_number_from_its_own_column(
 
     entries = _read(filled)
 
-    assert [(e.doc_type, e.order_no, e.debit, e.credit) for e in entries] == [
-        (LedgerDocType.SALES_INVOICE, "SG-SH-05785", D("425.01"), None),
-        (LedgerDocType.SALES_RETURN, "SG-SH-06118", None, D("168.00")),
-        (LedgerDocType.JOURNAL_ENTRY, None, None, D("1048.43")),
-        (LedgerDocType.JOURNAL_ENTRY, None, None, D("5000.00")),
+    assert [
+        (e["doc_type"], e["order_no"], e["debit"], e["credit"]) for e in entries
+    ] == [
+        ("sales_invoice", "SG-SH-05785", D("425.01"), None),
+        ("sales_return", "SG-SH-06118", None, D("168.00")),
+        ("journal_entry", None, None, D("1048.43")),
+        ("journal_entry", None, None, D("5000.00")),
     ]
-    assert entries[0].doc_date == date(2026, 8, 3)
+    assert entries[0]["doc_date"] == date(2026, 8, 3)
 
 
 def test_the_sample_cycle_reconciles_identically_through_the_template(
-    blank: Path, tmp_path: Path, rates: RateConfig
+    blank: Path, tmp_path: Path
 ) -> None:
     """The converter's statement, retyped into the template, changes nothing.
 
     A vendor filling the template writes each return's full order number, which
-    the converter's statement never carried; the engine's own prefix-and-amount
+    the converter's statement never carried; the run's own prefix-and-amount
     resolution supplies it here. The template has no reference column at all,
     so a return only matches through that order-number column.
 
@@ -167,57 +148,57 @@ def test_the_sample_cycle_reconciles_identically_through_the_template(
     statement prints 17,424.75, because its system books fractions of a cent
     behind the two-decimal amounts it shows (fourteen rows drift by 0.01).
     """
-    baseline = _reconcile(VENDOR_STATEMENT, rates)
-    entries = _read(VENDOR_STATEMENT)
-    resolve_credit_notes(
-        entries,
-        {order.order_no: order.portal_gmv for order in baseline.orders},
-        rates.order_tolerance,
-    )
+    baseline = _reconcile(VENDOR_STATEMENT)
+    # The statement as the run read it, credit notes resolved to their orders.
+    entries = baseline.rows["statement"]
 
     rows = []
     # Oldest first, as the instructions ask; the balance runs as the template's
     # formula would compute it.
     balance = D(0)
-    for entry in sorted(entries, key=lambda e: e.doc_date or date.min):
-        balance += (entry.debit or 0) - (entry.credit or 0)
+    for entry in sorted(entries, key=lambda e: e["doc_date"] or date.min):
+        balance += (entry["debit"] or 0) - (entry["credit"] or 0)
         rows.append(_template_row(entry, balance))
-    result = _reconcile(_fill(blank, rows, tmp_path / "sample.xlsx"), rates)
+    result = _reconcile(_fill(blank, rows, tmp_path / "sample.xlsx"))
 
     moved = {"vendor_closing_balance", "unexplained_difference"}
-    assert result.summary.model_dump(exclude=moved) == (
-        baseline.summary.model_dump(exclude=moved)
-    )
-    assert baseline.summary.vendor_closing_balance == D("17424.75")
-    assert result.summary.vendor_closing_balance == D("17424.81")
-    assert result.summary.ledger_entries == 64
-    assert result.summary.orders_matched == 37
-    assert result.summary.orders_exact == 33
-    assert result.summary.net_payable == D("13876.31")
+    figures = {k: v for k, v in result.metrics.items() if k not in moved}
+    assert figures == {k: v for k, v in baseline.metrics.items() if k not in moved}
+    assert baseline.metrics["vendor_closing_balance"] == D("17424.75")
+    assert result.metrics["vendor_closing_balance"] == D("17424.81")
+    assert result.metrics["ledger_entries"] == 64
+    assert result.metrics["orders_matched"] == 37
+    assert result.metrics["orders_exact"] == 33
+    assert result.metrics["net_payable"] == D("13876.31")
     assert not [
         e for e in result.exceptions if e.code is ExceptionCode.AMBIGUOUS_CREDIT_NOTE
     ]
-    assert [(o.order_no, o.vendor_amount, o.flags) for o in result.orders] == [
-        (o.order_no, o.vendor_amount, o.flags) for o in baseline.orders
-    ]
+
+    def outcome(run: RunResult) -> list[tuple[Any, ...]]:
+        return [
+            (o.key, o.values["vendor_amount"], o.values["treatment"])
+            for o in orders(run)
+        ]
+
+    assert outcome(result) == outcome(baseline)
 
 
-def _template_row(entry: LedgerEntry, balance: Decimal) -> tuple[Any, ...]:
-    if entry.doc_type is LedgerDocType.SALES_INVOICE:
+def _template_row(entry: Row, balance: Decimal) -> tuple[Any, ...]:
+    if entry["doc_type"] == "sales_invoice":
         doc_type = template.SALES_INVOICE
-    elif entry.doc_type is LedgerDocType.SALES_RETURN:
+    elif entry["doc_type"] == "sales_return":
         doc_type = template.SALES_RETURN
-    elif entry.raw_desc and "عمولة" in entry.raw_desc:
+    elif entry["raw_desc"] and "عمولة" in entry["raw_desc"]:
         doc_type = template.COMMISSION
     else:
         doc_type = template.PAYMENT
     return (
-        entry.doc_date,
+        entry["doc_date"],
         doc_type,
-        entry.doc_no,
-        entry.order_no,
-        entry.raw_desc,
-        float(entry.debit) if entry.debit else None,
-        float(entry.credit) if entry.credit else None,
+        entry["doc_no"],
+        entry["order_no"],
+        entry["raw_desc"],
+        float(entry["debit"]) if entry["debit"] else None,
+        float(entry["credit"]) if entry["credit"] else None,
         float(balance),
     )

@@ -23,6 +23,7 @@ from typing import Any
 from openpyxl.workbook import Workbook
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.config_model.runtime import sheet_schema
 from app.recon.cleaning import clean_text, money, to_date, to_decimal
 from app.recon.excel import (
     ColumnSpec,
@@ -60,6 +61,11 @@ WALLET_SCHEMA = SheetSchema(
 # Reads a ``Wallet Type`` cell and names the category key it belongs to, or
 # None for a movement of another category.
 WalletType = Callable[[Any], str | None]
+
+
+def wallet_schema() -> SheetSchema:
+    """The wallet history as a run reads it: configured, or as defined above."""
+    return sheet_schema("wallet", "history", WALLET_SCHEMA)
 
 
 class WalletState(StrEnum):
@@ -206,7 +212,7 @@ def _read(
 ) -> Iterator[tuple[date | None, WalletEvent | None]]:
     """Every movement's date, with the event when it belongs to the category."""
     for index, record in enumerate(
-        iter_records(workbook[sheet], WALLET_SCHEMA, max_rows=max_rows), start=1
+        iter_records(workbook[sheet], wallet_schema(), max_rows=max_rows), start=1
     ):
         when = to_date(record["event_date"])
         vertical = wallet_type(record["wallet_type"])
@@ -260,10 +266,11 @@ def load_wallet(
     """
     history = WalletHistory()
     with open_workbook(upload.path) as workbook:
-        sheet = detect_sheet(workbook, WALLET_SCHEMA)
+        schema = wallet_schema()
+        sheet = detect_sheet(workbook, schema)
         if sheet is None:
             raise ReconInputError(
-                f"No {WALLET_SCHEMA.name} sheet found in {upload.filename!r} "
+                f"No {schema.name} sheet found in {upload.filename!r} "
                 f"uploaded as {upload.role!r}."
             )
         for when, event in _read(

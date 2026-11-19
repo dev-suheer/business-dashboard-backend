@@ -1,18 +1,19 @@
-import json
+from argparse import Namespace
 from collections.abc import Iterator
-from decimal import Decimal
 from pathlib import Path
 
 import pytest
+from alembic import command
+from alembic.config import Config
 from fastapi.testclient import TestClient
 from openpyxl import Workbook
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
-from app.core import credentials as credentials_module
 from app.core.config import settings
 from app.core.security import get_password_hash
+from app.db.session import get_engine, get_session
 from app.main import app
-from app.recon.categories.travel.models import TravelRateConfig
-from app.recon.models import RateConfig
 
 FIXTURES = Path(__file__).parent / "fixtures"
 WORKINGS = FIXTURES / "workings.xlsx"
@@ -34,34 +35,45 @@ FOOD_VENDOR = FOOD_FIXTURES / "vendor.xlsx"
 
 TEST_USERNAME = "tester"
 TEST_PASSWORD = "correct horse battery"
-
-
-@pytest.fixture(autouse=True)
-def credential_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    """Point the app at a throwaway credential file.
-
-    Autouse so no test can accidentally read or rewrite the real
-    ``credentials.json``.
-    """
-    path = tmp_path / "credentials.json"
-    path.write_text(
-        json.dumps(
-            {
-                "username": TEST_USERNAME,
-                "password_hash": get_password_hash(TEST_PASSWORD),
-            }
-        )
-    )
-    monkeypatch.setattr(credentials_module, "credentials_path", lambda: path)
-    credentials_module.clear_credential_cache()
-    yield path
-    credentials_module.clear_credential_cache()
+# What a test may rename the tests' account to; removed with it.
+RENAMED_USERNAME = "tester-renamed"
 
 
 @pytest.fixture
-def client() -> Iterator[TestClient]:
+def test_account(test_database_url: str) -> Iterator[str]:
+    """The tests' own login, on the test database, with a password they know;
+    removed after. The seeded account is left as it is."""
+    engine = get_engine(test_database_url)
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "insert into account (username, password_hash) values (:u, :h) "
+                "on conflict (username) do update set password_hash = :h"
+            ),
+            {"u": TEST_USERNAME, "h": get_password_hash(TEST_PASSWORD)},
+        )
+    yield TEST_USERNAME
+    with engine.begin() as connection:
+        connection.execute(
+            text("delete from account where username in (:u, :renamed)"),
+            {"u": TEST_USERNAME, "renamed": RENAMED_USERNAME},
+        )
+
+
+@pytest.fixture
+def client(test_database_url: str, test_account: str) -> Iterator[TestClient]:  # noqa: ARG001
+    """A client whose requests, sign-in included, use the test database: no
+    test can read or change the real accounts."""
+    engine = get_engine(test_database_url)
+
+    def test_session() -> Iterator[Session]:
+        with Session(engine, expire_on_commit=False) as session:
+            yield session
+
+    app.dependency_overrides[get_session] = test_session
     with TestClient(app) as test_client:
         yield test_client
+    app.dependency_overrides.pop(get_session, None)
 
 
 @pytest.fixture
@@ -76,54 +88,90 @@ def auth_client(client: TestClient) -> TestClient:
     return client
 
 
-@pytest.fixture
-def rates() -> RateConfig:
-    return RateConfig(
-        standard_rate=Decimal("0.15"),
-        promo_rate=Decimal("0.10"),
-        promo_cutoff=settings.PROMO_CUTOFF,
-        line_tolerance=Decimal("0.01"),
-        order_tolerance=Decimal("0.05"),
-    )
+ALEMBIC_INI = Path(__file__).resolve().parents[1] / "alembic.ini"
 
 
-@pytest.fixture
-def upload_files() -> dict[str, tuple[str, bytes, str]]:
-    """The three required multipart fields, built from the sample workbooks.
+def alembic_config(url: str) -> Config:
+    config = Config(str(ALEMBIC_INI))
+    config.cmd_opts = Namespace(x=[f"url={url}"])
+    return config
 
-    The same workbook goes into ``portal`` and ``promo``: it holds both sheets,
-    and each field detects its own.
+
+@pytest.fixture(scope="session")
+def test_database_url() -> str:
+    """The test database, migrated to head once per session.
+
+    Tests that need it are skipped, not failed, on a machine with no Postgres.
     """
-    xlsx = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    workings = WORKINGS.read_bytes()
-    return {
-        "portal": ("workings.xlsx", workings, xlsx),
-        "promo": ("workings.xlsx", workings, xlsx),
-        "vendor": ("vendor_statement.xlsx", VENDOR_STATEMENT.read_bytes(), xlsx),
-    }
+    url = settings.TEST_DATABASE_URL
+    if not url:
+        pytest.skip("TEST_DATABASE_URL is not set")
+    command.upgrade(alembic_config(url), "head")
+    return url
+
+
+def _reset(url: str) -> None:
+    """An empty run history, only the three seeded categories, and each of them
+    back on version 1."""
+    with get_engine(url).begin() as connection:
+        connection.execute(text("TRUNCATE run_file, run RESTART IDENTITY CASCADE"))
+        connection.execute(
+            text(
+                "UPDATE category SET current_version_id = NULL "
+                "WHERE key NOT IN ('eshop', 'travel', 'food')"
+            )
+        )
+        connection.execute(
+            text(
+                "DELETE FROM category_version WHERE category_id IN (SELECT id FROM "
+                "category WHERE key NOT IN ('eshop', 'travel', 'food'))"
+            )
+        )
+        connection.execute(
+            text("DELETE FROM category WHERE key NOT IN ('eshop', 'travel', 'food')")
+        )
+        connection.execute(
+            text(
+                "UPDATE category c SET current_version_id = v.id FROM category_version v "
+                "WHERE v.category_id = c.id AND v.number = 1"
+            )
+        )
+        connection.execute(text("DELETE FROM category_version WHERE number > 1"))
 
 
 @pytest.fixture
-def travel_rates() -> TravelRateConfig:
-    return TravelRateConfig(
-        hotel_rate=Decimal("0.05"),
-        flight_rate=Decimal("0.03"),
-        vat_rate=Decimal("0.15"),
-        base_tolerance=Decimal("0.05"),
-        commission_tolerance=Decimal("0.01"),
-        rate_tolerance=Decimal("0.0005"),
-    )
+def db_session(test_database_url: str) -> Iterator[Session]:
+    """A session on an empty run history, every category on version 1, and left so."""
+    _reset(test_database_url)
+    with Session(get_engine(test_database_url), expire_on_commit=False) as session:
+        yield session
+    _reset(test_database_url)
 
 
 @pytest.fixture
-def travel_upload_files() -> dict[str, tuple[str, bytes, str]]:
-    """The two required travel fields plus the optional wallet history."""
-    xlsx = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    return {
-        "portal": ("portal.xlsx", TRAVEL_PORTAL.read_bytes(), xlsx),
-        "vendor": ("claim_13.xlsx", TRAVEL_CLAIMS["13"].read_bytes(), xlsx),
-        "wallet": ("wallet_history.xlsx", TRAVEL_WALLET.read_bytes(), xlsx),
-    }
+def run_store(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Run files go to a throwaway folder."""
+    store = tmp_path / "store"
+    monkeypatch.setattr(settings, "RUN_STORAGE_DIR", store)
+    return store
+
+
+@pytest.fixture
+def runs_client(
+    auth_client: TestClient,
+    db_session: Session,
+    run_store: Path,  # noqa: ARG001  (requested for its side effect)
+) -> Iterator[TestClient]:
+    """A logged-in client whose requests use the test database and run store."""
+    engine = db_session.get_bind()
+
+    def test_session() -> Iterator[Session]:
+        with Session(engine, expire_on_commit=False) as session:
+            yield session
+
+    app.dependency_overrides[get_session] = test_session
+    yield auth_client
+    app.dependency_overrides.pop(get_session, None)
 
 
 FINANCE_HEADERS = (

@@ -3,6 +3,7 @@
 **Scope:** Travel category (hotels and flights, vendor *Almosafer*). Same FastAPI backend, same
 Excel-only, no-database constraints as [plan.md](./plan.md).
 **Status:** every figure below was verified against the seven sample workbooks, not assumed.
+**Implemented** as version 1 of travel's configuration (`backend/app/config_model/seed_travel.py`), run by the generic runner; the pipeline this plan describes was retired in v2 Phase 4.
 
 ---
 

@@ -1,0 +1,3405 @@
+{
+  "schema_version": 1,
+  "category": "eshop",
+  "engine": "generic",
+  "inputs": [
+    {
+      "role": "portal",
+      "title": "Portal export",
+      "caption": "One row per order line",
+      "required": true,
+      "shown": true,
+      "sheets": [
+        {
+          "key": "portal",
+          "name": "portal export",
+          "columns": [
+            {
+              "field": "order_ref",
+              "headers": [
+                "Order Number"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": true
+            },
+            {
+              "field": "order_date",
+              "headers": [
+                "Date"
+              ],
+              "required": true,
+              "type": "date",
+              "skip_if_blank": false
+            },
+            {
+              "field": "merchant_id",
+              "headers": [
+                "Merchant Id"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "merchant_name",
+              "headers": [
+                "Merchant Name"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "sku",
+              "headers": [
+                "SG SKU"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "merchant_sku",
+              "headers": [
+                "Merchant SKU"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "brand",
+              "headers": [
+                "Brand"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "item_title",
+              "headers": [
+                "Item Title"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "gmv",
+              "headers": [
+                "GMV"
+              ],
+              "required": true,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "units",
+              "headers": [
+                "Units"
+              ],
+              "required": false,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "coupon_name",
+              "headers": [
+                "Coupon Name"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "coupon_value",
+              "headers": [
+                "Coupon Value"
+              ],
+              "required": false,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "actual_commission",
+              "headers": [
+                "SG Commission"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "status",
+              "headers": [
+                "Order Status"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "amount_paid",
+              "headers": [
+                "Paid"
+              ],
+              "required": false,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "payment_type",
+              "headers": [
+                "Payment Type"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "wallet_amount",
+              "headers": [
+                "Wallet Amount"
+              ],
+              "required": false,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "non_wallet_amount",
+              "headers": [
+                "Non-Wallet Amount"
+              ],
+              "required": false,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "shipping_owner",
+              "headers": [
+                "Shipping Ownership"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "shipping_cost",
+              "headers": [
+                "Shipping Cost"
+              ],
+              "required": false,
+              "type": "decimal",
+              "skip_if_blank": false
+            }
+          ],
+          "fingerprint": [
+            "Order Number",
+            "GMV",
+            "SG Commission",
+            "Order Status"
+          ],
+          "exclude": [
+            "MATCH SKU's"
+          ],
+          "fields": [
+            {
+              "key": "order_no",
+              "formula": "UPPER(order_ref)"
+            },
+            {
+              "key": "status",
+              "formula": "IFS(SUBSTITUTE(status, \" \", \"\") = \"Delivered\", \"Delivered\", SUBSTITUTE(status, \" \", \"\") = \"ReadytoPickup\", \"Ready to Pickup\", SUBSTITUTE(status, \" \", \"\") = \"Return\", \"Return\", SUBSTITUTE(status, \" \", \"\") = \"RTO\", \"RTO\")"
+            }
+          ],
+          "filter": null,
+          "unique": null,
+          "rejects": [
+            {
+              "when": "OR(ISBLANK(order_date), ISBLANK(gmv), ISBLANK(status))",
+              "message": "\"Portal row for order \" & order_ref & \" is missing a usable date, GMV or status\""
+            }
+          ],
+          "set": null,
+          "optional": false,
+          "first_only": true,
+          "missing_hint": " Check that the right file went into that field.",
+          "manifest_role": null,
+          "counted": "TRUE"
+        }
+      ],
+      "kind": "rows",
+      "empty_message": "The portal export contained no usable order lines"
+    },
+    {
+      "role": "vendor",
+      "title": "Vendor statement",
+      "caption": "Account statement from vendor",
+      "required": true,
+      "shown": true,
+      "sheets": [
+        {
+          "key": "ledger",
+          "name": "vendor statement",
+          "columns": [
+            {
+              "field": "balance",
+              "headers": [
+                "الرصيد الحالي"
+              ],
+              "required": false,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "credit",
+              "headers": [
+                "دائن"
+              ],
+              "required": true,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "debit",
+              "headers": [
+                "مدين"
+              ],
+              "required": true,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "raw_ref",
+              "headers": [
+                "رقم المرجع"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "raw_desc",
+              "headers": [
+                "البيان"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "order_no",
+              "headers": [
+                "رقم الطلب",
+                "Order Number"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "doc_no",
+              "headers": [
+                "رقم المستند"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "doc_type",
+              "headers": [
+                "نوع المستند"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "doc_date",
+              "headers": [
+                "التاريخ"
+              ],
+              "required": true,
+              "type": "date",
+              "skip_if_blank": false
+            }
+          ],
+          "fingerprint": [
+            "دائن",
+            "مدين",
+            "البيان",
+            "نوع المستند"
+          ],
+          "exclude": [],
+          "fields": [
+            {
+              "key": "doc_type",
+              "formula": "IFS(ISBLANK(doc_type), \"unknown\", CONTAINS(doc_type, \"مردود\"), \"sales_return\", CONTAINS(doc_type, \"فاتورة\"), \"sales_invoice\", CONTAINS(doc_type, \"قيد\"), \"journal_entry\", OR(CONTAINS(doc_type, \"return\"), CONTAINS(doc_type, \"credit note\")), \"sales_return\", CONTAINS(doc_type, \"invoice\"), \"sales_invoice\", OR(CONTAINS(doc_type, \"journal\"), CONTAINS(doc_type, \"commission\"), CONTAINS(doc_type, \"payment\")), \"journal_entry\", TRUE, \"unknown\")"
+            },
+            {
+              "key": "debit",
+              "formula": "MONEY(debit)"
+            },
+            {
+              "key": "credit",
+              "formula": "MONEY(credit)"
+            },
+            {
+              "key": "balance",
+              "formula": "MONEY(balance)"
+            },
+            {
+              "key": "order_no",
+              "formula": "COALESCE(REGEX(UPPER(order_no), \"SG-SH-\\d+\"), REGEX(UPPER(raw_desc), \"SG-SH-\\d+\"))"
+            }
+          ],
+          "filter": "NOT(AND(doc_type = \"unknown\", ISBLANK(doc_date)))",
+          "unique": {
+            "keys": [
+              "TEXT(doc_no)",
+              "TEXT(order_no)",
+              "doc_type",
+              "TEXT(doc_date)",
+              "TEXT(debit)",
+              "TEXT(credit)"
+            ],
+            "when": "TRUE",
+            "exception": null
+          },
+          "rejects": [],
+          "set": "statement",
+          "optional": false,
+          "first_only": false,
+          "missing_hint": "",
+          "manifest_role": null,
+          "counted": "TRUE"
+        }
+      ],
+      "kind": "rows",
+      "empty_message": null
+    },
+    {
+      "role": "promo",
+      "title": "Discount base sheet",
+      "caption": "Promotional SKUs",
+      "required": true,
+      "shown": true,
+      "sheets": [
+        {
+          "key": "promo",
+          "name": "discount base sheet",
+          "columns": [
+            {
+              "field": "sku",
+              "headers": [
+                "رمز المنتج"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": true
+            },
+            {
+              "field": "offer_price",
+              "headers": [
+                "سعر العرض"
+              ],
+              "required": false,
+              "type": "decimal",
+              "skip_if_blank": false
+            },
+            {
+              "field": "merchant_sku",
+              "headers": [
+                "رمز البائع"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            }
+          ],
+          "fingerprint": [
+            "رمز المنتج",
+            "سعر العرض"
+          ],
+          "exclude": [
+            "Order Number",
+            "GMV"
+          ],
+          "fields": [],
+          "filter": null,
+          "unique": null,
+          "rejects": [],
+          "set": null,
+          "optional": false,
+          "first_only": true,
+          "missing_hint": " Check that the right file went into that field.",
+          "manifest_role": null,
+          "counted": "TRUE"
+        }
+      ],
+      "kind": "rows",
+      "empty_message": null
+    },
+    {
+      "role": "settlements",
+      "title": "Settlement history",
+      "caption": "Optional · prior settlements, for clawbacks",
+      "required": false,
+      "shown": false,
+      "sheets": [
+        {
+          "key": "settlements",
+          "name": "settlement history",
+          "columns": [
+            {
+              "field": "order_no",
+              "headers": [
+                "order_no",
+                "Order Number",
+                "order no"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": true
+            },
+            {
+              "field": "amount_paid",
+              "headers": [
+                "amount_paid",
+                "amount paid",
+                "Paid"
+              ],
+              "required": true,
+              "type": "decimal",
+              "skip_if_blank": true
+            },
+            {
+              "field": "settled_on",
+              "headers": [
+                "settled_on",
+                "settled on",
+                "Date"
+              ],
+              "required": false,
+              "type": "date",
+              "skip_if_blank": false
+            },
+            {
+              "field": "cycle_ref",
+              "headers": [
+                "cycle_ref",
+                "cycle ref"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            }
+          ],
+          "fingerprint": [
+            "order_no"
+          ],
+          "exclude": [],
+          "fields": [
+            {
+              "key": "order_no",
+              "formula": "UPPER(order_no)"
+            }
+          ],
+          "filter": null,
+          "unique": null,
+          "rejects": [],
+          "set": null,
+          "optional": false,
+          "first_only": true,
+          "missing_hint": " Check that the right file went into that field.",
+          "manifest_role": null,
+          "counted": "TRUE"
+        }
+      ],
+      "kind": "rows",
+      "empty_message": null
+    },
+    {
+      "role": "wallet",
+      "title": "Wallet history",
+      "caption": "Optional · proves the wallet share",
+      "required": false,
+      "shown": true,
+      "sheets": [
+        {
+          "key": "history",
+          "name": "wallet history",
+          "columns": [
+            {
+              "field": "event_id",
+              "headers": [
+                "ID"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "wallet_type",
+              "headers": [
+                "Wallet Type"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "sg_order_id",
+              "headers": [
+                "SG Order ID"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "amount",
+              "headers": [
+                "Amount"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "message",
+              "headers": [
+                "Message"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "event_date",
+              "headers": [
+                "Date"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "payment_type",
+              "headers": [
+                "Payment Type"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            }
+          ],
+          "fingerprint": [
+            "Wallet Type",
+            "SG Order ID",
+            "Amount",
+            "Message"
+          ],
+          "exclude": [
+            "Partner Order ID",
+            "Order Total"
+          ],
+          "fields": [],
+          "filter": null,
+          "unique": null,
+          "rejects": [],
+          "set": null,
+          "optional": false,
+          "first_only": false,
+          "missing_hint": "",
+          "manifest_role": null,
+          "counted": "TRUE"
+        }
+      ],
+      "kind": "wallet",
+      "empty_message": null
+    },
+    {
+      "role": "finance",
+      "title": "Finance report",
+      "caption": "Optional · cashback by order number",
+      "required": false,
+      "shown": true,
+      "sheets": [
+        {
+          "key": "report",
+          "name": "finance report",
+          "columns": [
+            {
+              "field": "order_id",
+              "headers": [
+                "Order ID"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "reward_amount",
+              "headers": [
+                "Reward Amount (SAR)"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "vertical_name",
+              "headers": [
+                "Vertical Name"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "reward_code",
+              "headers": [
+                "Reward Code"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "reward_type",
+              "headers": [
+                "Reward Type"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "outcome",
+              "headers": [
+                "Outcome"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            }
+          ],
+          "fingerprint": [
+            "Spin Event ID",
+            "Order ID",
+            "Reward Amount (SAR)",
+            "Reward Code",
+            "Reward Type",
+            "Outcome",
+            "Vertical Name"
+          ],
+          "exclude": [
+            "MATCH ID'S",
+            "Match ID's",
+            "Partner Order ID"
+          ],
+          "fields": [],
+          "filter": null,
+          "unique": null,
+          "rejects": [],
+          "set": null,
+          "optional": false,
+          "first_only": false,
+          "missing_hint": "",
+          "manifest_role": null,
+          "counted": "TRUE"
+        }
+      ],
+      "kind": "reference",
+      "empty_message": null
+    }
+  ],
+  "parameters": [
+    {
+      "key": "standard_rate",
+      "label": "Standard commission rate",
+      "kind": "rate",
+      "value": "0.15",
+      "overridable": true
+    },
+    {
+      "key": "promo_rate",
+      "label": "Promotional commission rate",
+      "kind": "rate",
+      "value": "0.10",
+      "overridable": true
+    },
+    {
+      "key": "promo_cutoff",
+      "label": "Promotion ends (inclusive)",
+      "kind": "date",
+      "value": "2026-08-09",
+      "overridable": true
+    },
+    {
+      "key": "line_tolerance",
+      "label": "Line tolerance",
+      "kind": "tolerance",
+      "value": "0.01",
+      "overridable": false
+    },
+    {
+      "key": "order_tolerance",
+      "label": "Order tolerance",
+      "kind": "tolerance",
+      "value": "0.05",
+      "overridable": false
+    }
+  ],
+  "exceptions": [
+    {
+      "code": "ORDER_MISSING_IN_VENDOR",
+      "severity": "high",
+      "about": "On the portal, missing from the vendor's file."
+    },
+    {
+      "code": "MISSING_FROM_PORTAL",
+      "severity": "high",
+      "about": "On the vendor's file, missing from the portal."
+    },
+    {
+      "code": "AMOUNT_MISMATCH",
+      "severity": "high",
+      "about": "The portal's amount and the vendor's differ."
+    },
+    {
+      "code": "COMMISSION_OVERCHARGE",
+      "severity": "high",
+      "about": "Commission charged above the contract rate."
+    },
+    {
+      "code": "COMMISSION_WRONG_RATE",
+      "severity": "high",
+      "about": "Commission charged at another rate than the contract's."
+    },
+    {
+      "code": "RTO_WITHOUT_CREDIT_NOTE",
+      "severity": "high",
+      "about": "An RTO or return with no credit note reversing it."
+    },
+    {
+      "code": "CREDIT_NOTE_WITHOUT_RTO",
+      "severity": "high",
+      "about": "A credit note with no RTO or return behind it."
+    },
+    {
+      "code": "AMBIGUOUS_CREDIT_NOTE",
+      "severity": "high",
+      "about": "A credit note that fits more than one order."
+    },
+    {
+      "code": "CLAWBACK_UNRESOLVED",
+      "severity": "high",
+      "about": "An earlier payment that can't be taken back automatically."
+    },
+    {
+      "code": "PROMO_ABSORBED",
+      "severity": "info",
+      "about": "A coupon cut what we collected; we bear the shortfall."
+    },
+    {
+      "code": "PENDING_DELIVERY",
+      "severity": "info",
+      "about": "Payable, but not delivered yet."
+    },
+    {
+      "code": "PRIOR_PERIOD",
+      "severity": "info",
+      "about": "Belongs to an earlier period."
+    },
+    {
+      "code": "LATER_PERIOD",
+      "severity": "info",
+      "about": "Belongs to a later period."
+    },
+    {
+      "code": "WALLET_ENTRY_MISSING",
+      "severity": "high",
+      "about": "A wallet payment missing from the wallet history."
+    },
+    {
+      "code": "WALLET_AMOUNT_MISMATCH",
+      "severity": "high",
+      "about": "The wallet history's amount differs from the order's."
+    },
+    {
+      "code": "WALLET_OUT_OF_WINDOW",
+      "severity": "info",
+      "about": "The order falls outside the dates the wallet history covers."
+    },
+    {
+      "code": "WALLET_HISTORY_UNMATCHED",
+      "severity": "info",
+      "about": "A wallet movement with no order in this export."
+    },
+    {
+      "code": "WALLET_KEY_UNSTABLE",
+      "severity": "medium",
+      "about": "Few orders were found in the wallet history: its order IDs may have changed."
+    },
+    {
+      "code": "WALLET_ORDER_ID_MISSING",
+      "severity": "medium",
+      "about": "Wallet-paid orders with no SG Order ID, so they can't be checked."
+    }
+  ],
+  "labels": {
+    "match_state": {
+      "prior_period": "Prior period",
+      "later_period": "Later period",
+      "unmatched": "Missing from portal",
+      "ambiguous": "Ambiguous credit note",
+      "matched": "Matched"
+    }
+  },
+  "output": {
+    "tabs": [
+      {
+        "key": "dashboard",
+        "title": "Dashboard",
+        "kind": "dashboard",
+        "requires": null,
+        "source": null,
+        "sheet": null,
+        "header_format": null,
+        "hidden": [],
+        "header": "bands",
+        "columns": [],
+        "lookup_columns": [],
+        "sections": [],
+        "blocks": [
+          {
+            "label": "SG ESHOP ORDER Amount",
+            "value_label": "Vendor ESHOP ORDER Amount",
+            "headers": [
+              "Order",
+              "GMV",
+              "Vendor Amount",
+              "Amount Difference",
+              "SG Commission",
+              "Contract Commission",
+              "Round of differ",
+              "Net Payable",
+              "Wallet Amount",
+              "Non-Wallet Amount",
+              "Total collection",
+              "Portal total",
+              "T. Order - Collection Dif",
+              "Coupon disc",
+              "T. Remaining"
+            ],
+            "values": [
+              {
+                "metric": "payable_orders",
+                "kind": "int"
+              },
+              {
+                "metric": "gmv",
+                "kind": "money"
+              },
+              {
+                "metric": "vendor",
+                "kind": "money"
+              },
+              {
+                "metric": "amount_difference",
+                "kind": "money"
+              },
+              {
+                "metric": "actual_commission",
+                "kind": "money"
+              },
+              {
+                "metric": "commission_earned",
+                "kind": "money"
+              },
+              {
+                "metric": "round_off",
+                "kind": "money"
+              },
+              {
+                "metric": "net_payable",
+                "kind": "money"
+              },
+              {
+                "metric": "wallet",
+                "kind": "money"
+              },
+              {
+                "metric": "non_wallet",
+                "kind": "money"
+              },
+              {
+                "metric": "collection",
+                "kind": "money"
+              },
+              {
+                "metric": "gmv",
+                "kind": "money"
+              },
+              {
+                "metric": "collection_gap",
+                "kind": "money"
+              },
+              {
+                "metric": "coupon",
+                "kind": "money"
+              },
+              {
+                "metric": "remaining",
+                "kind": "money"
+              }
+            ],
+            "tall": true
+          },
+          {
+            "label": "Cash",
+            "value_label": null,
+            "headers": [
+              "Total Order Amount",
+              "Wallets",
+              "Other Method",
+              "Collection",
+              "Order-Collection",
+              "Promo Discount",
+              "Net Difference"
+            ],
+            "values": [
+              {
+                "metric": "gmv",
+                "kind": "money"
+              },
+              {
+                "metric": "wallet",
+                "kind": "money"
+              },
+              {
+                "metric": "non_wallet",
+                "kind": "money"
+              },
+              {
+                "metric": "collection",
+                "kind": "money"
+              },
+              {
+                "metric": "order_collection",
+                "kind": "money"
+              },
+              {
+                "metric": "coupon",
+                "kind": "money"
+              },
+              {
+                "metric": "net_difference",
+                "kind": "money"
+              }
+            ],
+            "tall": true
+          },
+          {
+            "label": "Shipping",
+            "value_label": null,
+            "headers": [
+              "SG Shipping",
+              "Merchant Shipping",
+              "TOTAL",
+              "Average Per Order"
+            ],
+            "values": [
+              {
+                "metric": "sg_shipping",
+                "kind": "money"
+              },
+              {
+                "metric": "merchant_shipping",
+                "kind": "money"
+              },
+              {
+                "metric": "shipping",
+                "kind": "money"
+              },
+              {
+                "metric": "average_shipping",
+                "kind": "money"
+              }
+            ],
+            "tall": true
+          },
+          {
+            "label": "Average Shipping share",
+            "value_label": null,
+            "headers": [
+              "By shoppinggate",
+              "By Vendor"
+            ],
+            "values": [
+              {
+                "metric": "sg_shipping_share",
+                "kind": "pct"
+              },
+              {
+                "metric": "merchant_shipping_share",
+                "kind": "pct"
+              }
+            ],
+            "tall": false
+          }
+        ],
+        "breakdown": {
+          "set": "included",
+          "parts": "brands",
+          "name": "key",
+          "basis": "gmv",
+          "totals": [
+            {
+              "key": "coupon",
+              "formula": "coupon"
+            },
+            {
+              "key": "expected",
+              "formula": "expected"
+            }
+          ],
+          "name_header": "Breakdown By Most Used",
+          "columns": [
+            {
+              "header": "Order Count",
+              "add": "count",
+              "value": null,
+              "when": "TRUE",
+              "kind": "int"
+            },
+            {
+              "header": "Discount Count",
+              "add": "count",
+              "value": null,
+              "when": "coupon <> 0",
+              "kind": "int"
+            },
+            {
+              "header": "Revenue By Brand",
+              "add": "sum",
+              "value": "coupon",
+              "when": "TRUE",
+              "kind": "money"
+            },
+            {
+              "header": "Applepay",
+              "add": "sum",
+              "value": "non_wallet_amount * share",
+              "when": "AND(CONTAINS(payment_type, \"apple\"), NOT(CONTAINS(payment_type, \"tamara\")))",
+              "kind": "money"
+            },
+            {
+              "header": "Tamara",
+              "add": "sum",
+              "value": "non_wallet_amount * share",
+              "when": "CONTAINS(payment_type, \"tamara\")",
+              "kind": "money"
+            },
+            {
+              "header": "Card",
+              "add": "sum",
+              "value": "non_wallet_amount * share",
+              "when": "AND(CONTAINS(payment_type, \"card\"), NOT(CONTAINS(payment_type, \"tamara\")), NOT(CONTAINS(payment_type, \"apple\")))",
+              "kind": "money"
+            },
+            {
+              "header": "Wallet",
+              "add": "sum",
+              "value": "wallet_amount * share",
+              "when": "TRUE",
+              "kind": "money"
+            },
+            {
+              "header": "Commission",
+              "add": "sum",
+              "value": "expected",
+              "when": "TRUE",
+              "kind": "money"
+            },
+            {
+              "header": "Total Shipping",
+              "add": "sum",
+              "value": "shipping_cost * share",
+              "when": "TRUE",
+              "kind": "money"
+            }
+          ],
+          "rank_by": 0,
+          "total": "whole"
+        },
+        "tolerances": {}
+      },
+      {
+        "key": "orders",
+        "title": "Orders",
+        "kind": "table",
+        "requires": null,
+        "source": null,
+        "sheet": null,
+        "header_format": null,
+        "hidden": [],
+        "header": "bands",
+        "columns": [
+          {
+            "key": "order_date",
+            "header": "Date",
+            "width": 14,
+            "group": "portal",
+            "kind": "date",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "merchant_id",
+            "header": "Merchant Id",
+            "width": 12,
+            "group": "portal",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order_no",
+            "header": "Order Number",
+            "width": 16,
+            "group": "portal",
+            "kind": "text",
+            "value": "key",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "lines",
+            "header": "Lines",
+            "width": 8,
+            "group": "portal",
+            "kind": "text",
+            "value": "n_lines",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "statuses",
+            "header": "Order Status",
+            "width": 18,
+            "group": "portal",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "gmv",
+            "header": "GMV",
+            "width": 12,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal_gmv",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "coupon_value",
+            "header": "Coupon Value",
+            "width": 12,
+            "group": "portal",
+            "kind": "money",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "actual",
+            "header": "SG Commission",
+            "width": 14,
+            "group": "portal",
+            "kind": "money",
+            "value": "actual_commission",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "payment_type",
+            "header": "Payment Type",
+            "width": 20,
+            "group": "portal",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "wallet",
+            "header": "Wallet Amount",
+            "width": 14,
+            "group": "portal",
+            "kind": "money",
+            "value": "wallet_amount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "non_wallet",
+            "header": "Non-Wallet Amount",
+            "width": 16,
+            "group": "portal",
+            "kind": "money",
+            "value": "non_wallet_amount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "shipping",
+            "header": "Shipping Cost",
+            "width": 12,
+            "group": "portal",
+            "kind": "money",
+            "value": "shipping_cost",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "match",
+            "header": "MATCH ID'S",
+            "width": 12,
+            "group": "check",
+            "kind": "text",
+            "value": "IF(matched, \"TRUE\", \"FALSE\")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "amount_diff",
+            "header": "ORDER AMOUNT DIFFERENCE",
+            "width": 18,
+            "group": "check",
+            "kind": "diff",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "standard_base",
+            "header": "Standard Base",
+            "width": 14,
+            "group": "check",
+            "kind": "money",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "promo_base",
+            "header": "Promo Base",
+            "width": 14,
+            "group": "check",
+            "kind": "money",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "expected",
+            "header": "Contract Commission",
+            "width": 16,
+            "group": "check",
+            "kind": "money",
+            "value": "expected_commission",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "variance",
+            "header": "COMMISSION VARIANCE",
+            "width": 16,
+            "group": "check",
+            "kind": "diff",
+            "value": "commission_variance",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "variance_class",
+            "header": "Variance Class",
+            "width": 16,
+            "group": "check",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "payable",
+            "header": "Payable",
+            "width": 14,
+            "group": "check",
+            "kind": "money",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "adjustments",
+            "header": "Adjustments",
+            "width": 14,
+            "group": "check",
+            "kind": "money",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "net_payable",
+            "header": "Net Payable",
+            "width": 14,
+            "group": "check",
+            "kind": "money",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "vendor_date",
+            "header": "Invoice Date",
+            "width": 14,
+            "group": "vendor",
+            "kind": "date",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "vendor_amount",
+            "header": "Invoice Amount",
+            "width": 14,
+            "group": "vendor",
+            "kind": "money",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "vendor_credit",
+            "header": "Credit Note Amount",
+            "width": 16,
+            "group": "vendor",
+            "kind": "money",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "verdict",
+            "header": "Verdict",
+            "width": 20,
+            "group": "meta",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          }
+        ],
+        "lookup_columns": [
+          {
+            "key": "cashback_reward",
+            "header": "Cash Back Reward",
+            "width": 18,
+            "group": "cashback",
+            "kind": "money",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": {
+              "sheet": "finance_copy",
+              "match": "order_id",
+              "value": "reward_amount",
+              "key_column": null,
+              "key_value": "order_digits"
+            }
+          },
+          {
+            "key": "vertical_name",
+            "header": "Vertical Name",
+            "width": 18,
+            "group": "cashback",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": {
+              "sheet": "finance_copy",
+              "match": "order_id",
+              "value": "vertical_name",
+              "key_column": null,
+              "key_value": "order_digits"
+            }
+          },
+          {
+            "key": "reward_code",
+            "header": "Reward Code",
+            "width": 16,
+            "group": "cashback",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": {
+              "sheet": "finance_copy",
+              "match": "order_id",
+              "value": "reward_code",
+              "key_column": null,
+              "key_value": "order_digits"
+            }
+          },
+          {
+            "key": "reward_type",
+            "header": "Reward Type",
+            "width": 14,
+            "group": "cashback",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": {
+              "sheet": "finance_copy",
+              "match": "order_id",
+              "value": "reward_type",
+              "key_column": null,
+              "key_value": "order_digits"
+            }
+          },
+          {
+            "key": "outcome",
+            "header": "Outcome",
+            "width": 12,
+            "group": "cashback",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": {
+              "sheet": "finance_copy",
+              "match": "order_id",
+              "value": "outcome",
+              "key_column": null,
+              "key_value": "order_digits"
+            }
+          }
+        ],
+        "sections": [
+          {
+            "kind": "rows",
+            "gap": 0,
+            "when": null,
+            "set": "included",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": true,
+            "lookups": true,
+            "autofilter": true,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {},
+            "styles": {}
+          },
+          {
+            "kind": "totals",
+            "gap": 0,
+            "when": "included",
+            "set": "included",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": true,
+            "lookups": false,
+            "autofilter": false,
+            "label": "Total, {count} in the payable",
+            "formats": {},
+            "rows": [],
+            "values": {},
+            "styles": {}
+          },
+          {
+            "kind": "block",
+            "gap": 1,
+            "when": "included",
+            "set": null,
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": true,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Payable before adjustments",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "dash_header"
+                  },
+                  {
+                    "col": 1,
+                    "to_col": null,
+                    "text": "Adjustments",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "dash_header"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": "Net payable",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "dash_header"
+                  },
+                  {
+                    "col": 3,
+                    "to_col": null,
+                    "text": "Vendor closing balance",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "dash_header"
+                  },
+                  {
+                    "col": 4,
+                    "to_col": null,
+                    "text": "Unexplained difference",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "dash_header"
+                  },
+                  {
+                    "col": 5,
+                    "to_col": null,
+                    "text": "Standard-rate base",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "dash_header"
+                  },
+                  {
+                    "col": 6,
+                    "to_col": null,
+                    "text": "Promo-rate base",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "dash_header"
+                  },
+                  {
+                    "col": 7,
+                    "to_col": null,
+                    "text": "Commission earned",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "dash_header"
+                  },
+                  {
+                    "col": 8,
+                    "to_col": null,
+                    "text": "Promotional absorption (we bear this)",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "dash_header"
+                  },
+                  {
+                    "col": 9,
+                    "to_col": null,
+                    "text": "Overcharged commission (owed back)",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "dash_header"
+                  }
+                ],
+                "height": 32
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": null,
+                    "metric": "payable_before_adjustments",
+                    "formula": null,
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 1,
+                    "to_col": null,
+                    "text": null,
+                    "metric": "adjustments",
+                    "formula": null,
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": "net_payable",
+                    "formula": null,
+                    "value": null,
+                    "format": "yellow"
+                  },
+                  {
+                    "col": 3,
+                    "to_col": null,
+                    "text": null,
+                    "metric": "vendor_closing_balance",
+                    "formula": null,
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 4,
+                    "to_col": null,
+                    "text": null,
+                    "metric": "unexplained_difference",
+                    "formula": null,
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 5,
+                    "to_col": null,
+                    "text": null,
+                    "metric": "standard_base",
+                    "formula": null,
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 6,
+                    "to_col": null,
+                    "text": null,
+                    "metric": "promo_base",
+                    "formula": null,
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 7,
+                    "to_col": null,
+                    "text": null,
+                    "metric": "commission_earned",
+                    "formula": null,
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 8,
+                    "to_col": null,
+                    "text": null,
+                    "metric": "promotional_absorption",
+                    "formula": null,
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 9,
+                    "to_col": null,
+                    "text": null,
+                    "metric": "overcharged_commission",
+                    "formula": null,
+                    "value": null,
+                    "format": "money"
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Rates applied: standard {standard_rate}, promo {promo_rate} on promotional SKUs ordered up to {promo_cutoff} inclusive. Commission base is always portal GMV. Shipping is settled outside this reconciliation and is never deducted.",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "info"
+                  }
+                ],
+                "height": null
+              }
+            ],
+            "values": {},
+            "styles": {}
+          },
+          {
+            "kind": "rows",
+            "gap": 1,
+            "when": null,
+            "set": "excluded",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": "Orders not in the payable, not in the totals",
+            "tolerances": true,
+            "lookups": true,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {},
+            "styles": {}
+          },
+          {
+            "kind": "rows",
+            "gap": 1,
+            "when": null,
+            "set": "statement_only",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": "Statement rows with no portal order, not in the totals",
+            "tolerances": false,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {
+              "order_no": "order_no",
+              "match": "\"FALSE\"",
+              "vendor_date": "doc_date",
+              "vendor_amount": "debit",
+              "vendor_credit": "credit",
+              "verdict": "LABEL(\"match_state\", IFS(ISBLANK(doc_date), \"unmatched\", doc_date < period_start, \"prior_period\", doc_date > period_end, \"later_period\", TRUE, \"unmatched\"))"
+            },
+            "styles": {}
+          }
+        ],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {
+          "amount_diff": "param.order_tolerance",
+          "variance": "param.line_tolerance"
+        }
+      },
+      {
+        "key": "exceptions",
+        "title": "Exceptions",
+        "kind": "table",
+        "requires": null,
+        "source": null,
+        "sheet": null,
+        "header_format": null,
+        "hidden": [],
+        "header": "plain",
+        "columns": [
+          {
+            "key": "severity",
+            "header": "Severity",
+            "width": 12,
+            "group": "meta",
+            "kind": "text",
+            "value": "TEXT(severity)",
+            "excel": null,
+            "color": null,
+            "style": "IF(severity = \"high\", \"high\", \"info\")",
+            "lookup": null
+          },
+          {
+            "key": "code",
+            "header": "Code",
+            "width": 32,
+            "group": "meta",
+            "kind": "text",
+            "value": "TEXT(code)",
+            "excel": null,
+            "color": null,
+            "style": "IF(severity = \"high\", \"high\", \"info\")",
+            "lookup": null
+          },
+          {
+            "key": "order_no",
+            "header": "Order",
+            "width": 18,
+            "group": "meta",
+            "kind": "text",
+            "value": "order_no",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "status",
+            "header": "Status",
+            "width": 36,
+            "group": "meta",
+            "kind": "text",
+            "value": "TEXT(order.statuses)",
+            "excel": null,
+            "color": null,
+            "style": "IF(severity = \"high\", \"high\", \"info\")",
+            "lookup": null
+          },
+          {
+            "key": "amount",
+            "header": "Amount",
+            "width": 16,
+            "group": "meta",
+            "kind": "money",
+            "value": "amount",
+            "excel": null,
+            "color": null,
+            "style": "\"money\"",
+            "lookup": null
+          },
+          {
+            "key": "detail",
+            "header": "Detail",
+            "width": 88,
+            "group": "meta",
+            "kind": "text",
+            "value": "detail",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          }
+        ],
+        "lookup_columns": [],
+        "sections": [
+          {
+            "kind": "rows",
+            "gap": 0,
+            "when": null,
+            "set": "exceptions",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": false,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {},
+            "styles": {}
+          }
+        ],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      },
+      {
+        "key": "wallet",
+        "title": "Wallet",
+        "kind": "table",
+        "requires": "wallet",
+        "source": null,
+        "sheet": null,
+        "header_format": null,
+        "hidden": [],
+        "header": "plain",
+        "columns": [
+          {
+            "key": "vertical",
+            "header": "Vertical",
+            "width": 10,
+            "group": "meta",
+            "kind": "string",
+            "value": "vertical",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "sg_order_id",
+            "header": "SG Order ID",
+            "width": 12,
+            "group": "meta",
+            "kind": "string",
+            "value": "sg_order_id",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order",
+            "header": "Order",
+            "width": 22,
+            "group": "meta",
+            "kind": "text",
+            "value": "booking_id",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order_date",
+            "header": "Order Date",
+            "width": 12,
+            "group": "meta",
+            "kind": "date",
+            "value": "order_date",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "portal_wallet",
+            "header": "Portal Wallet",
+            "width": 14,
+            "group": "meta",
+            "kind": "money",
+            "value": "portal_wallet_amount",
+            "excel": null,
+            "color": null,
+            "style": "\"money\"",
+            "lookup": null
+          },
+          {
+            "key": "history_paid",
+            "header": "History Paid",
+            "width": 14,
+            "group": "meta",
+            "kind": "money",
+            "value": "history_paid",
+            "excel": null,
+            "color": null,
+            "style": "\"money\"",
+            "lookup": null
+          },
+          {
+            "key": "history_refunded",
+            "header": "History Refunded",
+            "width": 16,
+            "group": "meta",
+            "kind": "money",
+            "value": "history_refunded",
+            "excel": null,
+            "color": null,
+            "style": "\"money\"",
+            "lookup": null
+          },
+          {
+            "key": "movements",
+            "header": "Movements",
+            "width": 11,
+            "group": "meta",
+            "kind": "text",
+            "value": "events",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "state",
+            "header": "State",
+            "width": 16,
+            "group": "meta",
+            "kind": "string",
+            "value": "TEXT(state)",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "difference",
+            "header": "Difference",
+            "width": 13,
+            "group": "meta",
+            "kind": "money",
+            "value": "diff",
+            "excel": null,
+            "color": null,
+            "style": "IF(state = \"amount_mismatch\", \"money_bad\", \"money\")",
+            "lookup": null
+          }
+        ],
+        "lookup_columns": [],
+        "sections": [
+          {
+            "kind": "rows",
+            "gap": 0,
+            "when": null,
+            "set": "wallet_checks",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": false,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {},
+            "styles": {}
+          },
+          {
+            "kind": "block",
+            "gap": 1,
+            "when": null,
+            "set": null,
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": true,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Wallet movements with no portal row",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "title"
+                  }
+                ],
+                "height": null
+              }
+            ],
+            "values": {},
+            "styles": {}
+          },
+          {
+            "kind": "rows",
+            "gap": 0,
+            "when": null,
+            "set": "wallet_unmatched",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": false,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {
+              "vertical": "vertical",
+              "sg_order_id": "sg_order_id",
+              "order_date": "event_date",
+              "portal_wallet": "amount",
+              "state": "IF(ISBLANK(message), BLANK(), message)"
+            },
+            "styles": {
+              "portal_wallet": "\"money\""
+            }
+          },
+          {
+            "kind": "block",
+            "gap": 1,
+            "when": null,
+            "set": null,
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": true,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Wallet history",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "title"
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "History covers",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "IF(AND(NOT(ISBLANK(wallet_check.window_start)), NOT(ISBLANK(wallet_check.window_end))), TEXT(wallet_check.window_start) & \" to \" & TEXT(wallet_check.window_end), \"no dated movements\")",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Wallet-paid rows checked",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.rows_checked",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Found, same amount",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.matched",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Found, amount disagreed",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.amount_mismatch",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Outside the history's window",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.out_of_window",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Missing from the history",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.missing",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Wallet-paid rows with no SG Order ID, not checked",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.unkeyed",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "History movements with no portal row",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "COUNTX(\"wallet_unmatched\")",
+                    "format": null
+                  }
+                ],
+                "height": null
+              }
+            ],
+            "values": {},
+            "styles": {}
+          }
+        ],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      },
+      {
+        "key": "b2c_invoices",
+        "title": "B2C Invoices ERP",
+        "kind": "table",
+        "requires": null,
+        "source": null,
+        "sheet": null,
+        "header_format": null,
+        "hidden": [],
+        "header": "plain",
+        "columns": [
+          {
+            "key": "partner",
+            "header": "Partner",
+            "width": 16,
+            "group": "meta",
+            "kind": "text",
+            "value": "TEXT(TRIM(TEXT(merchantname)))",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order_id",
+            "header": "Invoice Partner Display Name",
+            "width": 28,
+            "group": "meta",
+            "kind": "id",
+            "value": "TEXT(IDTEXT(ordernumber))",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "contact",
+            "header": "Contact Name",
+            "width": 24,
+            "group": "meta",
+            "kind": "text",
+            "value": "TEXT(BLANK())",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "bill_date",
+            "header": "Invoice/Bill Date",
+            "width": 18,
+            "group": "meta",
+            "kind": "datetime",
+            "value": "date",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "product",
+            "header": "Invoice lines/Product",
+            "width": 18,
+            "group": "meta",
+            "kind": "string",
+            "value": "TEXT(\"eShop Delivery\")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "quantity",
+            "header": "Invoice lines/Quantity",
+            "width": 22,
+            "group": "meta",
+            "kind": "text",
+            "value": "1",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "unit_price",
+            "header": "Invoice lines/Unit Price",
+            "width": 24,
+            "group": "meta",
+            "kind": "money",
+            "value": null,
+            "excel": "={cell:portal_copy.shippingcost}/1.15",
+            "color": null,
+            "style": "\"money\"",
+            "lookup": null
+          },
+          {
+            "key": "taxes",
+            "header": "Invoice lines/Taxes",
+            "width": 26,
+            "group": "meta",
+            "kind": "string",
+            "value": "\"Domestic Sales (15%)\"",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          }
+        ],
+        "lookup_columns": [],
+        "sections": [
+          {
+            "kind": "rows",
+            "gap": 0,
+            "when": null,
+            "set": null,
+            "upload": "portal",
+            "where": "AND(IDTEXT(ordernumber) <> \"\", NOT(ISBLANK(LOOKUP(\"billed\", UPPER(CLEAN(IDTEXT(ordernumber)))))), ISTEXT(shippingownership), TRIM(shippingownership) = \"sg\", ISNUMBER(shippingcost), shippingcost > 0)",
+            "contacts": null,
+            "title": null,
+            "tolerances": false,
+            "lookups": false,
+            "autofilter": true,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {},
+            "styles": {}
+          }
+        ],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      },
+      {
+        "key": "portal_copy",
+        "title": "Portal",
+        "kind": "table",
+        "requires": null,
+        "source": "portal",
+        "sheet": "portal",
+        "header_format": "portal_header",
+        "hidden": [],
+        "header": "bands",
+        "columns": [],
+        "lookup_columns": [],
+        "sections": [],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      },
+      {
+        "key": "vendor_copy",
+        "title": "Vendor",
+        "kind": "table",
+        "requires": null,
+        "source": "vendor",
+        "sheet": "ledger",
+        "header_format": "vendor_header",
+        "hidden": [],
+        "header": "bands",
+        "columns": [],
+        "lookup_columns": [],
+        "sections": [],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      },
+      {
+        "key": "finance_copy",
+        "title": "Finance Report",
+        "kind": "table",
+        "requires": "finance",
+        "source": "finance",
+        "sheet": "report",
+        "header_format": "cashback_header",
+        "hidden": [],
+        "header": "bands",
+        "columns": [],
+        "lookup_columns": [],
+        "sections": [],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      }
+    ],
+    "texts": [
+      {
+        "key": "standard_rate",
+        "formula": "PERCENT(param.standard_rate, 2)"
+      },
+      {
+        "key": "promo_rate",
+        "formula": "PERCENT(param.promo_rate, 2)"
+      },
+      {
+        "key": "promo_cutoff",
+        "formula": "TEXT(param.promo_cutoff)"
+      }
+    ]
+  },
+  "model": {
+    "builder": "group",
+    "lookups": [
+      {
+        "key": "promo",
+        "set": "promo",
+        "by": "sku",
+        "value": "TRUE",
+        "combine": "first",
+        "then": null
+      },
+      {
+        "key": "settled",
+        "set": "settlements",
+        "by": "order_no",
+        "value": "amount_paid",
+        "combine": "last",
+        "then": null
+      },
+      {
+        "key": "order_gmv",
+        "set": "portal",
+        "by": "order_no",
+        "value": "gmv",
+        "combine": "sum",
+        "then": "MONEY(value)"
+      },
+      {
+        "key": "billed",
+        "set": "billed",
+        "by": "key",
+        "value": "TRUE",
+        "combine": "first",
+        "then": null
+      }
+    ],
+    "row_fields": [
+      {
+        "set": "portal",
+        "fields": [
+          {
+            "key": "rate",
+            "formula": "IF(AND(NOT(ISBLANK(sku)), NOT(ISBLANK(LOOKUP(\"promo\", sku))), order_date <= param.promo_cutoff), param.promo_rate, param.standard_rate)"
+          },
+          {
+            "key": "expected",
+            "formula": "gmv * rate"
+          },
+          {
+            "key": "variance",
+            "formula": "actual_commission - expected"
+          },
+          {
+            "key": "variance_class",
+            "formula": "IFS(ABS(actual_commission - expected) <= param.line_tolerance, \"clean\", actual_commission - expected > param.line_tolerance, \"overcharge\", OR(AND(rate <> param.standard_rate, ABS(MONEY(gmv * param.standard_rate) - actual_commission) <= param.line_tolerance), AND(rate <> param.promo_rate, ABS(MONEY(gmv * param.promo_rate) - actual_commission) <= param.line_tolerance)), \"wrong_rate\", TRUE, \"promo_absorbed\")"
+          }
+        ]
+      },
+      {
+        "set": "statement",
+        "fields": [
+          {
+            "key": "amount",
+            "formula": "IFS(N(credit) <> 0, credit, N(debit) <> 0, debit, TRUE, 0)"
+          },
+          {
+            "key": "unresolved",
+            "formula": "AND(ISBLANK(order_no), NOT(ISBLANK(raw_ref)))"
+          },
+          {
+            "key": "candidates",
+            "formula": "IF(unresolved, PREFIXCOUNT(\"order_gmv\", UPPER(raw_ref)), 0)"
+          },
+          {
+            "key": "resolved",
+            "formula": "IF(unresolved, MATCHPREFIX(\"order_gmv\", UPPER(raw_ref), amount, param.order_tolerance), BLANK())"
+          },
+          {
+            "key": "ambiguous",
+            "formula": "AND(candidates > 1, ISBLANK(resolved))"
+          },
+          {
+            "key": "order_no",
+            "formula": "COALESCE(order_no, resolved)"
+          }
+        ]
+      }
+    ],
+    "sides": [],
+    "members": [
+      {
+        "set": "portal",
+        "key": "order_no",
+        "name": "lines",
+        "primary": [],
+        "repeats": null
+      },
+      {
+        "set": "statement",
+        "key": "order_no",
+        "name": "entries",
+        "primary": [],
+        "repeats": null
+      }
+    ],
+    "groups": [
+      {
+        "name": "brands",
+        "of": "lines",
+        "key": "COALESCE(brand, \"Unknown\")",
+        "fields": [
+          {
+            "key": "gmv",
+            "formula": "MONEY(SUMX(\"lines\", gmv))"
+          },
+          {
+            "key": "coupon",
+            "formula": "MONEY(SUMX(\"lines\", N(coupon_value)))"
+          },
+          {
+            "key": "expected",
+            "formula": "SUMX(\"lines\", expected)"
+          }
+        ]
+      }
+    ],
+    "fields": [
+      {
+        "key": "n_lines",
+        "formula": "COUNTX(\"lines\")"
+      },
+      {
+        "key": "n_entries",
+        "formula": "COUNTX(\"entries\")"
+      },
+      {
+        "key": "order_date",
+        "formula": "MINX(\"lines\", order_date)"
+      },
+      {
+        "key": "merchant_id",
+        "formula": "COALESCEX(\"lines\", merchant_id)"
+      },
+      {
+        "key": "gmv_raw",
+        "formula": "SUMX(\"lines\", gmv)"
+      },
+      {
+        "key": "expected_raw",
+        "formula": "SUMX(\"lines\", expected)"
+      },
+      {
+        "key": "actual_raw",
+        "formula": "SUMX(\"lines\", actual_commission)"
+      },
+      {
+        "key": "promo_raw",
+        "formula": "SUMX(\"lines\", IF(rate = param.promo_rate, gmv, 0))"
+      },
+      {
+        "key": "standard_raw",
+        "formula": "SUMX(\"lines\", IF(rate = param.promo_rate, 0, gmv))"
+      },
+      {
+        "key": "absorbed_raw",
+        "formula": "SUMX(\"lines\", IF(variance_class = \"promo_absorbed\", -variance, 0))"
+      },
+      {
+        "key": "overcharged_raw",
+        "formula": "SUMX(\"lines\", IF(variance_class = \"overcharge\", variance, 0))"
+      },
+      {
+        "key": "statuses",
+        "formula": "JOINX(\"lines\", status, \", \", TRUE)"
+      },
+      {
+        "key": "has_rto",
+        "formula": "COUNTX(\"lines\", status = \"RTO\") > 0"
+      },
+      {
+        "key": "has_return",
+        "formula": "COUNTX(\"lines\", status = \"Return\") > 0"
+      },
+      {
+        "key": "has_ready",
+        "formula": "COUNTX(\"lines\", status = \"Ready to Pickup\") > 0"
+      },
+      {
+        "key": "paid",
+        "formula": "IF(COUNTX(\"lines\", N(amount_paid) <> 0) > 0, SUMX(\"lines\", IF(N(amount_paid) <> 0, amount_paid, 0)), BLANK())"
+      },
+      {
+        "key": "settled",
+        "formula": "IF(N(paid) <> 0, paid, LOOKUP(\"settled\", key))"
+      },
+      {
+        "key": "treatment",
+        "formula": "IFS(AND(has_rto, N(settled) <> 0), \"CLAWBACK\", has_rto, \"RTO_EXCLUDED\", has_return, \"RETURN_ADJUSTED\", has_ready, \"PENDING_DELIVERY\")"
+      },
+      {
+        "key": "included",
+        "formula": "NOT(has_rto)"
+      },
+      {
+        "key": "portal_gmv",
+        "formula": "MONEY(gmv_raw)"
+      },
+      {
+        "key": "expected_commission",
+        "formula": "MONEY(expected_raw)"
+      },
+      {
+        "key": "actual_commission",
+        "formula": "MONEY(actual_raw)"
+      },
+      {
+        "key": "payable",
+        "formula": "IF(has_rto, MONEY(0), MONEY(gmv_raw - expected_raw))"
+      },
+      {
+        "key": "adjustments",
+        "formula": "IFS(treatment = \"CLAWBACK\", MONEY(-settled), has_rto, MONEY(0), has_return, MONEY(-portal_gmv), TRUE, MONEY(0))"
+      },
+      {
+        "key": "net_payable",
+        "formula": "MONEY(payable + adjustments)"
+      },
+      {
+        "key": "commission_variance",
+        "formula": "MONEY(actual_raw - expected_raw)"
+      },
+      {
+        "key": "dominant_rate",
+        "formula": "IF(promo_raw > standard_raw, param.promo_rate, param.standard_rate)"
+      },
+      {
+        "key": "variance_class",
+        "formula": "IFS(ABS(actual_raw - expected_raw) <= param.line_tolerance, \"clean\", actual_raw - expected_raw > param.line_tolerance, \"overcharge\", OR(AND(dominant_rate <> param.standard_rate, ABS(MONEY(gmv_raw * param.standard_rate) - actual_raw) <= param.line_tolerance), AND(dominant_rate <> param.promo_rate, ABS(MONEY(gmv_raw * param.promo_rate) - actual_raw) <= param.line_tolerance)), \"wrong_rate\", TRUE, \"promo_absorbed\")"
+      },
+      {
+        "key": "promo_base",
+        "formula": "MONEY(IF(included, promo_raw, 0))"
+      },
+      {
+        "key": "standard_base",
+        "formula": "MONEY(IF(included, standard_raw, 0))"
+      },
+      {
+        "key": "absorbed_commission",
+        "formula": "MONEY(absorbed_raw)"
+      },
+      {
+        "key": "payment_type",
+        "formula": "COALESCEX(\"lines\", payment_type)"
+      },
+      {
+        "key": "wallet_amount",
+        "formula": "MONEY(N(COALESCEX(\"lines\", wallet_amount)))"
+      },
+      {
+        "key": "non_wallet_amount",
+        "formula": "MONEY(N(COALESCEX(\"lines\", non_wallet_amount)))"
+      },
+      {
+        "key": "coupon_value",
+        "formula": "MONEY(SUMX(\"lines\", N(coupon_value)))"
+      },
+      {
+        "key": "shipping_cost",
+        "formula": "MONEY(SUMX(\"lines\", N(shipping_cost)))"
+      },
+      {
+        "key": "sg_shipping",
+        "formula": "MONEY(SUMX(\"lines\", IF(shipping_owner = \"sg\", N(shipping_cost), 0)))"
+      },
+      {
+        "key": "matched",
+        "formula": "n_entries > 0"
+      },
+      {
+        "key": "e_debit",
+        "formula": "SUMX(\"entries\", N(debit))"
+      },
+      {
+        "key": "e_credit",
+        "formula": "SUMX(\"entries\", N(credit))"
+      },
+      {
+        "key": "first_date",
+        "formula": "MINX(\"entries\", doc_date)"
+      },
+      {
+        "key": "has_credit_note",
+        "formula": "COUNTX(\"entries\", doc_type = \"sales_return\") > 0"
+      },
+      {
+        "key": "vendor_amount",
+        "formula": "IF(matched, MONEY(e_debit), BLANK())"
+      },
+      {
+        "key": "vendor_credit",
+        "formula": "IF(matched, MONEY(e_credit), BLANK())"
+      },
+      {
+        "key": "vendor_date",
+        "formula": "IF(matched, first_date, BLANK())"
+      },
+      {
+        "key": "amount_diff",
+        "formula": "IF(matched, MONEY(portal_gmv - e_debit), BLANK())"
+      },
+      {
+        "key": "reversing",
+        "formula": "IFS(AND(has_rto, has_return), \"RTO/Return\", has_rto, \"RTO\", has_return, \"Return\")"
+      },
+      {
+        "key": "order_digits",
+        "formula": "IF(ISBLANK(REGEX(key, \"(\\d+)$\", 1)), BLANK(), TEXT(INTEGER(REGEX(key, \"(\\d+)$\", 1))))"
+      },
+      {
+        "key": "statement_amount",
+        "formula": "MONEY(IF(e_debit <> 0, e_debit, e_credit))"
+      }
+    ],
+    "context": [
+      {
+        "key": "period_start",
+        "formula": "IF(COUNTX(\"current\") > 0, MINX(\"current\", order_date), MINX(\"orders\", order_date))"
+      },
+      {
+        "key": "period_end",
+        "formula": "IF(COUNTX(\"current\") > 0, MAXX(\"current\", order_date), MAXX(\"orders\", order_date))"
+      }
+    ],
+    "stops": [
+      {
+        "when": "DISTINCTX(\"portal\", merchant_id) > 1",
+        "message": "\"The portal export covers more than one merchant (\" & JOINX(\"portal\", merchant_id, \", \", TRUE) & \"). Reconcile one vendor per run.\"",
+        "about": "The portal export holds more than one merchant: a run reconciles one vendor at a time."
+      }
+    ],
+    "row_rules": [
+      {
+        "code": "AMBIGUOUS_CREDIT_NOTE",
+        "detail": "\"Reference \" & QUOTE(raw_ref) & \" prefix-matches \" & candidates & \" orders (\" & PREFIXKEYS(\"order_gmv\", UPPER(raw_ref)) & \") and the amount \" & amount & \" did not separate them\"",
+        "amount": "amount",
+        "order_no": null,
+        "over": "statement",
+        "when": "ambiguous",
+        "about": "A credit note's reference is cut short and fits several orders, and its amount doesn't tell which."
+      }
+    ],
+    "rules": [
+      {
+        "when": "n_lines = 0",
+        "verdict": "statement_only",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": null,
+        "about": "Only on the vendor statement: the portal has no lines for it."
+      },
+      {
+        "when": "treatment = \"CLAWBACK\"",
+        "verdict": "Clawback",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": null,
+        "about": "An RTO an earlier cycle already paid: the payment is taken back."
+      },
+      {
+        "when": "treatment = \"RTO_EXCLUDED\"",
+        "verdict": "RTO excluded",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": null,
+        "about": "Returned to origin (RTO): left out of the payable."
+      },
+      {
+        "when": "NOT(matched)",
+        "verdict": "Missing from vendor",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": null,
+        "about": "In the portal export but not on the vendor statement."
+      },
+      {
+        "when": "ABS(amount_diff) > param.order_tolerance",
+        "verdict": "Amount mismatch",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": null,
+        "about": "On both, but the amounts differ by more than the order tolerance."
+      },
+      {
+        "when": "treatment = \"RETURN_ADJUSTED\"",
+        "verdict": "Return adjusted",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": null,
+        "about": "A return: paid, then reversed."
+      },
+      {
+        "when": "treatment = \"PENDING_DELIVERY\"",
+        "verdict": "Pending delivery",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": null,
+        "about": "Ready to pick up: payable, but not delivered yet."
+      },
+      {
+        "when": "TRUE",
+        "verdict": "Matched",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": null,
+        "about": "Everything else: the order matches."
+      }
+    ],
+    "checks": [],
+    "findings": [
+      {
+        "code": "ORDER_MISSING_IN_VENDOR",
+        "detail": "\"Present in the portal export, absent from the vendor statement\"",
+        "amount": "portal_gmv",
+        "order_no": null,
+        "when": "AND(n_lines > 0, NOT(matched))",
+        "about": "The order is in the portal export but not on the vendor statement.",
+        "each": null
+      },
+      {
+        "code": "AMOUNT_MISMATCH",
+        "detail": "\"Portal \" & portal_gmv & \" vs statement \" & MONEY(e_debit)",
+        "amount": "amount_diff",
+        "order_no": null,
+        "when": "AND(n_lines > 0, matched, ABS(amount_diff) > param.order_tolerance)",
+        "about": "The statement's amount differs from the portal's by more than the order tolerance.",
+        "each": null
+      },
+      {
+        "code": "RTO_WITHOUT_CREDIT_NOTE",
+        "detail": "\"Status \" & reversing & \" with no reversing credit note in the statement\"",
+        "amount": "portal_gmv",
+        "order_no": null,
+        "when": "AND(n_lines > 0, matched, OR(has_rto, has_return), NOT(has_credit_note))",
+        "about": "An RTO or return with no credit note reversing it on the statement.",
+        "each": null
+      },
+      {
+        "code": "CREDIT_NOTE_WITHOUT_RTO",
+        "detail": "\"Credit note in the statement with no RTO or Return in the portal\"",
+        "amount": "MONEY(e_credit)",
+        "order_no": null,
+        "when": "AND(n_lines > 0, matched, has_credit_note, NOT(OR(has_rto, has_return)))",
+        "about": "A credit note on the statement with no RTO or return in the portal.",
+        "each": null
+      },
+      {
+        "code": "MISSING_FROM_PORTAL",
+        "detail": "\"In the statement with no usable invoice date and no portal counterpart\"",
+        "amount": "statement_amount",
+        "order_no": null,
+        "when": "AND(n_lines = 0, ISBLANK(first_date))",
+        "about": "A statement order with no portal lines and no usable invoice date.",
+        "each": null
+      },
+      {
+        "code": "PRIOR_PERIOD",
+        "detail": "\"Invoiced \" & first_date & \", before the period opened on \" & period_start",
+        "amount": "statement_amount",
+        "order_no": null,
+        "when": "AND(n_lines = 0, first_date < period_start)",
+        "about": "A statement order with no portal lines, invoiced before the period.",
+        "each": null
+      },
+      {
+        "code": "LATER_PERIOD",
+        "detail": "\"Invoiced \" & first_date & \", after the period closed on \" & period_end",
+        "amount": "statement_amount",
+        "order_no": null,
+        "when": "AND(n_lines = 0, first_date > period_end)",
+        "about": "A statement order with no portal lines, invoiced after the period.",
+        "each": null
+      },
+      {
+        "code": "MISSING_FROM_PORTAL",
+        "detail": "\"Invoiced \" & first_date & \", inside the period, but absent from the portal\"",
+        "amount": "statement_amount",
+        "order_no": null,
+        "when": "AND(n_lines = 0, NOT(ISBLANK(first_date)), first_date >= period_start, first_date <= period_end)",
+        "about": "A statement order invoiced inside the period, but missing from the portal.",
+        "each": null
+      },
+      {
+        "code": "COMMISSION_OVERCHARGE",
+        "detail": "\"Charged \" & actual_commission & \" against a contractual \" & expected_commission & \"; the excess is owed back to the vendor\"",
+        "amount": "commission_variance",
+        "order_no": null,
+        "when": "AND(n_lines > 0, variance_class = \"overcharge\")",
+        "about": "The commission charged is above the contract rate: the excess is owed back to the vendor.",
+        "each": null
+      },
+      {
+        "code": "COMMISSION_WRONG_RATE",
+        "detail": "\"Charged \" & actual_commission & \", which matches a different configured rate — investigate as a system error\"",
+        "amount": "commission_variance",
+        "order_no": null,
+        "when": "AND(n_lines > 0, variance_class = \"wrong_rate\")",
+        "about": "The commission charged matches another rate than the contract's.",
+        "each": null
+      },
+      {
+        "code": "PROMO_ABSORBED",
+        "detail": "\"A coupon reduced what we collected; we bear the shortfall and the vendor is still paid on the contractual rate\"",
+        "amount": "absorbed_commission",
+        "order_no": null,
+        "when": "AND(n_lines > 0, variance_class = \"promo_absorbed\")",
+        "about": "A coupon cut what we collected; we bear the shortfall.",
+        "each": null
+      },
+      {
+        "code": "PENDING_DELIVERY",
+        "detail": "\"Ready to Pickup — payable but not yet delivered\"",
+        "amount": "net_payable",
+        "order_no": null,
+        "when": "treatment = \"PENDING_DELIVERY\"",
+        "about": "Ready to pick up: payable, but not delivered yet.",
+        "each": null
+      },
+      {
+        "code": "CLAWBACK_UNRESOLVED",
+        "detail": "\"RTO excluded from payable. No prior settlement is recorded, so any earlier overpayment cannot be clawed back automatically\"",
+        "amount": "portal_gmv",
+        "order_no": null,
+        "when": "AND(treatment = \"RTO_EXCLUDED\", ISBLANK(LOOKUP(\"settled\", key)))",
+        "about": "An RTO with no earlier payment on record, so an overpayment can't be taken back automatically.",
+        "each": null
+      }
+    ],
+    "run_rules": [],
+    "sort": [
+      "key"
+    ],
+    "wallet": {
+      "rows": "orders",
+      "excluded": null,
+      "vertical": "\"eshop\"",
+      "wallet_types": {
+        "eshoporder": "eshop",
+        "eshoporders": "eshop",
+        "eshop": "eshop"
+      },
+      "strip": "-",
+      "sg_order_id": "order_digits",
+      "reference": "key",
+      "order_date": "order_date",
+      "amount": "wallet_amount",
+      "tolerance": "param.line_tolerance"
+    },
+    "sets": [
+      {
+        "key": "orders",
+        "over": "entities",
+        "where": "n_lines > 0",
+        "about": "Orders with at least one portal line."
+      },
+      {
+        "key": "included",
+        "over": "orders",
+        "where": "included",
+        "about": "Orders in the payable."
+      },
+      {
+        "key": "excluded",
+        "over": "orders",
+        "where": "NOT(included)",
+        "about": "Orders left out of the payable (RTOs)."
+      },
+      {
+        "key": "current",
+        "over": "orders",
+        "where": "treatment <> \"CLAWBACK\"",
+        "about": "This cycle's orders: all but the clawbacks."
+      },
+      {
+        "key": "billed",
+        "over": "orders",
+        "where": "AND(included, matched)",
+        "about": "Orders in the payable that are also on the statement."
+      },
+      {
+        "key": "statement_only",
+        "over": "statement",
+        "where": "AND(NOT(ISBLANK(order_no)), ISBLANK(LOOKUP(\"order_gmv\", order_no)), NOT(ISBLANK(doc_no)))",
+        "about": "Statement rows for an order the portal doesn't have."
+      },
+      {
+        "key": "balanced",
+        "over": "statement",
+        "where": "AND(NOT(ISBLANK(doc_date)), NOT(ISBLANK(balance)))",
+        "about": "Statement rows with a date and a running balance."
+      },
+      {
+        "key": "closing_rows",
+        "over": "balanced",
+        "where": "doc_date = closing_date",
+        "about": "The statement's rows on its closing date."
+      }
+    ],
+    "metrics": [
+      {
+        "key": "gross_sales",
+        "formula": "MONEY(SUMX(\"orders\", gmv_raw))"
+      },
+      {
+        "key": "standard_base",
+        "formula": "MONEY(SUMX(\"included\", standard_raw))"
+      },
+      {
+        "key": "promo_base",
+        "formula": "MONEY(SUMX(\"included\", promo_raw))"
+      },
+      {
+        "key": "commission_earned",
+        "formula": "MONEY(SUMX(\"included\", expected_raw))"
+      },
+      {
+        "key": "payable_before_adjustments",
+        "formula": "MONEY(SUMX(\"included\", gmv_raw) - SUMX(\"included\", expected_raw))"
+      },
+      {
+        "key": "adjustments",
+        "formula": "MONEY(SUMX(\"orders\", adjustments))"
+      },
+      {
+        "key": "net_payable",
+        "formula": "MONEY(payable_before_adjustments + adjustments)"
+      },
+      {
+        "key": "closing_date",
+        "formula": "MAXX(\"balanced\", doc_date)"
+      },
+      {
+        "key": "vendor_closing_balance",
+        "formula": "MONEY(LASTX(\"closing_rows\", balance))"
+      },
+      {
+        "key": "unexplained_difference",
+        "formula": "MONEY(vendor_closing_balance - net_payable)"
+      },
+      {
+        "key": "promotional_absorption",
+        "formula": "MONEY(SUMX(\"orders\", absorbed_raw))"
+      },
+      {
+        "key": "overcharged_commission",
+        "formula": "MONEY(SUMX(\"orders\", overcharged_raw))"
+      },
+      {
+        "key": "portal_lines",
+        "formula": "COUNTX(\"portal\")"
+      },
+      {
+        "key": "orders",
+        "formula": "COUNTX(\"orders\")"
+      },
+      {
+        "key": "ledger_entries",
+        "formula": "COUNTX(\"statement\")"
+      },
+      {
+        "key": "orders_matched",
+        "formula": "COUNTX(\"orders\", matched)"
+      },
+      {
+        "key": "orders_exact",
+        "formula": "COUNTX(\"orders\", AND(matched, amount_diff = 0))"
+      },
+      {
+        "key": "merchant_id",
+        "formula": "ONLYX(\"orders\", merchant_id)"
+      },
+      {
+        "key": "payable_orders",
+        "formula": "COUNTX(\"included\")"
+      },
+      {
+        "key": "gmv",
+        "formula": "SUMX(\"included\", portal_gmv)"
+      },
+      {
+        "key": "vendor",
+        "formula": "SUMX(\"included\", N(vendor_amount))"
+      },
+      {
+        "key": "amount_difference",
+        "formula": "SUMX(\"included\", N(amount_diff))"
+      },
+      {
+        "key": "actual_commission",
+        "formula": "SUMX(\"included\", actual_commission)"
+      },
+      {
+        "key": "round_off",
+        "formula": "actual_commission - commission_earned"
+      },
+      {
+        "key": "wallet",
+        "formula": "SUMX(\"included\", wallet_amount)"
+      },
+      {
+        "key": "non_wallet",
+        "formula": "SUMX(\"included\", non_wallet_amount)"
+      },
+      {
+        "key": "collection",
+        "formula": "wallet + non_wallet"
+      },
+      {
+        "key": "collection_gap",
+        "formula": "collection - gmv"
+      },
+      {
+        "key": "coupon",
+        "formula": "SUMX(\"included\", coupon_value)"
+      },
+      {
+        "key": "remaining",
+        "formula": "coupon + collection - gmv"
+      },
+      {
+        "key": "order_collection",
+        "formula": "gmv - collection"
+      },
+      {
+        "key": "net_difference",
+        "formula": "gmv - collection - coupon"
+      },
+      {
+        "key": "sg_shipping",
+        "formula": "SUMX(\"included\", sg_shipping)"
+      },
+      {
+        "key": "shipping",
+        "formula": "SUMX(\"included\", shipping_cost)"
+      },
+      {
+        "key": "merchant_shipping",
+        "formula": "shipping - sg_shipping"
+      },
+      {
+        "key": "average_shipping",
+        "formula": "IF(payable_orders = 0, 0, shipping / payable_orders)"
+      },
+      {
+        "key": "sg_shipping_share",
+        "formula": "IF(shipping = 0, 0, sg_shipping / shipping)"
+      },
+      {
+        "key": "merchant_shipping_share",
+        "formula": "IF(shipping = 0, 0, merchant_shipping / shipping)"
+      }
+    ],
+    "history": {
+      "counted": "COUNTX(\"included\")",
+      "total": "COUNTX(\"orders\")",
+      "unit": "\"orders\"",
+      "net_payable": "net_payable",
+      "vendor": "merchant_id",
+      "period_start": "period_start",
+      "period_end": "period_end",
+      "report_name": "\"reconciliation-eshop-\" & period_start & \"-to-\" & period_end & \".xlsx\""
+    }
+  }
+}

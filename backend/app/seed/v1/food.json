@@ -1,0 +1,3443 @@
+{
+  "schema_version": 1,
+  "category": "food",
+  "engine": "generic",
+  "inputs": [
+    {
+      "role": "portal",
+      "title": "Portal export",
+      "caption": "Orders from the portal",
+      "required": true,
+      "shown": true,
+      "sheets": [
+        {
+          "key": "portal",
+          "name": "food portal export",
+          "columns": [
+            {
+              "field": "sg_order_id",
+              "headers": [
+                "SG Order ID"
+              ],
+              "required": false,
+              "type": "id",
+              "skip_if_blank": false
+            },
+            {
+              "field": "order_id",
+              "headers": [
+                "Partner Order ID"
+              ],
+              "required": true,
+              "type": "id",
+              "skip_if_blank": true
+            },
+            {
+              "field": "vertical",
+              "headers": [
+                "Vertical"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "order_date",
+              "headers": [
+                "Order Date"
+              ],
+              "required": false,
+              "type": "date",
+              "skip_if_blank": false
+            },
+            {
+              "field": "order_time",
+              "headers": [
+                "Order Time"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "provider",
+              "headers": [
+                "Provider Name"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "food_order_type",
+              "headers": [
+                "Food Order Type"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "restaurant_id",
+              "headers": [
+                "Restaurant ID/Seller ID"
+              ],
+              "required": false,
+              "type": "id",
+              "skip_if_blank": false
+            },
+            {
+              "field": "restaurant_name",
+              "headers": [
+                "Restaurant Name"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "transaction_id",
+              "headers": [
+                "Transaction ID"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "order_status",
+              "headers": [
+                "Order Status"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": true
+            },
+            {
+              "field": "payment_status",
+              "headers": [
+                "Payment Status"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "payment_method",
+              "headers": [
+                "Payment Method"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "sub_total",
+              "headers": [
+                "Sub Total"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "promocode",
+              "headers": [
+                "Promocode"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "discount",
+              "headers": [
+                "SG Discount/Promo Amount"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "sg_delivery",
+              "headers": [
+                "SG Delivery Expense"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "vat",
+              "headers": [
+                "VAT"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "order_total",
+              "headers": [
+                "Order Total"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "total_amount",
+              "headers": [
+                "Total Amount"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "stated_rate",
+              "headers": [
+                "SG Comission %",
+                "SG Commission %"
+              ],
+              "required": false,
+              "type": "rate",
+              "skip_if_blank": false
+            },
+            {
+              "field": "commission_amount",
+              "headers": [
+                "Commission Amount"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "partner_payout",
+              "headers": [
+                "Partner Payout"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "commission_charged",
+              "headers": [
+                "Commission Charged"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "wallet_amount",
+              "headers": [
+                "Wallet Amount"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "card_amount",
+              "headers": [
+                "Applepay/Card Amount"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "refund_amount",
+              "headers": [
+                "Refund Amount"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "compensation_amount",
+              "headers": [
+                "Compensation Amount"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "net_payable",
+              "headers": [
+                "Net Payable Amount to Partner"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            }
+          ],
+          "fingerprint": [
+            "SG Order ID",
+            "Partner Order ID",
+            "Vertical",
+            "Order Total",
+            "SG Delivery Expense",
+            "Commission Charged",
+            "Net Payable Amount to Partner"
+          ],
+          "exclude": [
+            "order_id",
+            "shoppinggate_fees",
+            "shoppinggate_percentage",
+            "MATCH ID'S",
+            "Match ID's"
+          ],
+          "fields": [],
+          "filter": "vertical = \"food\"",
+          "unique": null,
+          "rejects": [],
+          "set": null,
+          "optional": false,
+          "first_only": false,
+          "missing_hint": "",
+          "manifest_role": null,
+          "counted": "TRUE"
+        }
+      ],
+      "kind": "rows",
+      "empty_message": "The portal export contained no food orders"
+    },
+    {
+      "role": "vendor",
+      "title": "Vendor statement",
+      "caption": "Account statement from vendor",
+      "required": true,
+      "shown": true,
+      "sheets": [
+        {
+          "key": "orders",
+          "name": "food vendor report",
+          "columns": [
+            {
+              "field": "requested_delivery_date",
+              "headers": [
+                "requestedDeliveryDate"
+              ],
+              "required": false,
+              "type": "date",
+              "skip_if_blank": false
+            },
+            {
+              "field": "brand_name",
+              "headers": [
+                "brand_name"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "order_id",
+              "headers": [
+                "order_id"
+              ],
+              "required": true,
+              "type": "id",
+              "skip_if_blank": true
+            },
+            {
+              "field": "order_no",
+              "headers": [
+                "order_no"
+              ],
+              "required": false,
+              "type": "id",
+              "skip_if_blank": false
+            },
+            {
+              "field": "customer_name",
+              "headers": [
+                "customer_name"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "total",
+              "headers": [
+                "total"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "order_chef_total",
+              "headers": [
+                "order_chef_total"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "shoppinggate_percentage",
+              "headers": [
+                "shoppinggate_percentage"
+              ],
+              "required": false,
+              "type": "rate",
+              "skip_if_blank": false
+            },
+            {
+              "field": "shoppinggate_fees",
+              "headers": [
+                "shoppinggate_fees"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "original_delivery_fee",
+              "headers": [
+                "original_deliveryFee"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "sg_delivery_charge",
+              "headers": [
+                "promotion_shoppinggate_charge_amount"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "delivery_fee",
+              "headers": [
+                "deliveryFee"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "order_status",
+              "headers": [
+                "order_status"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": true
+            },
+            {
+              "field": "order_items",
+              "headers": [
+                "order_items"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "promotion_discount",
+              "headers": [
+                "promotion_discount"
+              ],
+              "required": false,
+              "type": "money",
+              "skip_if_blank": false
+            },
+            {
+              "field": "chef_delivery_charge",
+              "headers": [
+                "promotion_chef_charge_amount"
+              ],
+              "required": true,
+              "type": "money",
+              "skip_if_blank": false
+            }
+          ],
+          "fingerprint": [
+            "order_id",
+            "requestedDeliveryDate",
+            "shoppinggate_percentage",
+            "shoppinggate_fees",
+            "original_deliveryFee",
+            "promotion_shoppinggate_charge_amount",
+            "promotion_chef_charge_amount"
+          ],
+          "exclude": [
+            "Partner Order ID",
+            "MATCH ID'S",
+            "Match ID's"
+          ],
+          "fields": [],
+          "filter": null,
+          "unique": null,
+          "rejects": [],
+          "set": null,
+          "optional": false,
+          "first_only": false,
+          "missing_hint": "",
+          "manifest_role": null,
+          "counted": "TRUE"
+        }
+      ],
+      "kind": "rows",
+      "empty_message": "The vendor report contained no orders"
+    },
+    {
+      "role": "wallet",
+      "title": "Wallet history",
+      "caption": "Optional · proves the wallet share",
+      "required": false,
+      "shown": true,
+      "sheets": [
+        {
+          "key": "history",
+          "name": "wallet history",
+          "columns": [
+            {
+              "field": "event_id",
+              "headers": [
+                "ID"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "wallet_type",
+              "headers": [
+                "Wallet Type"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "sg_order_id",
+              "headers": [
+                "SG Order ID"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "amount",
+              "headers": [
+                "Amount"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "message",
+              "headers": [
+                "Message"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "event_date",
+              "headers": [
+                "Date"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "payment_type",
+              "headers": [
+                "Payment Type"
+              ],
+              "required": false,
+              "type": "text",
+              "skip_if_blank": false
+            }
+          ],
+          "fingerprint": [
+            "Wallet Type",
+            "SG Order ID",
+            "Amount",
+            "Message"
+          ],
+          "exclude": [
+            "Partner Order ID",
+            "Order Total"
+          ],
+          "fields": [],
+          "filter": null,
+          "unique": null,
+          "rejects": [],
+          "set": null,
+          "optional": false,
+          "first_only": false,
+          "missing_hint": "",
+          "manifest_role": null,
+          "counted": "TRUE"
+        }
+      ],
+      "kind": "wallet",
+      "empty_message": null
+    },
+    {
+      "role": "finance",
+      "title": "Finance report",
+      "caption": "Optional · cashback by SG Order ID",
+      "required": false,
+      "shown": true,
+      "sheets": [
+        {
+          "key": "report",
+          "name": "finance report",
+          "columns": [
+            {
+              "field": "order_id",
+              "headers": [
+                "Order ID"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "reward_amount",
+              "headers": [
+                "Reward Amount (SAR)"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "vertical_name",
+              "headers": [
+                "Vertical Name"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "reward_code",
+              "headers": [
+                "Reward Code"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "reward_type",
+              "headers": [
+                "Reward Type"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            },
+            {
+              "field": "outcome",
+              "headers": [
+                "Outcome"
+              ],
+              "required": true,
+              "type": "text",
+              "skip_if_blank": false
+            }
+          ],
+          "fingerprint": [
+            "Spin Event ID",
+            "Order ID",
+            "Reward Amount (SAR)",
+            "Reward Code",
+            "Reward Type",
+            "Outcome",
+            "Vertical Name"
+          ],
+          "exclude": [
+            "MATCH ID'S",
+            "Match ID's",
+            "Partner Order ID"
+          ],
+          "fields": [],
+          "filter": null,
+          "unique": null,
+          "rejects": [],
+          "set": null,
+          "optional": false,
+          "first_only": false,
+          "missing_hint": "",
+          "manifest_role": null,
+          "counted": "TRUE"
+        }
+      ],
+      "kind": "reference",
+      "empty_message": null
+    }
+  ],
+  "parameters": [
+    {
+      "key": "tolerance",
+      "label": "Amount tolerance",
+      "kind": "tolerance",
+      "value": "0.01",
+      "overridable": false
+    }
+  ],
+  "exceptions": [
+    {
+      "code": "ORDER_MISSING_IN_VENDOR",
+      "severity": "high",
+      "about": "On the portal, missing from the vendor's file."
+    },
+    {
+      "code": "MISSING_FROM_PORTAL",
+      "severity": "high",
+      "about": "On the vendor's file, missing from the portal."
+    },
+    {
+      "code": "WALLET_ENTRY_MISSING",
+      "severity": "high",
+      "about": "A wallet payment missing from the wallet history."
+    },
+    {
+      "code": "WALLET_AMOUNT_MISMATCH",
+      "severity": "high",
+      "about": "The wallet history's amount differs from the order's."
+    },
+    {
+      "code": "WALLET_OUT_OF_WINDOW",
+      "severity": "info",
+      "about": "The order falls outside the dates the wallet history covers."
+    },
+    {
+      "code": "WALLET_HISTORY_UNMATCHED",
+      "severity": "info",
+      "about": "A wallet movement with no order in this export."
+    },
+    {
+      "code": "WALLET_KEY_UNSTABLE",
+      "severity": "medium",
+      "about": "Few orders were found in the wallet history: its order IDs may have changed."
+    },
+    {
+      "code": "WALLET_ORDER_ID_MISSING",
+      "severity": "medium",
+      "about": "Wallet-paid orders with no SG Order ID, so they can't be checked."
+    },
+    {
+      "code": "FOOD_AMOUNT_MISMATCH",
+      "severity": "high",
+      "about": "The portal's total and the vendor's differ."
+    },
+    {
+      "code": "FEE_MISMATCH",
+      "severity": "high",
+      "about": "Our commission and the vendor's fees differ."
+    },
+    {
+      "code": "DELIVERY_SPLIT_MISMATCH",
+      "severity": "high",
+      "about": "Our delivery share and the vendor's charge differ."
+    },
+    {
+      "code": "STATUS_MISMATCH",
+      "severity": "high",
+      "about": "Delivered on one side but not on the other."
+    },
+    {
+      "code": "DUPLICATE_ORDER_ID",
+      "severity": "high",
+      "about": "An order ID that appears more than once in an upload."
+    },
+    {
+      "code": "REFUND_ON_DELIVERED",
+      "severity": "high",
+      "about": "A refund on a delivered order."
+    },
+    {
+      "code": "STATUS_NOT_DELIVERED",
+      "severity": "info",
+      "about": "A row left out because it isn't Delivered."
+    }
+  ],
+  "labels": {},
+  "output": {
+    "tabs": [
+      {
+        "key": "dashboard",
+        "title": "Dashboard",
+        "kind": "dashboard",
+        "requires": null,
+        "source": null,
+        "sheet": null,
+        "header_format": null,
+        "hidden": [],
+        "header": "bands",
+        "columns": [],
+        "lookup_columns": [],
+        "sections": [],
+        "blocks": [
+          {
+            "label": "SG FOOD ORDER Amount",
+            "value_label": "Vendor FOOD ORDER Amount",
+            "headers": [
+              "Order",
+              "Food Amount",
+              "Delivery",
+              "ADD DC",
+              "SG Commission",
+              "Round of differ",
+              "Road Off Adjustment",
+              "Net Payable",
+              "Wallet Amount",
+              "Applepay/Card Amount",
+              "Total collection",
+              "Portal total",
+              "T. Order - Collection Dif",
+              "sg promo code disc",
+              "T. Remaining"
+            ],
+            "values": [
+              {
+                "metric": "orders",
+                "kind": "int"
+              },
+              {
+                "metric": "food",
+                "kind": "money"
+              },
+              {
+                "metric": "customer_delivery",
+                "kind": "money"
+              },
+              {
+                "metric": "sg_delivery",
+                "kind": "money"
+              },
+              {
+                "metric": "sg_commission",
+                "kind": "money"
+              },
+              {
+                "metric": "vendor_fees",
+                "kind": "money"
+              },
+              {
+                "metric": "road_off",
+                "kind": "money"
+              },
+              {
+                "metric": "net_payable",
+                "kind": "money"
+              },
+              {
+                "metric": "wallet",
+                "kind": "money"
+              },
+              {
+                "metric": "card",
+                "kind": "money"
+              },
+              {
+                "metric": "collection",
+                "kind": "money"
+              },
+              {
+                "metric": "portal_total",
+                "kind": "money"
+              },
+              {
+                "metric": "collection_gap",
+                "kind": "money"
+              },
+              {
+                "metric": "promo",
+                "kind": "money"
+              },
+              {
+                "metric": "remaining",
+                "kind": "money"
+              }
+            ],
+            "tall": true
+          },
+          {
+            "label": "Cash",
+            "value_label": null,
+            "headers": [
+              "Total Order Amount",
+              "Wallets",
+              "Other Method",
+              "Collection",
+              "Order-Collection",
+              "Promo Discount",
+              "Net Difference"
+            ],
+            "values": [
+              {
+                "metric": "portal_total",
+                "kind": "money"
+              },
+              {
+                "metric": "wallet",
+                "kind": "money"
+              },
+              {
+                "metric": "card",
+                "kind": "money"
+              },
+              {
+                "metric": "collection",
+                "kind": "money"
+              },
+              {
+                "metric": "order_collection",
+                "kind": "money"
+              },
+              {
+                "metric": "promo",
+                "kind": "money"
+              },
+              {
+                "metric": "net_difference",
+                "kind": "money"
+              }
+            ],
+            "tall": true
+          },
+          {
+            "label": "Delivery",
+            "value_label": null,
+            "headers": [
+              "Customer Share",
+              "Shoppinggate Share",
+              "Merchant Share",
+              "TOTAL",
+              "Average Per Order"
+            ],
+            "values": [
+              {
+                "metric": "customer_delivery",
+                "kind": "money"
+              },
+              {
+                "metric": "sg_delivery",
+                "kind": "money"
+              },
+              {
+                "metric": "merchant_delivery",
+                "kind": "money"
+              },
+              {
+                "metric": "delivery_total",
+                "kind": "money"
+              },
+              {
+                "metric": "average_delivery",
+                "kind": "money"
+              }
+            ],
+            "tall": true
+          },
+          {
+            "label": "Average Delivery share",
+            "value_label": null,
+            "headers": [
+              "By Customer",
+              "By shoppinggate",
+              "By Vendor"
+            ],
+            "values": [
+              {
+                "metric": "customer_share",
+                "kind": "pct"
+              },
+              {
+                "metric": "sg_share",
+                "kind": "pct"
+              },
+              {
+                "metric": "merchant_share",
+                "kind": "pct"
+              }
+            ],
+            "tall": false
+          }
+        ],
+        "breakdown": {
+          "set": "client",
+          "parts": null,
+          "name": "COALESCE(portal.restaurant_name, vendor.brand_name, \"Unknown\")",
+          "basis": "1",
+          "totals": [],
+          "name_header": "Breakdown By Most Used",
+          "columns": [
+            {
+              "header": "Order Count",
+              "add": "count",
+              "value": null,
+              "when": "TRUE",
+              "kind": "int"
+            },
+            {
+              "header": "Discount Count",
+              "add": "count",
+              "value": null,
+              "when": "AND(NOT(ISBLANK(portal)), OR(portal.discount <> 0, NOT(ISBLANK(portal.promocode))))",
+              "kind": "int"
+            },
+            {
+              "header": "Revenue By Restaurant",
+              "add": "sum",
+              "value": "portal.discount",
+              "when": "NOT(ISBLANK(portal))",
+              "kind": "money"
+            },
+            {
+              "header": "Applepay",
+              "add": "sum",
+              "value": "portal.card_amount",
+              "when": "AND(NOT(ISBLANK(portal)), CONTAINS(portal.payment_method, \"apple\"), NOT(CONTAINS(portal.payment_method, \"tamara\")))",
+              "kind": "money"
+            },
+            {
+              "header": "Tamara",
+              "add": "sum",
+              "value": "portal.card_amount",
+              "when": "AND(NOT(ISBLANK(portal)), CONTAINS(portal.payment_method, \"tamara\"))",
+              "kind": "money"
+            },
+            {
+              "header": "Card",
+              "add": "sum",
+              "value": "portal.card_amount",
+              "when": "AND(NOT(ISBLANK(portal)), CONTAINS(portal.payment_method, \"card\"), NOT(CONTAINS(portal.payment_method, \"tamara\")), NOT(CONTAINS(portal.payment_method, \"apple\")))",
+              "kind": "money"
+            },
+            {
+              "header": "Wallet",
+              "add": "sum",
+              "value": "portal.wallet_amount",
+              "when": "NOT(ISBLANK(portal))",
+              "kind": "money"
+            },
+            {
+              "header": "Commission",
+              "add": "sum",
+              "value": "vendor.shoppinggate_fees",
+              "when": "TRUE",
+              "kind": "money"
+            },
+            {
+              "header": "Total Delivery",
+              "add": "sum",
+              "value": "client_customer + client_sg_share + vendor.chef_delivery_charge",
+              "when": "TRUE",
+              "kind": "money"
+            }
+          ],
+          "rank_by": 0,
+          "total": "sum"
+        },
+        "tolerances": {}
+      },
+      {
+        "key": "orders",
+        "title": "Orders",
+        "kind": "table",
+        "requires": null,
+        "source": null,
+        "sheet": null,
+        "header_format": null,
+        "hidden": [],
+        "header": "bands",
+        "columns": [
+          {
+            "key": "order_date",
+            "header": "Order Date",
+            "width": 14,
+            "group": "portal",
+            "kind": "date",
+            "value": "portal.order_date",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order_time",
+            "header": "Order Time",
+            "width": 12,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.order_time",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "sg_order_id",
+            "header": "SG Order ID",
+            "width": 14,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.sg_order_id",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order_id",
+            "header": "Partner Order ID",
+            "width": 18,
+            "group": "portal",
+            "kind": "text",
+            "value": "key",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "vertical",
+            "header": "Vertical",
+            "width": 12,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.vertical",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "provider",
+            "header": "Provider Name",
+            "width": 16,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.provider",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "food_order_type",
+            "header": "Food Order Type",
+            "width": 16,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.food_order_type",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "restaurant_id",
+            "header": "Restaurant ID/Seller ID",
+            "width": 18,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.restaurant_id",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "restaurant_name",
+            "header": "Restaurant Name",
+            "width": 36,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.restaurant_name",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "transaction_id",
+            "header": "Transaction ID",
+            "width": 28,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.transaction_id",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order_status",
+            "header": "Order Status",
+            "width": 14,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.order_status",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "payment_status",
+            "header": "Payment Status",
+            "width": 14,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.payment_status",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "payment_method",
+            "header": "Payment Method",
+            "width": 20,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.payment_method",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "sub_total",
+            "header": "Sub Total",
+            "width": 12,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.sub_total",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "promocode",
+            "header": "Promocode",
+            "width": 12,
+            "group": "portal",
+            "kind": "text",
+            "value": "portal.promocode",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "discount",
+            "header": "SG Discount/Promo Amount",
+            "width": 16,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.discount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "sg_delivery",
+            "header": "SG Delivery Expense",
+            "width": 16,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.sg_delivery",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "vat",
+            "header": "VAT",
+            "width": 12,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.vat",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order_total",
+            "header": "Order Total",
+            "width": 12,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.order_total",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "total_amount",
+            "header": "Total Amount",
+            "width": 14,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.total_amount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "stated_rate",
+            "header": "SG Comission %",
+            "width": 14,
+            "group": "portal",
+            "kind": "rate",
+            "value": "portal.stated_rate",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "commission_amount",
+            "header": "Commission Amount",
+            "width": 16,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.commission_amount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "partner_payout",
+            "header": "Partner Payout",
+            "width": 14,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.partner_payout",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "commission_charged",
+            "header": "Commission Charged",
+            "width": 16,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.commission_charged",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "wallet_amount",
+            "header": "Wallet Amount",
+            "width": 14,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.wallet_amount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "card_amount",
+            "header": "Applepay/Card Amount",
+            "width": 18,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.card_amount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "refund_amount",
+            "header": "Refund Amount",
+            "width": 14,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.refund_amount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "compensation_amount",
+            "header": "Compensation Amount",
+            "width": 16,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.compensation_amount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "net_payable",
+            "header": "Net Payable Amount to Partner",
+            "width": 18,
+            "group": "portal",
+            "kind": "money",
+            "value": "portal.net_payable",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "match",
+            "header": "MATCH ID'S",
+            "width": 12,
+            "group": "check",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "amount_diff",
+            "header": "ORDER AMOUNT DIFFERENCE",
+            "width": 18,
+            "group": "check",
+            "kind": "diff",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "fee_diff",
+            "header": "RATE% CHECK SG-VNDR SOA",
+            "width": 16,
+            "group": "check",
+            "kind": "diff",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "sg_bear",
+            "header": "Additional Del Charges SG BEAR",
+            "width": 16,
+            "group": "check",
+            "kind": "money",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "chefz_bear",
+            "header": "Additional Delivery CHarge CHEFZ BEAR",
+            "width": 18,
+            "group": "check",
+            "kind": "money",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "cust_del",
+            "header": "Customer Delivery Charges",
+            "width": 16,
+            "group": "check",
+            "kind": "money",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "v_date",
+            "header": "requestedDeliveryDate",
+            "width": 20,
+            "group": "vendor",
+            "kind": "date",
+            "value": "vendor.requested_delivery_date",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "brand_name",
+            "header": "brand_name",
+            "width": 28,
+            "group": "vendor",
+            "kind": "text",
+            "value": "vendor.brand_name",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "v_order_id",
+            "header": "order_id",
+            "width": 16,
+            "group": "vendor",
+            "kind": "text",
+            "value": "vendor.order_id",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order_no",
+            "header": "order_no",
+            "width": 14,
+            "group": "vendor",
+            "kind": "text",
+            "value": "vendor.order_no",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "customer_name",
+            "header": "customer_name",
+            "width": 18,
+            "group": "vendor",
+            "kind": "text",
+            "value": "vendor.customer_name",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "v_total",
+            "header": "total",
+            "width": 12,
+            "group": "vendor",
+            "kind": "money",
+            "value": "vendor.total",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "chef_total",
+            "header": "order_chef_total",
+            "width": 16,
+            "group": "vendor",
+            "kind": "money",
+            "value": "vendor.order_chef_total",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "v_rate",
+            "header": "shoppinggate_percentage",
+            "width": 16,
+            "group": "vendor",
+            "kind": "rate",
+            "value": "vendor.shoppinggate_percentage",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "v_fees",
+            "header": "shoppinggate_fees",
+            "width": 16,
+            "group": "vendor",
+            "kind": "money",
+            "value": "vendor.shoppinggate_fees",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "orig_delivery",
+            "header": "original_deliveryFee",
+            "width": 18,
+            "group": "vendor",
+            "kind": "money",
+            "value": "vendor.original_delivery_fee",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "sg_charge",
+            "header": "promotion_shoppinggate_charge_amount",
+            "width": 22,
+            "group": "vendor",
+            "kind": "money",
+            "value": "vendor.sg_delivery_charge",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "delivery_fee",
+            "header": "deliveryFee",
+            "width": 12,
+            "group": "vendor",
+            "kind": "money",
+            "value": "vendor.delivery_fee",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "v_status",
+            "header": "order_status",
+            "width": 14,
+            "group": "vendor",
+            "kind": "text",
+            "value": "vendor.order_status",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order_items",
+            "header": "order_items",
+            "width": 40,
+            "group": "vendor",
+            "kind": "text",
+            "value": "vendor.order_items",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "promo_discount",
+            "header": "promotion_discount",
+            "width": 16,
+            "group": "vendor",
+            "kind": "money",
+            "value": "vendor.promotion_discount",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "chef_charge",
+            "header": "promotion_chef_charge_amount",
+            "width": 20,
+            "group": "vendor",
+            "kind": "money",
+            "value": "vendor.chef_delivery_charge",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "due",
+            "header": "Due from shoppinggate",
+            "width": 20,
+            "group": "vendor",
+            "kind": "money",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "net_invoice",
+            "header": "Net Invoice from shoppinggate",
+            "width": 18,
+            "group": "vendor",
+            "kind": "money",
+            "value": "vendor.shoppinggate_fees",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "net_delivery",
+            "header": "Net Delivery Invoice to shoppinggate",
+            "width": 22,
+            "group": "vendor",
+            "kind": "money",
+            "value": "vendor.original_delivery_fee - vendor.chef_delivery_charge",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "verdict",
+            "header": "Verdict",
+            "width": 14,
+            "group": "meta",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          }
+        ],
+        "lookup_columns": [
+          {
+            "key": "cashback_reward",
+            "header": "Cash Back Reward",
+            "width": 18,
+            "group": "cashback",
+            "kind": "money",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": {
+              "sheet": "finance_copy",
+              "match": "order_id",
+              "value": "reward_amount",
+              "key_column": "sg_order_id",
+              "key_value": null
+            }
+          },
+          {
+            "key": "vertical_name",
+            "header": "Vertical Name",
+            "width": 18,
+            "group": "cashback",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": {
+              "sheet": "finance_copy",
+              "match": "order_id",
+              "value": "vertical_name",
+              "key_column": "sg_order_id",
+              "key_value": null
+            }
+          },
+          {
+            "key": "reward_code",
+            "header": "Reward Code",
+            "width": 16,
+            "group": "cashback",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": {
+              "sheet": "finance_copy",
+              "match": "order_id",
+              "value": "reward_code",
+              "key_column": "sg_order_id",
+              "key_value": null
+            }
+          },
+          {
+            "key": "reward_type",
+            "header": "Reward Type",
+            "width": 14,
+            "group": "cashback",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": {
+              "sheet": "finance_copy",
+              "match": "order_id",
+              "value": "reward_type",
+              "key_column": "sg_order_id",
+              "key_value": null
+            }
+          },
+          {
+            "key": "outcome",
+            "header": "Outcome",
+            "width": 12,
+            "group": "cashback",
+            "kind": "text",
+            "value": null,
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": {
+              "sheet": "finance_copy",
+              "match": "order_id",
+              "value": "outcome",
+              "key_column": "sg_order_id",
+              "key_value": null
+            }
+          }
+        ],
+        "sections": [
+          {
+            "kind": "rows",
+            "gap": 0,
+            "when": null,
+            "set": "orders",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": false,
+            "lookups": true,
+            "autofilter": true,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {},
+            "styles": {}
+          },
+          {
+            "kind": "totals",
+            "gap": 0,
+            "when": "orders",
+            "set": "orders",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": true,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {
+              "sg_bear": "yellow",
+              "chefz_bear": "yellow",
+              "cust_del": "yellow"
+            },
+            "rows": [],
+            "values": {},
+            "styles": {}
+          },
+          {
+            "kind": "block",
+            "gap": 0,
+            "when": "orders",
+            "set": null,
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": true,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [
+              {
+                "cells": [
+                  {
+                    "col": "sg_bear",
+                    "to_col": "cust_del",
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:sg_bear}{row:totals}+{col:chefz_bear}{row:totals}+{col:cust_del}{row:totals}",
+                    "value": null,
+                    "format": "yellow"
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": "net_payable",
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:net_payable}{row:totals}+({col:chef_total}{row:totals}-{col:sub_total}{row:totals})+{col:sg_bear}{row:totals}+{col:fee_diff}{row:totals}",
+                    "value": null,
+                    "format": "total"
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": 2,
+                    "text": "SG FOOD ORDER Amount",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 3,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:sub_total}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": 2,
+                    "text": "Vendor FOOD ORDER Amount",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 3,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:chef_total}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 4,
+                    "to_col": null,
+                    "text": "Food Amount",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 5,
+                    "to_col": null,
+                    "text": "Delivery",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 6,
+                    "to_col": null,
+                    "text": "ADD DC",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 7,
+                    "to_col": null,
+                    "text": "Round of differ",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 8,
+                    "to_col": null,
+                    "text": "COM",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 9,
+                    "to_col": null,
+                    "text": "Total Order Amount",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "yellow_text"
+                  },
+                  {
+                    "col": 10,
+                    "to_col": null,
+                    "text": "Wallet Amount",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 11,
+                    "to_col": null,
+                    "text": "Applepay/Card Amount",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 12,
+                    "to_col": null,
+                    "text": "Total collection",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 13,
+                    "to_col": null,
+                    "text": "Portal total",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 14,
+                    "to_col": null,
+                    "text": "T. Order - Collection Dif",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 15,
+                    "to_col": null,
+                    "text": "sg promo code disc",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 16,
+                    "to_col": null,
+                    "text": "T. Remaining",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 3,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:chef_total}{row:totals}-{col:sub_total}{row:totals}",
+                    "value": null,
+                    "format": "yellow"
+                  },
+                  {
+                    "col": 4,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:sub_total}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 5,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:sg_delivery}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 6,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:sg_bear}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 7,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:v_fees}{row:totals}-{col:commission_charged}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 8,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "=-{col:commission_charged}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 9,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:sub_total}{row:totals}+{col:sg_delivery}{row:totals}+{col:sg_bear}{row:totals}-{col:commission_charged}{row:totals}-({col:v_fees}{row:totals}-{col:commission_charged}{row:totals})+({col:chef_total}{row:totals}-{col:sub_total}{row:totals})",
+                    "value": null,
+                    "format": "yellow"
+                  },
+                  {
+                    "col": 10,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:wallet_amount}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 11,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:card_amount}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 12,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:wallet_amount}{row:totals}+{col:card_amount}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 13,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:total_amount}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 14,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:wallet_amount}{row:totals}+{col:card_amount}{row:totals}-{col:total_amount}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 15,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:discount}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  },
+                  {
+                    "col": 16,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": "={col:discount}{row:totals}+{col:wallet_amount}{row:totals}+{col:card_amount}{row:totals}-{col:total_amount}{row:totals}",
+                    "value": null,
+                    "format": "money"
+                  }
+                ],
+                "height": null
+              }
+            ],
+            "values": {},
+            "styles": {}
+          }
+        ],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      },
+      {
+        "key": "exceptions",
+        "title": "Exceptions",
+        "kind": "table",
+        "requires": null,
+        "source": null,
+        "sheet": null,
+        "header_format": null,
+        "hidden": [],
+        "header": "plain",
+        "columns": [
+          {
+            "key": "severity",
+            "header": "Severity",
+            "width": 12,
+            "group": "meta",
+            "kind": "text",
+            "value": "TEXT(severity)",
+            "excel": null,
+            "color": null,
+            "style": "IF(severity = \"high\", \"high\", \"info\")",
+            "lookup": null
+          },
+          {
+            "key": "code",
+            "header": "Code",
+            "width": 32,
+            "group": "meta",
+            "kind": "text",
+            "value": "TEXT(code)",
+            "excel": null,
+            "color": null,
+            "style": "IF(severity = \"high\", \"high\", \"info\")",
+            "lookup": null
+          },
+          {
+            "key": "order_no",
+            "header": "Order",
+            "width": 18,
+            "group": "meta",
+            "kind": "text",
+            "value": "order_no",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "status",
+            "header": "Status",
+            "width": 36,
+            "group": "meta",
+            "kind": "text",
+            "value": "TEXT(IF(ISBLANK(order), REGEX(detail, \"^(?:Portal|Vendor) status (.+) is not Delivered\\.$\", 1), order.status_text))",
+            "excel": null,
+            "color": null,
+            "style": "IF(severity = \"high\", \"high\", \"info\")",
+            "lookup": null
+          },
+          {
+            "key": "amount",
+            "header": "Amount",
+            "width": 16,
+            "group": "meta",
+            "kind": "money",
+            "value": "amount",
+            "excel": null,
+            "color": null,
+            "style": "\"money\"",
+            "lookup": null
+          },
+          {
+            "key": "detail",
+            "header": "Detail",
+            "width": 88,
+            "group": "meta",
+            "kind": "text",
+            "value": "detail",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          }
+        ],
+        "lookup_columns": [],
+        "sections": [
+          {
+            "kind": "rows",
+            "gap": 0,
+            "when": null,
+            "set": "exceptions",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": false,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {},
+            "styles": {}
+          }
+        ],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      },
+      {
+        "key": "wallet",
+        "title": "Wallet",
+        "kind": "table",
+        "requires": "wallet",
+        "source": null,
+        "sheet": null,
+        "header_format": null,
+        "hidden": [],
+        "header": "plain",
+        "columns": [
+          {
+            "key": "vertical",
+            "header": "Vertical",
+            "width": 10,
+            "group": "meta",
+            "kind": "string",
+            "value": "vertical",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "sg_order_id",
+            "header": "SG Order ID",
+            "width": 12,
+            "group": "meta",
+            "kind": "string",
+            "value": "sg_order_id",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order",
+            "header": "Order",
+            "width": 22,
+            "group": "meta",
+            "kind": "text",
+            "value": "booking_id",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order_date",
+            "header": "Order Date",
+            "width": 12,
+            "group": "meta",
+            "kind": "date",
+            "value": "order_date",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "portal_wallet",
+            "header": "Portal Wallet",
+            "width": 14,
+            "group": "meta",
+            "kind": "money",
+            "value": "portal_wallet_amount",
+            "excel": null,
+            "color": null,
+            "style": "\"money\"",
+            "lookup": null
+          },
+          {
+            "key": "history_paid",
+            "header": "History Paid",
+            "width": 14,
+            "group": "meta",
+            "kind": "money",
+            "value": "history_paid",
+            "excel": null,
+            "color": null,
+            "style": "\"money\"",
+            "lookup": null
+          },
+          {
+            "key": "history_refunded",
+            "header": "History Refunded",
+            "width": 16,
+            "group": "meta",
+            "kind": "money",
+            "value": "history_refunded",
+            "excel": null,
+            "color": null,
+            "style": "\"money\"",
+            "lookup": null
+          },
+          {
+            "key": "movements",
+            "header": "Movements",
+            "width": 11,
+            "group": "meta",
+            "kind": "text",
+            "value": "events",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "state",
+            "header": "State",
+            "width": 16,
+            "group": "meta",
+            "kind": "string",
+            "value": "TEXT(state)",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "difference",
+            "header": "Difference",
+            "width": 13,
+            "group": "meta",
+            "kind": "money",
+            "value": "diff",
+            "excel": null,
+            "color": null,
+            "style": "IF(state = \"amount_mismatch\", \"money_bad\", \"money\")",
+            "lookup": null
+          }
+        ],
+        "lookup_columns": [],
+        "sections": [
+          {
+            "kind": "rows",
+            "gap": 0,
+            "when": null,
+            "set": "wallet_checks",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": false,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {},
+            "styles": {}
+          },
+          {
+            "kind": "block",
+            "gap": 1,
+            "when": null,
+            "set": null,
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": true,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Wallet movements with no portal row",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "title"
+                  }
+                ],
+                "height": null
+              }
+            ],
+            "values": {},
+            "styles": {}
+          },
+          {
+            "kind": "rows",
+            "gap": 0,
+            "when": null,
+            "set": "wallet_unmatched",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": false,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {
+              "vertical": "vertical",
+              "sg_order_id": "sg_order_id",
+              "order_date": "event_date",
+              "portal_wallet": "amount",
+              "state": "IF(ISBLANK(message), BLANK(), message)"
+            },
+            "styles": {
+              "portal_wallet": "\"money\""
+            }
+          },
+          {
+            "kind": "block",
+            "gap": 1,
+            "when": null,
+            "set": null,
+            "upload": null,
+            "where": "TRUE",
+            "contacts": null,
+            "title": null,
+            "tolerances": true,
+            "lookups": false,
+            "autofilter": false,
+            "label": null,
+            "formats": {},
+            "rows": [
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Wallet history",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "title"
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "History covers",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "IF(AND(NOT(ISBLANK(wallet_check.window_start)), NOT(ISBLANK(wallet_check.window_end))), TEXT(wallet_check.window_start) & \" to \" & TEXT(wallet_check.window_end), \"no dated movements\")",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Wallet-paid rows checked",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.rows_checked",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Found, same amount",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.matched",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Found, amount disagreed",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.amount_mismatch",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Outside the history's window",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.out_of_window",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Missing from the history",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.missing",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "Wallet-paid rows with no SG Order ID, not checked",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "wallet_check.unkeyed",
+                    "format": null
+                  }
+                ],
+                "height": null
+              },
+              {
+                "cells": [
+                  {
+                    "col": 0,
+                    "to_col": null,
+                    "text": "History movements with no portal row",
+                    "metric": null,
+                    "formula": null,
+                    "value": null,
+                    "format": "label"
+                  },
+                  {
+                    "col": 2,
+                    "to_col": null,
+                    "text": null,
+                    "metric": null,
+                    "formula": null,
+                    "value": "COUNTX(\"wallet_unmatched\")",
+                    "format": null
+                  }
+                ],
+                "height": null
+              }
+            ],
+            "values": {},
+            "styles": {}
+          }
+        ],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      },
+      {
+        "key": "b2c_invoices",
+        "title": "B2C Invoices ERP",
+        "kind": "table",
+        "requires": null,
+        "source": null,
+        "sheet": null,
+        "header_format": null,
+        "hidden": [],
+        "header": "plain",
+        "columns": [
+          {
+            "key": "partner",
+            "header": "Partner",
+            "width": 16,
+            "group": "meta",
+            "kind": "text",
+            "value": "TEXT(TRIM(TEXT(portal.provider)))",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "order_id",
+            "header": "Invoice Partner Display Name",
+            "width": 28,
+            "group": "meta",
+            "kind": "id",
+            "value": "TEXT(key)",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "contact",
+            "header": "Contact Name",
+            "width": 24,
+            "group": "meta",
+            "kind": "text",
+            "value": "TEXT(COALESCE(contact, vendor.customer_name))",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "bill_date",
+            "header": "Invoice/Bill Date",
+            "width": 18,
+            "group": "meta",
+            "kind": "datetime",
+            "value": "portal.order_date",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "product",
+            "header": "Invoice lines/Product",
+            "width": 18,
+            "group": "meta",
+            "kind": "string",
+            "value": "TEXT(\"Food Delivery\")",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "quantity",
+            "header": "Invoice lines/Quantity",
+            "width": 22,
+            "group": "meta",
+            "kind": "text",
+            "value": "1",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          },
+          {
+            "key": "unit_price",
+            "header": "Invoice lines/Unit Price",
+            "width": 24,
+            "group": "meta",
+            "kind": "money",
+            "value": null,
+            "excel": "={cell:orders.sg_delivery}/1.15",
+            "color": null,
+            "style": "\"money\"",
+            "lookup": null
+          },
+          {
+            "key": "taxes",
+            "header": "Invoice lines/Taxes",
+            "width": 26,
+            "group": "meta",
+            "kind": "string",
+            "value": "\"Domestic Sales (15%)\"",
+            "excel": null,
+            "color": null,
+            "style": null,
+            "lookup": null
+          }
+        ],
+        "lookup_columns": [],
+        "sections": [
+          {
+            "kind": "rows",
+            "gap": 0,
+            "when": null,
+            "set": "orders",
+            "upload": null,
+            "where": "TRUE",
+            "contacts": {
+              "upload": "portal",
+              "key": "partnerorderid",
+              "match": "TEXT(key)",
+              "row": null
+            },
+            "title": null,
+            "tolerances": false,
+            "lookups": false,
+            "autofilter": true,
+            "label": null,
+            "formats": {},
+            "rows": [],
+            "values": {},
+            "styles": {}
+          }
+        ],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      },
+      {
+        "key": "portal_copy",
+        "title": "Portal",
+        "kind": "table",
+        "requires": null,
+        "source": "portal",
+        "sheet": "portal",
+        "header_format": "portal_header",
+        "hidden": [],
+        "header": "bands",
+        "columns": [],
+        "lookup_columns": [],
+        "sections": [],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      },
+      {
+        "key": "vendor_copy",
+        "title": "Vendor",
+        "kind": "table",
+        "requires": null,
+        "source": "vendor",
+        "sheet": "orders",
+        "header_format": "vendor_header",
+        "hidden": [],
+        "header": "bands",
+        "columns": [],
+        "lookup_columns": [],
+        "sections": [],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      },
+      {
+        "key": "finance_copy",
+        "title": "Finance Report",
+        "kind": "table",
+        "requires": "finance",
+        "source": "finance",
+        "sheet": "report",
+        "header_format": "cashback_header",
+        "hidden": [],
+        "header": "bands",
+        "columns": [],
+        "lookup_columns": [],
+        "sections": [],
+        "blocks": [],
+        "breakdown": null,
+        "tolerances": {}
+      }
+    ],
+    "texts": []
+  },
+  "model": {
+    "builder": "pair",
+    "lookups": [],
+    "row_fields": [],
+    "sides": [
+      {
+        "role": "portal",
+        "key": "order_id",
+        "active": "order_status = \"delivered\""
+      },
+      {
+        "role": "vendor",
+        "key": "order_id",
+        "active": "order_status = \"delivered\""
+      }
+    ],
+    "members": [],
+    "groups": [],
+    "fields": [
+      {
+        "key": "ids_match",
+        "formula": "AND(AND(NOT(ISBLANK(portal)), NOT(ISBLANK(vendor))), EXACT(portal.order_id, vendor.order_id))"
+      },
+      {
+        "key": "match",
+        "formula": "IF(ids_match, \"TRUE\", \"FALSE\")"
+      },
+      {
+        "key": "amount_diff",
+        "formula": "portal.total_amount - vendor.total"
+      },
+      {
+        "key": "fee_diff",
+        "formula": "portal.commission_charged - vendor.shoppinggate_fees"
+      },
+      {
+        "key": "sg_bear",
+        "formula": "vendor.original_delivery_fee - portal.sg_delivery - vendor.chef_delivery_charge"
+      },
+      {
+        "key": "chefz_bear",
+        "formula": "vendor.chef_delivery_charge"
+      },
+      {
+        "key": "cust_del",
+        "formula": "portal.sg_delivery"
+      },
+      {
+        "key": "split_share",
+        "formula": "IF(sg_bear = 0, 0, sg_bear)"
+      },
+      {
+        "key": "due",
+        "formula": "vendor.total + vendor.sg_delivery_charge - vendor.shoppinggate_fees"
+      },
+      {
+        "key": "cancelled",
+        "formula": "OR(IN(portal.order_status, \"cancelled\", \"canceled\"), IN(vendor.order_status, \"cancelled\", \"canceled\"))"
+      },
+      {
+        "key": "status_text",
+        "formula": "IF(AND(NOT(ISBLANK(portal.order_status)), NOT(ISBLANK(vendor.order_status)), portal.order_status <> vendor.order_status), \"Portal: \" & portal.order_status & \" / Vendor: \" & vendor.order_status, TEXT(COALESCE(portal.order_status, vendor.order_status)))"
+      },
+      {
+        "key": "client_food",
+        "formula": "IF(ISBLANK(portal), vendor.order_chef_total, portal.sub_total)"
+      },
+      {
+        "key": "client_customer",
+        "formula": "IF(ISBLANK(portal), vendor.original_delivery_fee - vendor.sg_delivery_charge - vendor.chef_delivery_charge, portal.sg_delivery)"
+      },
+      {
+        "key": "client_sg_share",
+        "formula": "IF(ISBLANK(portal), vendor.sg_delivery_charge, N(sg_bear))"
+      },
+      {
+        "key": "client_commission",
+        "formula": "IF(ISBLANK(portal), vendor.shoppinggate_fees, portal.commission_charged)"
+      }
+    ],
+    "context": [],
+    "stops": [],
+    "row_rules": [
+      {
+        "code": "STATUS_NOT_DELIVERED",
+        "detail": "IF(role = \"portal\", \"Portal\", \"Vendor\") & \" status \" & row.order_status & \" is not Delivered.\"",
+        "amount": null,
+        "order_no": "key",
+        "over": "inactive",
+        "when": "TRUE",
+        "about": "A row left out because its status isn't Delivered."
+      },
+      {
+        "code": "DUPLICATE_ORDER_ID",
+        "detail": "IF(role = \"portal\", \"Partner Order ID \", \"order_id \") & key & \" appears \" & copies & \" times \" & IF(role = \"portal\", \"on the portal.\", \"on the vendor report.\")",
+        "amount": null,
+        "order_no": "key",
+        "over": "duplicates",
+        "when": "TRUE",
+        "about": "An order ID that appears more than once in an upload."
+      }
+    ],
+    "rules": [
+      {
+        "when": "AND(portal_active, NOT(vendor_active), NOT(ISBLANK(vendor)))",
+        "verdict": "held",
+        "exception": {
+          "code": "STATUS_MISMATCH",
+          "detail": "\"Portal status \" & portal.order_status & \", vendor status \" & vendor.order_status & \".\"",
+          "amount": null,
+          "order_no": null
+        },
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": null,
+        "about": "Delivered on the portal but not on the vendor report."
+      },
+      {
+        "when": "AND(vendor_active, NOT(portal_active), NOT(ISBLANK(portal)))",
+        "verdict": "held",
+        "exception": {
+          "code": "STATUS_MISMATCH",
+          "detail": "\"Portal status \" & portal.order_status & \", vendor status \" & vendor.order_status & \".\"",
+          "amount": null,
+          "order_no": null
+        },
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": null,
+        "about": "Delivered on the vendor report but not on the portal."
+      },
+      {
+        "when": "ISBLANK(vendor)",
+        "verdict": "portal_only",
+        "exception": {
+          "code": "ORDER_MISSING_IN_VENDOR",
+          "detail": "\"Portal order \" & key & \" has no vendor row.\"",
+          "amount": "portal.total_amount",
+          "order_no": null
+        },
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": null,
+        "about": "Only on the portal."
+      },
+      {
+        "when": "ISBLANK(portal)",
+        "verdict": "vendor_only",
+        "exception": {
+          "code": "MISSING_FROM_PORTAL",
+          "detail": "\"Vendor order \" & key & \" has no portal row.\"",
+          "amount": "due",
+          "order_no": null
+        },
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": null,
+        "about": "Only on the vendor report."
+      },
+      {
+        "when": "OR(portal_copies > 1, vendor_copies > 1)",
+        "verdict": "held",
+        "exception": null,
+        "checks": false,
+        "clean": null,
+        "broken": null,
+        "note": null,
+        "about": "The order appears more than once on one side."
+      },
+      {
+        "when": "TRUE",
+        "verdict": null,
+        "exception": null,
+        "checks": true,
+        "clean": "settled",
+        "broken": "held",
+        "note": null,
+        "about": "On both: settled when every check passes, held when one fails."
+      }
+    ],
+    "checks": [
+      {
+        "code": "FOOD_AMOUNT_MISMATCH",
+        "detail": "\"Portal total \" & portal.total_amount & \" against vendor total \" & vendor.total & \" (difference \" & amount_diff & \").\" & IF(ABS(fee_diff) > param.tolerance, \" Fee difference \" & fee_diff & \" follows the same gap (portal \" & portal.commission_charged & \", vendor \" & vendor.shoppinggate_fees & \").\", \"\")",
+        "amount": "amount_diff",
+        "order_no": null,
+        "when": "ABS(amount_diff) > param.tolerance",
+        "about": "The portal's total and the vendor's differ by more than the tolerance."
+      },
+      {
+        "code": "FEE_MISMATCH",
+        "detail": "\"Portal commission \" & portal.commission_charged & \" against vendor fees \" & vendor.shoppinggate_fees & \" (difference \" & fee_diff & \").\"",
+        "amount": "fee_diff",
+        "order_no": null,
+        "when": "AND(NOT(ABS(amount_diff) > param.tolerance), ABS(fee_diff) > param.tolerance)",
+        "about": "The totals agree, but our commission and the vendor's fees differ."
+      },
+      {
+        "code": "DELIVERY_SPLIT_MISMATCH",
+        "detail": "\"SG delivery share \" & split_share & \" against vendor charge \" & vendor.sg_delivery_charge & \".\"",
+        "amount": "split_share - vendor.sg_delivery_charge",
+        "order_no": null,
+        "when": "ABS(split_share - vendor.sg_delivery_charge) > param.tolerance",
+        "about": "Our delivery share differs from the vendor's delivery charge."
+      },
+      {
+        "code": "REFUND_ON_DELIVERED",
+        "detail": "\"Delivered order \" & portal.order_id & \" carries a refund of \" & portal.refund_amount & \".\"",
+        "amount": "portal.refund_amount",
+        "order_no": null,
+        "when": "portal.refund_amount <> 0",
+        "about": "A delivered order carries a refund."
+      }
+    ],
+    "findings": [],
+    "run_rules": [],
+    "sort": [
+      "COALESCE(portal.order_date, vendor.requested_delivery_date)",
+      "key"
+    ],
+    "wallet": {
+      "rows": "portal",
+      "excluded": null,
+      "vertical": "\"food\"",
+      "wallet_types": {
+        "Food": "food"
+      },
+      "strip": "",
+      "sg_order_id": "sg_order_id",
+      "reference": "order_id",
+      "order_date": "order_date",
+      "amount": "wallet_amount",
+      "tolerance": "param.tolerance"
+    },
+    "sets": [
+      {
+        "key": "settled",
+        "over": "entities",
+        "where": "verdict = \"settled\"",
+        "about": "Settled orders."
+      },
+      {
+        "key": "held",
+        "over": "entities",
+        "where": "verdict = \"held\"",
+        "about": "Held orders."
+      },
+      {
+        "key": "portal_only",
+        "over": "entities",
+        "where": "verdict = \"portal_only\"",
+        "about": "Orders only on the portal."
+      },
+      {
+        "key": "vendor_only",
+        "over": "entities",
+        "where": "verdict = \"vendor_only\"",
+        "about": "Orders only on the vendor report."
+      },
+      {
+        "key": "paired",
+        "over": "entities",
+        "where": "ids_match",
+        "about": "Orders whose IDs match on both sides."
+      },
+      {
+        "key": "client",
+        "over": "entities",
+        "where": "OR(ids_match, verdict = \"vendor_only\")",
+        "about": "The orders the client's dashboard counts: matched, or only on the vendor report."
+      },
+      {
+        "key": "orders",
+        "over": "entities",
+        "where": "AND(ids_match, NOT(cancelled))",
+        "about": "Matched orders that aren't cancelled."
+      },
+      {
+        "key": "delivered_portal",
+        "over": "portal",
+        "where": "order_status = \"delivered\"",
+        "about": "Portal rows marked delivered."
+      },
+      {
+        "key": "compensated",
+        "over": "delivered_portal",
+        "where": "compensation_amount <> 0",
+        "about": "Delivered portal rows with a compensation amount."
+      }
+    ],
+    "metrics": [
+      {
+        "key": "portal_rows",
+        "formula": "COUNTX(\"portal\")"
+      },
+      {
+        "key": "vendor_rows",
+        "formula": "COUNTX(\"vendor\")"
+      },
+      {
+        "key": "paired",
+        "formula": "COUNTX(\"entities\", AND(NOT(ISBLANK(portal)), NOT(ISBLANK(vendor))))"
+      },
+      {
+        "key": "settled_orders",
+        "formula": "COUNTX(\"settled\")"
+      },
+      {
+        "key": "settled_due",
+        "formula": "MONEY(SUMX(\"settled\", N(due)))"
+      },
+      {
+        "key": "held_orders",
+        "formula": "COUNTX(\"held\")"
+      },
+      {
+        "key": "held_due",
+        "formula": "MONEY(SUMX(\"held\", N(due)))"
+      },
+      {
+        "key": "portal_only",
+        "formula": "COUNTX(\"portal_only\")"
+      },
+      {
+        "key": "vendor_only",
+        "formula": "COUNTX(\"vendor_only\")"
+      },
+      {
+        "key": "vendor_only_due",
+        "formula": "MONEY(SUMX(\"vendor_only\", N(due)))"
+      },
+      {
+        "key": "amount_breaks",
+        "formula": "COUNTX(\"exceptions\", code = \"FOOD_AMOUNT_MISMATCH\")"
+      },
+      {
+        "key": "fee_breaks",
+        "formula": "COUNTX(\"exceptions\", code = \"FEE_MISMATCH\")"
+      },
+      {
+        "key": "delivery_breaks",
+        "formula": "COUNTX(\"exceptions\", code = \"DELIVERY_SPLIT_MISMATCH\")"
+      },
+      {
+        "key": "not_delivered",
+        "formula": "COUNTX(\"exceptions\", code = \"STATUS_NOT_DELIVERED\")"
+      },
+      {
+        "key": "compensation_orders",
+        "formula": "COUNTX(\"compensated\")"
+      },
+      {
+        "key": "compensation_total",
+        "formula": "MONEY(SUMX(\"compensated\", compensation_amount))"
+      },
+      {
+        "key": "settled_subtotal",
+        "formula": "MONEY(SUMX(\"settled\", portal.sub_total))"
+      },
+      {
+        "key": "settled_customer_delivery",
+        "formula": "MONEY(SUMX(\"settled\", portal.sg_delivery))"
+      },
+      {
+        "key": "settled_sg_delivery",
+        "formula": "MONEY(SUMX(\"settled\", vendor.sg_delivery_charge))"
+      },
+      {
+        "key": "settled_vendor_fees",
+        "formula": "MONEY(SUMX(\"settled\", vendor.shoppinggate_fees))"
+      },
+      {
+        "key": "settled_food_gap",
+        "formula": "MONEY(SUMX(\"settled\", vendor.order_chef_total) - SUMX(\"settled\", portal.sub_total))"
+      },
+      {
+        "key": "portal_date_start",
+        "formula": "MINX(\"delivered_portal\", order_date)"
+      },
+      {
+        "key": "portal_date_end",
+        "formula": "MAXX(\"delivered_portal\", order_date)"
+      },
+      {
+        "key": "vendor_name",
+        "formula": "ONLYX(\"delivered_portal\", provider)"
+      },
+      {
+        "key": "orders",
+        "formula": "COUNTX(\"client\")"
+      },
+      {
+        "key": "food",
+        "formula": "MONEY(SUMX(\"client\", client_food))"
+      },
+      {
+        "key": "customer_delivery",
+        "formula": "MONEY(SUMX(\"client\", client_customer))"
+      },
+      {
+        "key": "sg_delivery",
+        "formula": "MONEY(SUMX(\"client\", client_sg_share))"
+      },
+      {
+        "key": "merchant_delivery",
+        "formula": "MONEY(SUMX(\"client\", vendor.chef_delivery_charge))"
+      },
+      {
+        "key": "sg_commission",
+        "formula": "MONEY(SUMX(\"client\", client_commission))"
+      },
+      {
+        "key": "vendor_fees",
+        "formula": "MONEY(SUMX(\"client\", vendor.shoppinggate_fees))"
+      },
+      {
+        "key": "wallet",
+        "formula": "MONEY(SUMX(\"client\", portal.wallet_amount))"
+      },
+      {
+        "key": "card",
+        "formula": "MONEY(SUMX(\"client\", portal.card_amount))"
+      },
+      {
+        "key": "portal_total",
+        "formula": "MONEY(SUMX(\"client\", portal.total_amount))"
+      },
+      {
+        "key": "promo",
+        "formula": "MONEY(SUMX(\"client\", portal.discount))"
+      },
+      {
+        "key": "road_off",
+        "formula": "vendor_fees - sg_commission"
+      },
+      {
+        "key": "net_payable",
+        "formula": "food + customer_delivery + sg_delivery - vendor_fees"
+      },
+      {
+        "key": "collection",
+        "formula": "wallet + card"
+      },
+      {
+        "key": "collection_gap",
+        "formula": "collection - portal_total"
+      },
+      {
+        "key": "remaining",
+        "formula": "promo + collection - portal_total"
+      },
+      {
+        "key": "order_collection",
+        "formula": "portal_total - collection"
+      },
+      {
+        "key": "net_difference",
+        "formula": "order_collection - promo"
+      },
+      {
+        "key": "delivery_total",
+        "formula": "customer_delivery + sg_delivery + merchant_delivery"
+      },
+      {
+        "key": "average_delivery",
+        "formula": "IF(orders = 0, 0, delivery_total / orders)"
+      },
+      {
+        "key": "customer_share",
+        "formula": "IF(delivery_total = 0, 0, customer_delivery / delivery_total)"
+      },
+      {
+        "key": "sg_share",
+        "formula": "IF(delivery_total = 0, 0, sg_delivery / delivery_total)"
+      },
+      {
+        "key": "merchant_share",
+        "formula": "IF(delivery_total = 0, 0, merchant_delivery / delivery_total)"
+      }
+    ],
+    "history": {
+      "counted": "settled_orders",
+      "total": "COUNTX(\"entities\")",
+      "unit": "\"orders\"",
+      "net_payable": "settled_due",
+      "vendor": "vendor_name",
+      "period_start": "portal_date_start",
+      "period_end": "portal_date_end",
+      "report_name": "\"reconciliation-food\" & IF(AND(NOT(ISBLANK(portal_date_start)), NOT(ISBLANK(portal_date_end))), \"-\" & portal_date_start & \"-to-\" & portal_date_end, \"\") & \".xlsx\""
+    }
+  }
+}

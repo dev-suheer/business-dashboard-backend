@@ -1,0 +1,372 @@
+@page {
+  size: A4;
+}
+
+:root {
+  --ink: #1b2733;
+  --mut: #5d6b78;
+  --line: #d5dce3;
+  --head: #e9eef2;
+  --green: #11634a;
+  --green-soft: #e7f3ee;
+  --warn: #c98a0c;
+  --warn-soft: #fdf5e2;
+  --navy: #12324f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: #fff;
+  font-family: "Noto Sans", "DejaVu Sans", sans-serif;
+  font-size: 9.6pt;
+  line-height: 1.5;
+}
+
+p {
+  margin: 0 0 6pt;
+}
+
+b {
+  font-weight: 700;
+}
+
+/* A name, a key or a value typed exactly. */
+.c {
+  font-family: "Noto Sans Mono", "DejaVu Sans Mono", monospace;
+  font-size: 8.3pt;
+  padding: 0 3pt;
+  border: 0.6pt solid var(--line);
+  border-radius: 2.5pt;
+  background: #f3f6f8;
+  color: var(--navy);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+/* A formula. */
+.f {
+  font-family: "Noto Sans Mono", "DejaVu Sans Mono", monospace;
+  font-size: 8.3pt;
+  padding: 0 4pt;
+  border-left: 1.6pt solid #8aa2b5;
+  background: #f6f8fa;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+pre.block {
+  font-family: "Noto Sans Mono", "DejaVu Sans Mono", monospace;
+  font-size: 8.3pt;
+  margin: 4pt 0 6pt;
+  padding: 6pt 9pt;
+  border-left: 1.6pt solid #8aa2b5;
+  background: #f6f8fa;
+  white-space: pre-wrap;
+}
+
+.mut {
+  color: var(--mut);
+}
+
+/* --- The cover --- */
+.cover {
+  padding-top: 10mm;
+}
+
+.kicker {
+  color: var(--green);
+  font-size: 8pt;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.cover h1 {
+  margin: 6pt 0 6pt;
+  font-size: 24pt;
+  line-height: 1.2;
+  color: var(--navy);
+}
+
+.cover .lead {
+  font-size: 11pt;
+  color: var(--mut);
+  max-width: 150mm;
+}
+
+.contents {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8mm;
+  margin: 8mm 0;
+}
+
+.contents h3 {
+  margin: 0 0 4pt;
+  color: var(--green);
+  font-size: 10.5pt;
+}
+
+.contents ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 8.6pt;
+  line-height: 1.55;
+}
+
+.made {
+  margin-top: 4mm;
+  color: var(--mut);
+  font-size: 8.4pt;
+  max-width: 160mm;
+}
+
+/* --- The parts and their sections --- */
+h1.part {
+  break-before: page;
+  margin: 0 0 10pt;
+  padding-bottom: 4pt;
+  border-bottom: 1.4pt solid var(--green);
+  font-size: 17pt;
+  color: var(--navy);
+}
+
+h2.step {
+  display: flex;
+  align-items: center;
+  gap: 8pt;
+  margin: 14pt 0 6pt;
+  font-size: 12.5pt;
+  color: var(--navy);
+  break-after: avoid;
+}
+
+.badge {
+  display: inline-block;
+  min-width: 17pt;
+  padding: 1pt 5pt;
+  border-radius: 3pt;
+  background: var(--green);
+  color: #fff;
+  font-size: 8.5pt;
+  font-weight: 700;
+  text-align: center;
+}
+
+.do {
+  display: grid;
+  grid-template-columns: 26pt 1fr;
+  gap: 8pt;
+  margin: 0 0 7pt;
+  break-inside: avoid;
+}
+
+.do .badge {
+  align-self: start;
+  margin-top: 1.5pt;
+  font-size: 7.6pt;
+}
+
+.do ol {
+  margin: 3pt 0 0;
+  padding-left: 16pt;
+}
+
+.why {
+  margin: 4pt 0 8pt;
+  padding: 6pt 10pt;
+  border-radius: 3pt;
+  background: #f3f6f8;
+  break-inside: avoid;
+}
+
+.watch {
+  margin: 6pt 0 8pt;
+  padding: 7pt 10pt;
+  border-left: 2.4pt solid var(--warn);
+  border-radius: 3pt;
+  background: var(--warn-soft);
+  break-inside: avoid;
+}
+
+.save {
+  margin: 8pt 0 10pt;
+  padding: 7pt 10pt;
+  border: 0.8pt solid #9fcfbc;
+  border-radius: 3pt;
+  background: var(--green-soft);
+  break-inside: avoid;
+}
+
+.save b:first-child {
+  letter-spacing: 0.04em;
+}
+
+.map {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6pt;
+  margin: 6pt 0 8pt;
+}
+
+.map div {
+  position: relative;
+  padding: 5pt 24pt 6pt 8pt;
+  border: 0.7pt solid var(--line);
+  border-radius: 4pt;
+  background: #f6f8fa;
+  font-size: 8pt;
+  color: var(--mut);
+  line-height: 1.35;
+}
+
+.map b {
+  display: block;
+  color: var(--green);
+  font-size: 9pt;
+}
+
+.map span.n {
+  position: absolute;
+  top: 5pt;
+  right: 7pt;
+  width: 14pt;
+  height: 14pt;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 7.4pt;
+  font-weight: 700;
+  line-height: 14pt;
+  text-align: center;
+}
+
+figure {
+  margin: 8pt 0 10pt;
+  break-inside: avoid;
+  text-align: center;
+}
+
+figure img {
+  max-width: 100%;
+  max-height: 120mm;
+  border: 0.7pt solid var(--line);
+  border-radius: 3pt;
+}
+
+figure.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8pt;
+  align-items: end;
+}
+
+figure.pair img {
+  max-height: 95mm;
+}
+
+figcaption {
+  margin-top: 3pt;
+  font-size: 8pt;
+  color: var(--mut);
+}
+
+/* --- Part B's tables --- */
+.r {
+  margin: 14pt 0 4pt;
+  padding-bottom: 3pt;
+  border-bottom: 0.8pt solid var(--line);
+  display: flex;
+  align-items: baseline;
+  gap: 8pt;
+  break-after: avoid;
+}
+
+.r h2 {
+  margin: 0;
+  font-size: 11.5pt;
+  color: var(--navy);
+}
+
+.r .where {
+  margin-left: auto;
+  font-size: 8pt;
+  color: var(--mut);
+}
+
+h3.sub {
+  margin: 8pt 0 3pt;
+  font-size: 9.4pt;
+  color: var(--navy);
+  break-after: avoid;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 3pt 0 6pt;
+  font-size: 8.1pt;
+  line-height: 1.38;
+}
+
+thead {
+  display: table-header-group;
+}
+
+tr {
+  break-inside: avoid;
+}
+
+th,
+td {
+  padding: 2.2pt 4.5pt;
+  border: 0.6pt solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: var(--head);
+  font-weight: 700;
+}
+
+table.kv th {
+  width: 42mm;
+  background: #f6f8fa;
+}
+
+td.n {
+  width: 18pt;
+  color: var(--mut);
+  white-space: nowrap;
+}
+
+td.tick {
+  text-align: center;
+  width: 32pt;
+}
+
+.small {
+  font-size: 7.8pt;
+  color: var(--mut);
+}
+
+table .c,
+table .f {
+  font-size: 7.8pt;
+}
+
+table.fixed {
+  table-layout: fixed;
+}

@@ -5,18 +5,10 @@ from datetime import date
 from decimal import Decimal
 from pathlib import Path
 
+import openpyxl
 import pytest
 
-from app.recon.categories.eshop.parser import (
-    LEDGER_SCHEMA,
-    PORTAL_SCHEMA,
-    PROMO_SCHEMA,
-    classify_doc_type,
-    extract_order_no,
-    read_ledger,
-    read_portal,
-    read_promo,
-)
+from app.expr import Values, evaluate, text
 from app.recon.excel import (
     HEADER_SCAN_LIMIT,
     SheetFormatError,
@@ -25,10 +17,21 @@ from app.recon.excel import (
     find_header,
     open_workbook,
 )
-from app.recon.models import LedgerDocType, LedgerEntry, OrderStatus
+from app.runner import Row
 from tests.conftest import VENDOR_STATEMENT, WORKINGS
+from tests.eshop import read, schema, sheet, statement_row
 
-MAX_ROWS = 1_000_000
+PORTAL_SCHEMA = schema("portal", "portal")
+PROMO_SCHEMA = schema("promo", "promo")
+LEDGER_SCHEMA = schema("vendor", "ledger")
+
+
+def portal_lines(max_rows: int = 1_000_000) -> list[Row]:
+    return read("portal", WORKINGS, max_rows)["portal"]
+
+
+def statement(path: Path = VENDOR_STATEMENT) -> list[Row]:
+    return read("vendor", path)["statement"]
 
 
 def _damaged(kind: str) -> bytes:
@@ -90,13 +93,18 @@ def test_a_fault_while_reading_is_not_blamed_on_the_file() -> None:
     ],
 )
 def test_extract_order_no(raw: str | None, expected: str | None) -> None:
-    assert extract_order_no(raw) == expected
+    assert statement_row(raw_desc=raw)["order_no"] == expected
 
 
-def test_truncated_reference_is_never_treated_as_an_order_number() -> None:
+def test_the_templates_own_order_column_wins_over_the_description() -> None:
+    row = statement_row(order_no="sg-sh-07435", raw_desc="طلب SG-SH-12196")
+    assert row["order_no"] == "SG-SH-07435"
+
+
+def test_the_reference_column_is_never_read_as_an_order_number() -> None:
     # The vendor's reference column cuts SG-SH-05785 down to SG-SH-0578.
-    assert extract_order_no("SG-SH-0578") == "SG-SH-0578"
-    assert extract_order_no("SG-SH-0578") != "SG-SH-05785"
+    row = statement_row(raw_desc="مردود", raw_ref="SG-SH-0578")
+    assert row["order_no"] is None
 
 
 # --- document typing --------------------------------------------------------
@@ -105,30 +113,30 @@ def test_truncated_reference_is_never_treated_as_an_order_number() -> None:
 @pytest.mark.parametrize(
     ("raw", "expected"),
     [
-        ("فاتورة بيع أجل", LedgerDocType.SALES_INVOICE),
+        ("فاتورة بيع أجل", "sales_invoice"),
         # The return type contains the invoice type, so ordering matters.
-        ("فاتورة مردود بيع أجل", LedgerDocType.SALES_RETURN),
-        ("‫فاتورة مردود بيع أجل‬", LedgerDocType.SALES_RETURN),
-        ("قيد يومية", LedgerDocType.JOURNAL_ENTRY),
+        ("فاتورة مردود بيع أجل", "sales_return"),
+        ("‫فاتورة مردود بيع أجل‬", "sales_return"),
+        ("قيد يومية", "journal_entry"),
         # The vendor template's dropdown values pair the Arabic with English.
-        ("Sales Invoice - فاتورة بيع أجل", LedgerDocType.SALES_INVOICE),
-        ("Sales Return - فاتورة مردود بيع أجل", LedgerDocType.SALES_RETURN),
-        ("Commission - قيد عمولة", LedgerDocType.JOURNAL_ENTRY),
-        ("Payment Received - قيد سداد", LedgerDocType.JOURNAL_ENTRY),
+        ("Sales Invoice - فاتورة بيع أجل", "sales_invoice"),
+        ("Sales Return - فاتورة مردود بيع أجل", "sales_return"),
+        ("Commission - قيد عمولة", "journal_entry"),
+        ("Payment Received - قيد سداد", "journal_entry"),
         # English alone, as when a value is typed or pasted rather than picked.
         # "Sales Return Invoice" holds "invoice", so the return test comes first.
-        ("Sales Return Invoice", LedgerDocType.SALES_RETURN),
-        ("credit note", LedgerDocType.SALES_RETURN),
-        ("SALES INVOICE", LedgerDocType.SALES_INVOICE),
-        ("Journal Entry", LedgerDocType.JOURNAL_ENTRY),
-        ("Commission", LedgerDocType.JOURNAL_ENTRY),
-        ("Payment received", LedgerDocType.JOURNAL_ENTRY),
-        ("something else", LedgerDocType.UNKNOWN),
-        (None, LedgerDocType.UNKNOWN),
+        ("Sales Return Invoice", "sales_return"),
+        ("credit note", "sales_return"),
+        ("SALES INVOICE", "sales_invoice"),
+        ("Journal Entry", "journal_entry"),
+        ("Commission", "journal_entry"),
+        ("Payment received", "journal_entry"),
+        ("something else", "unknown"),
+        (None, "unknown"),
     ],
 )
-def test_classify_doc_type(raw: str | None, expected: LedgerDocType) -> None:
-    assert classify_doc_type(raw) == expected
+def test_classify_doc_type(raw: str | None, expected: str) -> None:
+    assert statement_row(doc_type=raw)["doc_type"] == expected
 
 
 # --- sheet detection --------------------------------------------------------
@@ -198,49 +206,58 @@ def test_balance_header_is_matched_without_its_space() -> None:
 
 
 def test_portal_export_parses_to_the_expected_shape() -> None:
-    with open_workbook(WORKINGS) as workbook:
-        lines = list(read_portal(workbook, "E-SHop 1 Vendor ", max_rows=MAX_ROWS))
-
+    lines = portal_lines()
     assert len(lines) == 75
-    assert len({line.order_no for line in lines}) == 37
-    assert Counter(line.status for line in lines) == {
-        OrderStatus.DELIVERED: 71,
-        OrderStatus.RTO: 3,
-        OrderStatus.RETURN: 1,
+    assert len({line["order_no"] for line in lines}) == 37
+    assert Counter(line["status"] for line in lines) == {
+        "Delivered": 71,
+        "RTO": 3,
+        "Return": 1,
     }
 
 
 def test_trailing_summary_rows_are_skipped() -> None:
     """Rows 80-81 restate the adjustments with no order number."""
-    with open_workbook(WORKINGS) as workbook:
-        lines = list(read_portal(workbook, "E-SHop 1 Vendor ", max_rows=MAX_ROWS))
+    lines = portal_lines()
     # -238.85 and -108 appear in those rows; neither may become an order line.
-    assert all(line.gmv >= 0 for line in lines)
+    assert all(line["gmv"] >= 0 for line in lines)
     assert len(lines) == 75
 
 
 def test_portal_dates_are_read_from_excel_serials() -> None:
-    with open_workbook(WORKINGS) as workbook:
-        lines = list(read_portal(workbook, "E-SHop 1 Vendor ", max_rows=MAX_ROWS))
-    assert min(line.order_date for line in lines) == date(2026, 7, 3)
-    assert max(line.order_date for line in lines) == date(2026, 8, 25)
+    lines = portal_lines()
+    assert min(line["order_date"] for line in lines) == date(2026, 7, 3)
+    assert max(line["order_date"] for line in lines) == date(2026, 8, 25)
 
 
 def test_prior_settlement_is_read_from_the_paid_column() -> None:
     """The clawback's source, which makes the settlement upload optional."""
-    with open_workbook(WORKINGS) as workbook:
-        paid = {
-            line.order_no: line.amount_paid
-            for line in read_portal(workbook, "E-SHop 1 Vendor ", max_rows=MAX_ROWS)
-            if line.amount_paid
-        }
+    paid = {
+        line["order_no"]: line["amount_paid"]
+        for line in portal_lines()
+        if line["amount_paid"]
+    }
     assert paid == {"SG-SH-03344": Decimal("238.85")}
 
 
 def test_row_limit_is_enforced() -> None:
-    with open_workbook(WORKINGS) as workbook:
-        with pytest.raises(SheetFormatError, match="row limit"):
-            list(read_portal(workbook, "E-SHop 1 Vendor ", max_rows=5))
+    with pytest.raises(SheetFormatError, match="row limit"):
+        portal_lines(max_rows=5)
+
+
+def test_a_line_with_no_usable_status_refuses_the_upload(tmp_path: Path) -> None:
+    book = openpyxl.Workbook()
+    page = book.active
+    assert page is not None
+    page.append(("Order Number", "Date", "GMV", "SG Commission", "Order Status"))
+    page.append(("sg-sh-00001", date(2026, 8, 1), 100, 15, "Shipped"))
+    path = tmp_path / "portal.xlsx"
+    book.save(path)
+    with pytest.raises(
+        SheetFormatError,
+        match="Portal row for order sg-sh-00001 is missing a usable date, GMV or status",
+    ):
+        read("portal", path)
 
 
 # --- vendor statement -------------------------------------------------------
@@ -250,55 +267,72 @@ def test_multi_sheet_ledger_deduplicates_to_64() -> None:
     """Four sheets hold overlapping copies of the same transactions."""
     with open_workbook(VENDOR_STATEMENT) as workbook:
         sheets = detect_sheets(workbook, LEDGER_SCHEMA)
-        entries = list(read_ledger(workbook, sheets, max_rows=MAX_ROWS))
-
+    entries = statement()
     assert len(sheets) == 4
     assert len(entries) == 64
-    assert Counter(e.doc_type for e in entries) == {
-        LedgerDocType.SALES_INVOICE: 58,
-        LedgerDocType.SALES_RETURN: 4,
-        LedgerDocType.JOURNAL_ENTRY: 2,
+    assert Counter(e["doc_type"] for e in entries) == {
+        "sales_invoice": 58,
+        "sales_return": 4,
+        "journal_entry": 2,
     }
 
 
-def test_dedup_survives_a_number_written_as_text() -> None:
+def test_dedup_survives_a_number_written_as_text(tmp_path: Path) -> None:
     """One sheet stores 82.00 as text and another as the number 82."""
-    with open_workbook(VENDOR_STATEMENT) as workbook:
-        single = list(read_ledger(workbook, ["Sheet1"], max_rows=MAX_ROWS))
-        both = list(read_ledger(workbook, ["Sheet1", "Sheet1 (2)"], max_rows=MAX_ROWS))
-    assert len(single) == len(both) == 64
+    book = openpyxl.Workbook()
+    book.remove(book.active)
+    headers = ("التاريخ", "نوع المستند", "رقم المستند", "البيان", "مدين", "دائن")
+    for name, debit in (("Page 1", "82.00"), ("Page 2", 82)):
+        page = book.create_sheet(name)
+        page.append(headers)
+        page.append(
+            (
+                date(2026, 5, 18),
+                "فاتورة بيع أجل",
+                "INV-1",
+                "طلب SG-SH-01397",
+                debit,
+                None,
+            )
+        )
+    path = tmp_path / "statement.xlsx"
+    book.save(path)
+    (entry,) = statement(path)
+    assert entry["debit"] == Decimal("82.00")
 
 
 def test_dedup_keeps_same_day_invoices_for_different_orders_apart() -> None:
     """A template row may leave the document number blank; the order separates them."""
+    unique = sheet("vendor", "ledger").unique
+    assert unique is not None
     first, second = (
-        LedgerEntry(
-            doc_type=LedgerDocType.SALES_INVOICE,
+        statement_row(
+            doc_no=None,
             doc_date=date(2026, 8, 5),
             debit=Decimal("108.00"),
-            order_no=order_no,
+            raw_desc=f"طلب {order_no}",
         )
         for order_no in ("SG-SH-06115", "SG-SH-07435")
     )
-    assert first.dedup_key() != second.dedup_key()
+    keys = [
+        tuple(text(evaluate(k, Values(row))) for k in unique.keys)
+        for row in (first, second)
+    ]
+    assert keys[0] != keys[1]
 
 
 def test_credit_notes_carry_no_order_number_in_their_description() -> None:
     """Which is why they must be resolved by reference prefix plus amount."""
-    with open_workbook(VENDOR_STATEMENT) as workbook:
-        sheets = detect_sheets(workbook, LEDGER_SCHEMA)
-        entries = list(read_ledger(workbook, sheets, max_rows=MAX_ROWS))
-    returns = [e for e in entries if e.doc_type is LedgerDocType.SALES_RETURN]
+    returns = [e for e in statement() if e["doc_type"] == "sales_return"]
     assert len(returns) == 4
-    assert all(e.order_no is None for e in returns)
-    assert all(e.raw_ref and len(e.raw_ref) == 10 for e in returns)
+    assert all(e["order_no"] is None for e in returns)
+    assert all(e["raw_ref"] and len(e["raw_ref"]) == 10 for e in returns)
 
 
 # --- promo catalogue --------------------------------------------------------
 
 
 def test_promo_catalogue_holds_100_unique_skus() -> None:
-    with open_workbook(WORKINGS) as workbook:
-        promos = list(read_promo(workbook, "Discount Base Sheet", max_rows=MAX_ROWS))
+    promos = read("promo", WORKINGS)["promo"]
     assert len(promos) == 100
-    assert len({p.sku for p in promos}) == 100
+    assert len({p["sku"] for p in promos}) == 100
