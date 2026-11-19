@@ -129,14 +129,16 @@ refused with `422` and where.
 
 ## Getting started
 
-Postgres runs outside this project: a `recon` database (and `recon_test` for the
-tests) in the shared `postgres` container on `:5432`. See
+Under Docker, `compose.yaml` runs Postgres itself (the `db` service). Without
+Docker, Postgres runs outside this project: a `recon` database (and `recon_test`
+for the tests) in the shared `postgres` container on `:5432`. See
 [development.md](./development.md#database).
 
 ### With Docker — frontend and API together
 
 ```bash
-cp .env.example .env                                   # then set SECRET_KEY and the database URLs
+# First, the settings file compose.yaml names (x-env-file): PROJECT_NAME,
+# SECRET_KEY, POSTGRES_PASSWORD, and DATABASE_URL pointing at the db service.
 cp -r /path/to/react-app/dist/. frontend/dist/         # your React build
 docker compose up -d --build --wait
 ```

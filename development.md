@@ -27,8 +27,8 @@ uv sync
 
 v2 keeps run history and category configuration in Postgres: a `recon`
 database (and `recon_test` for the test suite) in the shared `postgres`
-container on `:5432`. `.env` holds `DATABASE_URL`, `TEST_DATABASE_URL` and
-`DOCKER_DATABASE_URL` (see `.env.example`).
+container on `:5432`. `.env` holds `DATABASE_URL` and `TEST_DATABASE_URL`.
+Under Docker, `compose.yaml` runs its own Postgres instead (see [Docker](#docker)).
 
 ```bash
 docker start postgres
@@ -231,9 +231,9 @@ engine to reproduce the workbook.**
 
 ## Docker
 
-`compose.yaml` runs a single service. FastAPI serves both the API and the React
-build from one origin, the way an Express app pairs its routes with
-`express.static(buildPath)`:
+`compose.yaml` runs two services: `db`, Postgres 18, and `backend`. FastAPI
+serves both the API and the React build from one origin, the way an Express app
+pairs its routes with `express.static(buildPath)`:
 
 ```
 http://localhost:6050/api/*, /docs, /redoc   the API
@@ -248,6 +248,17 @@ docker compose logs -f backend
 docker compose down
 ```
 
+- **Settings.** Both services read the one settings file `compose.yaml` names
+  (`x-env-file`): `PROJECT_NAME`, `SECRET_KEY`, `COOKIE_SECURE`,
+  `POSTGRES_PASSWORD`, and `DATABASE_URL` pointing at the `db` service with that
+  same password (`postgresql+psycopg://recon:<password>@db:5432/recon`). Keep the
+  password to letters, digits, `-` and `_`, since it sits inside a URL.
+- **Database.** `db` creates the `recon` database and user on its first start,
+  with `POSTGRES_PASSWORD`; changing that setting later does not change the
+  password of a database that already exists. Its data lives on the `recon-db`
+  volume, and it publishes no port: only the backend reaches it. The backend
+  waits until it answers, then migrates. `docker compose exec db psql -U recon recon`
+  opens a prompt on it.
 - **Frontend.** `frontend/dist/` is mounted into the container, not built into the
   image, so copying a new build in takes effect on the next page load — no
   rebuild or restart. Until a build is present, `/` answers 503 with a message
@@ -282,7 +293,7 @@ before serving). An account already in the table is left as it is.
 There is no command to add an account or change a password for now. A session
 is a signed cookie naming the account: one for a username no account has any
 longer stops working at once. To sign everyone out at once, change `SECRET_KEY`
-in `.env` and run `docker compose up -d`.
+in the settings file and run `docker compose up -d`.
 
 The backend image builds from the repository root. `backend/Dockerfile.dockerignore`
 allowlists only what the Dockerfile copies, so `.env`, `sample-uploads/` and
@@ -344,7 +355,9 @@ database first and then the files, so every run in the backup has its files.
 
 ```bash
 mkdir -p backups
-# The database, in Postgres's own format, with the container's admin account.
+# The database, in Postgres's own format: the compose db service (under Docker) ...
+docker compose exec -T db pg_dump -U recon -Fc recon > backups/recon-$(date +%F).dump
+# ... or the shared postgres container, with its admin account, without Docker.
 docker exec postgres sh -c 'PGPASSWORD="$POSTGRESQL_PASSWORD" pg_dump -U "$POSTGRESQL_USERNAME" -Fc recon' \
   > backups/recon-$(date +%F).dump
 # The file store: the compose volume (under Docker) ...
@@ -354,9 +367,13 @@ docker compose run --rm --no-deps -v "$PWD/backups:/backup" backend \
 tar czf backups/recon-data-$(date +%F).tgz -C data .
 ```
 
-To restore, stop the backend, then:
+To restore, stop the backend (`docker compose stop backend` under Docker), then:
 
 ```bash
+# Under Docker:
+docker compose exec -T db pg_restore -U recon --clean --if-exists --no-owner -d recon \
+  < backups/recon-2026-11-04.dump
+# Without Docker:
 docker exec -i postgres sh -c 'PGPASSWORD="$POSTGRESQL_PASSWORD" pg_restore -U "$POSTGRESQL_USERNAME" --clean --if-exists --no-owner --role=recon -d recon' \
   < backups/recon-2026-11-04.dump
 docker compose run --rm --no-deps -v "$PWD/backups:/backup" backend \

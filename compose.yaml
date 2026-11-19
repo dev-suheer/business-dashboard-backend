@@ -1,4 +1,6 @@
-# One service. FastAPI serves the API and the React build from the same origin,
+# Two services: the app and its database.
+#
+# 'backend': FastAPI serves the API and the React build from the same origin,
 # the way an Express app pairs its routes with express.static(buildPath):
 #
 #   http://localhost:6050/api/*, /docs, /redoc   the API
@@ -7,25 +9,52 @@
 # Sharing one origin is what lets the HttpOnly session cookie work with no CORS
 # configuration at all.
 #
+# 'db': Postgres, reachable only by the backend (no port is published on the
+# host). It creates the 'recon' database and user on its first start; the
+# backend then builds the tables before it serves.
+#
 #   docker compose up -d --build
 #
 # Copy a new frontend build into ./frontend/dist at any time: the folder is
 # mounted rather than baked into the image, so no rebuild or restart is needed.
 
+# The settings file both services read. It holds POSTGRES_PASSWORD, and
+# DATABASE_URL pointing at the 'db' service with that same password:
+#   DATABASE_URL=postgresql+psycopg://recon:<POSTGRES_PASSWORD>@db:5432/recon
+x-env-file: &env-file /root/Naila-Arts/.env.recon
+
 services:
+  db:
+    image: postgres:18
+    env_file: *env-file
+    environment:
+      POSTGRES_USER: recon
+      POSTGRES_DB: recon
+    volumes:
+      # Postgres 18 keeps its data under /var/lib/postgresql/18/docker.
+      - recon-db:/var/lib/postgresql
+    # Postgres's own recommendation for its shared memory in a container.
+    shm_size: 128mb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U recon -d recon"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    env_file:  /root/Naila-Arts/.env.recon
+    env_file: *env-file
     environment:
-      # Postgres runs outside this project (the shared 'postgres' container on
-      # the host's :5432), so the container reaches it through the host.
-      DATABASE_URL: ${DOCKER_DATABASE_URL:?set DOCKER_DATABASE_URL in .env}
       # Uploaded files, reports and templates, on the volume below.
       RUN_STORAGE_DIR: /data
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    # Start only once the database answers.
+    depends_on:
+      db:
+        condition: service_healthy
     # Migrate before serving, so a new image never runs against an old schema.
     command: >-
       sh -c "alembic upgrade head &&
@@ -50,6 +79,7 @@ services:
     restart: unless-stopped
 
 volumes:
-  # Run inputs and reports. Back this up together with the 'recon' database.
+  # The database: every category's versions and the run history.
+  recon-db:
+  # Run inputs and reports. Back this up together with the database.
   recon-data:
-
