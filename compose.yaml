@@ -21,7 +21,7 @@
 # The settings file both services read. It holds POSTGRES_PASSWORD, and
 # DATABASE_URL pointing at the 'db' service with that same password:
 #   DATABASE_URL=postgresql+psycopg://recon:<POSTGRES_PASSWORD>@db:5432/recon
-x-env-file: &env-file /root/Naila-Arts/.env.recon
+x-env-file: &env-file /root/Naila-Arts/env-files/.env.recon
 
 services:
   db:
